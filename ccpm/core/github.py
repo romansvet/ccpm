@@ -8,7 +8,7 @@ import time
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-from ..utils.console import get_emoji, print_error, print_info, print_success, print_warning
+from ..utils.console import get_emoji, print_error, print_info, print_success, print_warning, safe_print
 
 
 class GitHubCLI:
@@ -20,7 +20,7 @@ class GitHubCLI:
             print_success("GitHub CLI already installed")
             return True
 
-        print(f"{get_emoji('📦', '>>>')} GitHub CLI not found. Installing...")
+        safe_print(f"{get_emoji('📦', '>>>')} GitHub CLI not found. Installing...")
         return self.install_gh()
 
     def check_installation(self) -> bool:
@@ -267,7 +267,7 @@ class GitHubCLI:
         except (subprocess.TimeoutExpired, FileNotFoundError):
             pass
 
-        print("\n🔐 Setting up GitHub authentication...")
+        safe_print("\n🔐 Setting up GitHub authentication...")
         print("Please follow the prompts to authenticate with GitHub:")
         print("(You'll need to press Enter to continue, then follow the browser flow)")
 
@@ -280,7 +280,7 @@ class GitHubCLI:
 
     def install_extensions(self) -> bool:
         """Install required gh extensions."""
-        print(f"\n{get_emoji('📦', '>>>')} Installing gh-sub-issue extension...")
+        safe_print(f"\n{get_emoji('📦', '>>>')} Installing gh-sub-issue extension...")
 
         try:
             # First check if already installed

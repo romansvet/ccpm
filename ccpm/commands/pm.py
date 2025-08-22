@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Optional
 
-from ..utils.console import get_emoji, print_error, print_info, print_success, print_warning
+from ..utils.console import get_emoji, print_error, print_info, print_success, print_warning, safe_print
 from ..utils.shell import run_pm_script
 
 
@@ -12,7 +12,7 @@ def init_command() -> None:
     returncode, stdout, stderr = run_pm_script("init")
 
     if stdout:
-        print(stdout)
+        safe_print(stdout)
     if stderr and returncode != 0:
         print_error(f"Error: {stderr}")
 
@@ -31,18 +31,18 @@ def list_command() -> None:
     # Check for PRDs directory
     prds_dir = cwd / ".claude" / "prds"
     if not prds_dir.exists():
-        print(f"{get_emoji('📄', '>>>')} No PRDs found")
+        safe_print(f"{get_emoji('📄', '>>>')} No PRDs found")
         return
 
     # List PRD files
     prd_files = list(prds_dir.glob("*.md"))
 
     if not prd_files:
-        print(f"{get_emoji('📄', '>>>')} No PRDs found")
+        safe_print(f"{get_emoji('📄', '>>>')} No PRDs found")
         return
 
-    print(f"{get_emoji('📄', '>>>')} Product Requirements Documents:")
-    print("=" * 40)
+    safe_print(f"{get_emoji('📄', '>>>')} Product Requirements Documents:")
+    safe_print("=" * 40)
 
     for prd_file in sorted(prd_files):
         name = prd_file.stem
@@ -57,9 +57,9 @@ def list_command() -> None:
         except Exception:
             title = name
 
-        print(f"  • {name}: {title}")
+        safe_print(f"  • {name}: {title}")
 
-    print(f"\nTotal: {len(prd_files)} PRD(s)")
+    safe_print(f"\nTotal: {len(prd_files)} PRD(s)")
 
 
 def status_command() -> None:
@@ -67,21 +67,21 @@ def status_command() -> None:
     returncode, stdout, stderr = run_pm_script("status")
 
     if stdout:
-        print(stdout)
+        safe_print(stdout)
     if stderr and returncode != 0:
         print_error(f"Error: {stderr}")
 
     if returncode != 0 and "Script not found" in stderr:
         # Fallback to basic status
-        print("📊 Project Status")
-        print("=" * 40)
+        safe_print("📊 Project Status")
+        safe_print("=" * 40)
 
         cwd = Path.cwd()
 
         # Check PRDs
         prds_dir = cwd / ".claude" / "prds"
         prd_count = len(list(prds_dir.glob("*.md"))) if prds_dir.exists() else 0
-        print(f"{get_emoji('📄', '>>>')} PRDs: {prd_count}")
+        safe_print(f"{get_emoji('📄', '>>>')} PRDs: {prd_count}")
 
         # Check Epics
         epics_dir = cwd / ".claude" / "epics"
@@ -90,7 +90,7 @@ def status_command() -> None:
             if epics_dir.exists()
             else 0
         )
-        print(f"{get_emoji('📚', '>>>')} Epics: {epic_count}")
+        safe_print(f"{get_emoji('📚', '>>>')} Epics: {epic_count}")
 
         print("\nRun 'ccpm list' to see all PRDs")
         print("Run 'ccpm help' for available commands")
@@ -101,7 +101,7 @@ def sync_command() -> None:
     returncode, stdout, stderr = run_pm_script("sync")
 
     if stdout:
-        print(stdout)
+        safe_print(stdout)
     if stderr and returncode != 0:
         print_error(f"Error: {stderr}")
 
@@ -122,12 +122,12 @@ def import_command(issue_number: Optional[int] = None) -> None:
         issue_number: Optional specific issue to import
     """
     if issue_number:
-        print(f"📥 Importing issue #{issue_number}...")
+        safe_print(f"📥 Importing issue #{issue_number}...")
         # TODO: Implement specific issue import
         print_warning("Specific issue import not yet implemented")
     else:
-        print("📥 Importing all open issues...")
+        safe_print("📥 Importing all open issues...")
         # TODO: Implement bulk import
         print_warning("Bulk issue import not yet implemented")
 
-    print("\nThis feature will be available in a future update.")
+    safe_print("\nThis feature will be available in a future update.")

@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 from ..utils.backup import BackupManager
-from ..utils.console import get_emoji, print_error, print_info, print_success, print_warning
+from ..utils.console import get_emoji, print_error, print_info, print_success, print_warning, safe_print
 from ..utils.shell import run_command, run_pm_script
 from .config import ConfigManager
 from .github import GitHubCLI
@@ -38,7 +38,7 @@ class CCPMInstaller:
 
     def setup(self) -> None:
         """Main setup flow with automatic GitHub CLI installation."""
-        print(f"\n{get_emoji('🚀', '>>>')} Setting up CCPM...")
+        safe_print(f"\n{get_emoji('🚀', '>>>')} Setting up CCPM...")
 
         # 1. Ensure target directory exists
         self.target.mkdir(parents=True, exist_ok=True)
@@ -49,8 +49,8 @@ class CCPMInstaller:
 
         # 3. Setup GitHub authentication (optional, don't fail if skipped)
         if not self.gh_cli.setup_auth():
-            print(
-                "⚠️ GitHub authentication skipped. You may need to run 'gh auth login' later."
+            print_warning(
+                "GitHub authentication skipped. You may need to run 'gh auth login' later."
             )
 
         # 4. Install required extensions
@@ -59,13 +59,13 @@ class CCPMInstaller:
         # 5. Check for existing .claude directory
         existing_claude = self.claude_dir.exists()
         if existing_claude:
-            print(f"\n{get_emoji('📁', '>>>')} Found existing .claude directory")
+            safe_print(f"\n{get_emoji('📁', '>>>')} Found existing .claude directory")
             # Backup existing content
             backup_path = self.backup.create_backup(self.claude_dir)
             print_success(f"Backed up to: {backup_path}")
 
         # 6. Clone CCPM repository
-        print("\n📥 Downloading CCPM...")
+        safe_print("\n📥 Downloading CCPM...")
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp_path = Path(tmpdir)
 
@@ -84,15 +84,15 @@ class CCPMInstaller:
 
             # 7. Merge or copy .claude directory
             if existing_claude:
-                print(f"\n{get_emoji('🔄', '>>>')} Merging with existing .claude directory...")
+                safe_print(f"\n{get_emoji('🔄', '>>>')} Merging with existing .claude directory...")
                 self.merger.merge_directories(ccpm_claude, self.claude_dir)
             else:
-                print("\n📂 Creating .claude directory...")
+                safe_print("\n📂 Creating .claude directory...")
                 shutil.copytree(ccpm_claude, self.claude_dir)
 
         # 8. Initialize git repository if needed
         if not (self.target / ".git").exists():
-            print("\n📝 Initializing git repository...")
+            safe_print("\n📝 Initializing git repository...")
             run_command(["git", "init"], cwd=self.target)
             run_command(["git", "add", "."], cwd=self.target)
             run_command(
@@ -100,7 +100,7 @@ class CCPMInstaller:
             )
 
         # 9. Run init.sh script
-        print(f"\n{get_emoji('⚙️', '>>>')} Running initialization script...")
+        safe_print(f"\n{get_emoji('⚙️', '>>>')} Running initialization script...")
         init_script = self.claude_dir / "scripts" / "pm" / "init.sh"
         if init_script.exists():
             result = run_command(["bash", str(init_script)], cwd=self.target)
@@ -114,14 +114,14 @@ class CCPMInstaller:
         self._update_gitignore()
 
         print_success("\nCCPM setup complete!")
-        print("\nNext steps:")
-        print("  1. Run 'ccpm init' to initialize the PM system")
-        print("  2. Run 'ccpm help' to see available commands")
-        print("  3. Create your first PRD with Claude Code: /pm:prd-new <feature-name>")
+        safe_print("\nNext steps:")
+        safe_print("  1. Run 'ccpm init' to initialize the PM system")
+        safe_print("  2. Run 'ccpm help' to see available commands")
+        safe_print("  3. Create your first PRD with Claude Code: /pm:prd-new <feature-name>")
 
     def update(self) -> None:
         """Update CCPM to latest version."""
-        print(f"\n{get_emoji('🔄', '>>>')} Updating CCPM...")
+        safe_print(f"\n{get_emoji('🔄', '>>>')} Updating CCPM...")
 
         if not self.claude_dir.exists():
             print_error("No CCPM installation found. Run 'ccpm setup .' first.")
@@ -132,7 +132,7 @@ class CCPMInstaller:
         print_success(f"Backed up current version to: {backup_path}")
 
         # Download latest version
-        print("\n📥 Downloading latest CCPM...")
+        safe_print("\n📥 Downloading latest CCPM...")
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp_path = Path(tmpdir)
 
@@ -149,7 +149,7 @@ class CCPMInstaller:
             ccpm_claude = tmp_path / "ccpm" / ".claude"
 
             # Merge updates
-            print(f"\n{get_emoji('🔄', '>>>')} Merging updates...")
+            safe_print(f"\n{get_emoji('🔄', '>>>')} Merging updates...")
             self.merger.merge_directories(
                 ccpm_claude, self.claude_dir, update_mode=True
             )
@@ -164,10 +164,10 @@ class CCPMInstaller:
 
     def uninstall(self) -> None:
         """Remove CCPM while preserving pre-existing content."""
-        print(f"\n{get_emoji('🗑️', '>>>')} Uninstalling CCPM...")
+        safe_print(f"\n{get_emoji('🗑️', '>>>')} Uninstalling CCPM...")
 
         if not self.claude_dir.exists():
-            print("No CCPM installation found.")
+            safe_print("No CCPM installation found.")
             return
 
         # Load tracking file
@@ -184,7 +184,7 @@ class CCPMInstaller:
         tracking = self._load_tracking_file()
 
         if tracking.get("had_existing_claude"):
-            print(f"{get_emoji('📁', '>>>')} Preserving pre-existing .claude content...")
+            safe_print(f"{get_emoji('📁', '>>>')} Preserving pre-existing .claude content...")
 
             # Get list of CCPM files
             ccpm_files = tracking.get("ccpm_files", [])

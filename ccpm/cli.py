@@ -6,6 +6,13 @@ from typing import Optional
 
 import click
 
+from .utils.console import strip_emojis
+
+def safe_echo(message: str, err: bool = False) -> None:
+    """Echo with emoji handling for Windows."""
+    if sys.platform == "win32":
+        message = strip_emojis(message)
+    click.echo(message, err=err)
 from .commands.maintenance import (
     clean_command,
     help_command,
@@ -82,7 +89,7 @@ def init() -> None:
     try:
         init_command()
     except Exception as e:
-        click.echo(f"❌ Init failed: {e}", err=True)
+        safe_echo(f"❌ Init failed: {e}", err=True)
         sys.exit(1)
 
 
@@ -92,7 +99,7 @@ def list_prds() -> None:
     try:
         list_command()
     except Exception as e:
-        click.echo(f"❌ List failed: {e}", err=True)
+        safe_echo(f"❌ List failed: {e}", err=True)
         sys.exit(1)
 
 
@@ -102,7 +109,7 @@ def status() -> None:
     try:
         status_command()
     except Exception as e:
-        click.echo(f"❌ Status failed: {e}", err=True)
+        safe_echo(f"❌ Status failed: {e}", err=True)
         sys.exit(1)
 
 
@@ -112,7 +119,7 @@ def sync() -> None:
     try:
         sync_command()
     except Exception as e:
-        click.echo(f"❌ Sync failed: {e}", err=True)
+        safe_echo(f"❌ Sync failed: {e}", err=True)
         sys.exit(1)
 
 
@@ -126,7 +133,7 @@ def import_issue(issue_number: Optional[int]) -> None:
     try:
         import_command(issue_number)
     except Exception as e:
-        click.echo(f"❌ Import failed: {e}", err=True)
+        safe_echo(f"❌ Import failed: {e}", err=True)
         sys.exit(1)
 
 
@@ -136,7 +143,7 @@ def validate() -> None:
     try:
         validate_command()
     except Exception as e:
-        click.echo(f"❌ Validate failed: {e}", err=True)
+        safe_echo(f"❌ Validate failed: {e}", err=True)
         sys.exit(1)
 
 
@@ -146,7 +153,7 @@ def clean() -> None:
     try:
         clean_command()
     except Exception as e:
-        click.echo(f"❌ Clean failed: {e}", err=True)
+        safe_echo(f"❌ Clean failed: {e}", err=True)
         sys.exit(1)
 
 
@@ -160,7 +167,7 @@ def search(query: str) -> None:
     try:
         search_command(query)
     except Exception as e:
-        click.echo(f"❌ Search failed: {e}", err=True)
+        safe_echo(f"❌ Search failed: {e}", err=True)
         sys.exit(1)
 
 
@@ -170,7 +177,7 @@ def help_cmd() -> None:
     try:
         help_command()
     except Exception as e:
-        click.echo(f"❌ Help failed: {e}", err=True)
+        safe_echo(f"❌ Help failed: {e}", err=True)
         sys.exit(1)
 
 
