@@ -20,6 +20,7 @@ from .commands.pm import (
     sync_command,
 )
 from .commands.setup import setup_command, uninstall_command, update_command
+from .utils.console import print_error
 
 
 @click.group()
@@ -43,7 +44,7 @@ def setup(path: str) -> None:
     try:
         setup_command(Path(path))
     except Exception as e:
-        click.echo(f"❌ Setup failed: {e}", err=True)
+        print_error(f"Setup failed: {e}")
         sys.exit(1)
 
 
@@ -57,7 +58,7 @@ def update() -> None:
     try:
         update_command()
     except Exception as e:
-        click.echo(f"❌ Update failed: {e}", err=True)
+        print_error(f"Update failed: {e}")
         sys.exit(1)
 
 
@@ -71,7 +72,7 @@ def uninstall() -> None:
     try:
         uninstall_command()
     except Exception as e:
-        click.echo(f"❌ Uninstall failed: {e}", err=True)
+        print_error(f"Uninstall failed: {e}")
         sys.exit(1)
 
 

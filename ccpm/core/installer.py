@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 from ..utils.backup import BackupManager
+from ..utils.console import get_emoji, print_error, print_info, print_success, print_warning
 from ..utils.shell import run_command, run_pm_script
 from .config import ConfigManager
 from .github import GitHubCLI
@@ -37,7 +38,7 @@ class CCPMInstaller:
 
     def setup(self) -> None:
         """Main setup flow with automatic GitHub CLI installation."""
-        print("\n🚀 Setting up CCPM...")
+        print(f"\n{get_emoji('🚀', '>>>')} Setting up CCPM...")
 
         # 1. Ensure target directory exists
         self.target.mkdir(parents=True, exist_ok=True)
@@ -61,7 +62,7 @@ class CCPMInstaller:
             print("\n📁 Found existing .claude directory")
             # Backup existing content
             backup_path = self.backup.create_backup(self.claude_dir)
-            print(f"✅ Backed up to: {backup_path}")
+            print_success(f"Backed up to: {backup_path}")
 
         # 6. Clone CCPM repository
         print("\n📥 Downloading CCPM...")
@@ -83,7 +84,7 @@ class CCPMInstaller:
 
             # 7. Merge or copy .claude directory
             if existing_claude:
-                print("\n🔄 Merging with existing .claude directory...")
+                print(f"\n{get_emoji('🔄', '>>>')} Merging with existing .claude directory...")
                 self.merger.merge_directories(ccpm_claude, self.claude_dir)
             else:
                 print("\n📂 Creating .claude directory...")
@@ -99,12 +100,12 @@ class CCPMInstaller:
             )
 
         # 9. Run init.sh script
-        print("\n⚙️ Running initialization script...")
+        print(f"\n{get_emoji('⚙️', '>>>')} Running initialization script...")
         init_script = self.claude_dir / "scripts" / "pm" / "init.sh"
         if init_script.exists():
             result = run_command(["bash", str(init_script)], cwd=self.target)
             if result[0] != 0:
-                print(f"⚠️ Init script failed: {result[2]}")
+                print_warning(f"Init script failed: {result[2]}")
 
         # 10. Create tracking file for uninstall
         self._create_tracking_file(existing_claude)
@@ -112,7 +113,7 @@ class CCPMInstaller:
         # 11. Update .gitignore
         self._update_gitignore()
 
-        print("\n✅ CCPM setup complete!")
+        print_success("\nCCPM setup complete!")
         print("\nNext steps:")
         print("  1. Run 'ccpm init' to initialize the PM system")
         print("  2. Run 'ccpm help' to see available commands")
@@ -120,15 +121,15 @@ class CCPMInstaller:
 
     def update(self) -> None:
         """Update CCPM to latest version."""
-        print("\n🔄 Updating CCPM...")
+        print(f"\n{get_emoji('🔄', '>>>')} Updating CCPM...")
 
         if not self.claude_dir.exists():
-            print("❌ No CCPM installation found. Run 'ccpm setup .' first.")
+            print_error("No CCPM installation found. Run 'ccpm setup .' first.")
             raise RuntimeError("CCPM not installed")
 
         # Backup current state
         backup_path = self.backup.create_backup(self.claude_dir)
-        print(f"✅ Backed up current version to: {backup_path}")
+        print_success(f"Backed up current version to: {backup_path}")
 
         # Download latest version
         print("\n📥 Downloading latest CCPM...")
@@ -148,7 +149,7 @@ class CCPMInstaller:
             ccpm_claude = tmp_path / "ccpm" / ".claude"
 
             # Merge updates
-            print("\n🔄 Merging updates...")
+            print(f"\n{get_emoji('🔄', '>>>')} Merging updates...")
             self.merger.merge_directories(
                 ccpm_claude, self.claude_dir, update_mode=True
             )
@@ -159,31 +160,31 @@ class CCPMInstaller:
             tracking["last_updated"] = datetime.now().isoformat()
             self._save_tracking_file(tracking)
 
-        print("\n✅ CCPM updated successfully!")
+        print_success("\nCCPM updated successfully!")
 
     def uninstall(self) -> None:
         """Remove CCPM while preserving pre-existing content."""
-        print("\n🗑️ Uninstalling CCPM...")
+        print(f"\n{get_emoji('🗑️', '>>>')} Uninstalling CCPM...")
 
         if not self.claude_dir.exists():
-            print("❌ No CCPM installation found.")
+            print_error("No CCPM installation found.")
             return
 
         # Load tracking file
         if not self.tracking_file.exists():
-            print("⚠️ No tracking file found. Cannot determine what to preserve.")
+            print_warning("No tracking file found. Cannot determine what to preserve.")
             response = input("Remove entire .claude directory? [y/N]: ")
             if response.lower() == "y":
                 shutil.rmtree(self.claude_dir)
-                print("✅ .claude directory removed")
+                print_success(".claude directory removed")
             else:
-                print("❌ Uninstall cancelled")
+                print_error("Uninstall cancelled")
             return
 
         tracking = self._load_tracking_file()
 
         if tracking.get("had_existing_claude"):
-            print("📁 Preserving pre-existing .claude content...")
+            print(f"{get_emoji('📁', '>>>')} Preserving pre-existing .claude content...")
 
             # Get list of CCPM files
             ccpm_files = tracking.get("ccpm_files", [])
@@ -197,16 +198,16 @@ class CCPMInstaller:
                     else:
                         full_path.unlink()
 
-            print("✅ CCPM files removed, original content preserved")
+            print_success("CCPM files removed, original content preserved")
         else:
             # No pre-existing content, remove entire directory
             shutil.rmtree(self.claude_dir)
-            print("✅ .claude directory removed")
+            print_success(".claude directory removed")
 
         # Remove tracking file
         self.tracking_file.unlink()
 
-        print("\n✅ CCPM uninstalled successfully!")
+        print_success("\nCCPM uninstalled successfully!")
 
     def _create_tracking_file(self, had_existing: bool) -> None:
         """Create tracking file for uninstall.

@@ -8,6 +8,8 @@ import time
 from pathlib import Path
 from typing import List, Optional, Tuple
 
+from ..utils.console import get_emoji, print_error, print_info, print_success, print_warning
+
 
 class GitHubCLI:
     """Wrapper around gh CLI with automatic installation."""
@@ -15,7 +17,7 @@ class GitHubCLI:
     def ensure_gh_installed(self) -> bool:
         """Check and install GitHub CLI if needed."""
         if self.check_installation():
-            print("✅ GitHub CLI already installed")
+            print_success("GitHub CLI already installed")
             return True
 
         print("📦 GitHub CLI not found. Installing...")
@@ -42,7 +44,7 @@ class GitHubCLI:
         elif system == "Windows":
             return self._install_gh_windows()
         else:
-            print(f"❌ Unsupported platform: {system}")
+            print_error(f"Unsupported platform: {system}")
             print("Please install GitHub CLI manually: https://cli.github.com/")
             return False
 
@@ -62,10 +64,10 @@ class GitHubCLI:
                     timeout=300,  # 5 minutes timeout
                 )
                 if result.returncode == 0:
-                    print("✅ GitHub CLI installed via Homebrew")
+                    print_success("GitHub CLI installed via Homebrew")
                     return True
                 else:
-                    print(f"⚠️ Homebrew installation failed: {result.stderr}")
+                    print_warning(f"Homebrew installation failed: {result.stderr}")
         except (subprocess.TimeoutExpired, FileNotFoundError):
             pass
 
@@ -86,7 +88,7 @@ class GitHubCLI:
             )
 
             if result.returncode != 0:
-                print(f"❌ Failed to download GitHub CLI: {result.stderr}")
+                print_error(f"Failed to download GitHub CLI: {result.stderr}")
                 return False
 
             # Extract and install
@@ -101,15 +103,15 @@ class GitHubCLI:
                     cmd, shell=True, capture_output=True, text=True, timeout=30
                 )
                 if result.returncode != 0:
-                    print(f"❌ Installation step failed: {cmd}")
+                    print_error(f"Installation step failed: {cmd}")
                     print(f"Error: {result.stderr}")
                     return False
 
-            print("✅ GitHub CLI installed successfully")
+            print_success("GitHub CLI installed successfully")
             return True
 
         except Exception as e:
-            print(f"❌ Failed to install GitHub CLI: {e}")
+            print_error(f"Failed to install GitHub CLI: {e}")
             return False
 
     def _install_gh_linux(self) -> bool:
@@ -131,16 +133,16 @@ class GitHubCLI:
                         cmd, shell=True, capture_output=True, text=True, timeout=120
                     )
                     if result.returncode != 0:
-                        print(f"⚠️ Command failed: {cmd[:50]}...")
+                        print_warning(f"Command failed: {cmd[:50]}...")
                         print(f"Error: {result.stderr}")
                         # Continue trying other commands
                 except subprocess.TimeoutExpired:
-                    print(f"⚠️ Command timed out: {cmd[:50]}...")
+                    print_warning(f"Command timed out: {cmd[:50]}...")
                     return False
 
             # Verify installation
             if self.check_installation():
-                print("✅ GitHub CLI installed via apt")
+                print_success("GitHub CLI installed via apt")
                 return True
 
         elif Path("/etc/redhat-release").exists():
@@ -154,10 +156,10 @@ class GitHubCLI:
                     timeout=300,
                 )
                 if result.returncode == 0:
-                    print("✅ GitHub CLI installed via dnf")
+                    print_success("GitHub CLI installed via dnf")
                     return True
             except subprocess.TimeoutExpired:
-                print("⚠️ Installation timed out")
+                print_warning("Installation timed out")
                 return False
 
         # Generic Linux - download binary
@@ -179,7 +181,7 @@ class GitHubCLI:
             )
 
             if result.returncode != 0:
-                print(f"❌ Failed to download GitHub CLI: {result.stderr}")
+                print_error(f"Failed to download GitHub CLI: {result.stderr}")
                 return False
 
             # Extract and install
@@ -194,14 +196,14 @@ class GitHubCLI:
                     cmd, shell=True, capture_output=True, text=True, timeout=30
                 )
                 if result.returncode != 0:
-                    print(f"❌ Installation step failed: {cmd}")
+                    print_error(f"Installation step failed: {cmd}")
                     return False
 
-            print("✅ GitHub CLI installed successfully")
+            print_success("GitHub CLI installed successfully")
             return True
 
         except Exception as e:
-            print(f"❌ Failed to install GitHub CLI: {e}")
+            print_error(f"Failed to install GitHub CLI: {e}")
             return False
 
     def _install_gh_windows(self) -> bool:
@@ -220,7 +222,7 @@ class GitHubCLI:
                     timeout=300,
                 )
                 if result.returncode == 0:
-                    print("✅ GitHub CLI installed via winget")
+                    print_success("GitHub CLI installed via winget")
                     return True
         except (subprocess.TimeoutExpired, FileNotFoundError):
             pass
@@ -239,13 +241,13 @@ class GitHubCLI:
                     timeout=300,
                 )
                 if result.returncode == 0:
-                    print("✅ GitHub CLI installed via Chocolatey")
+                    print_success("GitHub CLI installed via Chocolatey")
                     return True
         except (subprocess.TimeoutExpired, FileNotFoundError):
             pass
 
         # Fallback to manual download
-        print("❌ Automatic installation not available on Windows")
+        print_error("Automatic installation not available on Windows")
         print("Please download and install GitHub CLI manually:")
         print("https://github.com/cli/cli/releases/latest")
         print("\nDownload the .msi installer for Windows and run it.")
@@ -260,7 +262,7 @@ class GitHubCLI:
             )
 
             if result.returncode == 0:
-                print("✅ GitHub CLI already authenticated")
+                print_success("GitHub CLI already authenticated")
                 return True
         except (subprocess.TimeoutExpired, FileNotFoundError):
             pass
@@ -273,7 +275,7 @@ class GitHubCLI:
             result = subprocess.run(["gh", "auth", "login"])
             return result.returncode == 0
         except FileNotFoundError:
-            print("❌ GitHub CLI not found. Please install it first.")
+            print_error("GitHub CLI not found. Please install it first.")
             return False
 
     def install_extensions(self) -> bool:
@@ -287,7 +289,7 @@ class GitHubCLI:
             )
 
             if "yahsan2/gh-sub-issue" in list_result.stdout:
-                print("✅ gh-sub-issue extension already installed")
+                print_success("gh-sub-issue extension already installed")
                 return True
 
             # Install the extension
@@ -299,17 +301,17 @@ class GitHubCLI:
             )
 
             if result.returncode == 0:
-                print("✅ gh-sub-issue extension installed successfully")
+                print_success("gh-sub-issue extension installed successfully")
                 return True
             else:
-                print(f"⚠️ Failed to install extension: {result.stderr}")
+                print_warning(f"Failed to install extension: {result.stderr}")
                 return False
 
         except subprocess.TimeoutExpired:
-            print("⚠️ Extension installation timed out")
+                print_warning("Extension installation timed out")
             return False
         except FileNotFoundError:
-            print("❌ GitHub CLI not found")
+            print_error("GitHub CLI not found")
             return False
 
     def run_command(
