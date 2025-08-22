@@ -38,7 +38,16 @@
       "Bash(gh issue list:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(pip install:*)",
+      "Bash(ccpm:*)",
+      "Bash(pytest:*)",
+      "Bash(black:*)",
+      "Bash(isort:*)",
+      "Bash(flake8:*)"
+    ],
+    "additionalDirectories": [
+      "/tmp"
     ]
   }
 }

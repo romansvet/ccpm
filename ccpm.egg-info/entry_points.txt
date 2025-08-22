@@ -1,0 +1,2 @@
+[console_scripts]
+ccpm = ccpm.cli:cli

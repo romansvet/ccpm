@@ -1,3 +1,34 @@
+Metadata-Version: 2.4
+Name: ccpm
+Version: 0.1.0
+Summary: Claude Code PM - Project Management System CLI
+Home-page: https://github.com/jeremymanning/ccpm
+Author: Jeremy Manning
+Author-email: Jeremy Manning <jeremy@example.com>
+Project-URL: Homepage, https://github.com/jeremymanning/ccpm
+Project-URL: Bug Tracker, https://github.com/jeremymanning/ccpm/issues
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: click>=8.0
+Requires-Dist: gitpython>=3.1
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: requests>=2.28
+Dynamic: author
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: requires-python
+
 # Claude Code PM
 
 [![Automaze](https://img.shields.io/badge/By-automaze.io-4b3baf)](https://automaze.io)
@@ -24,11 +55,6 @@ Stop losing context. Stop blocking on tasks. Stop shipping bugs. This battle-tes
 - [What Makes This Different?](#what-makes-this-different)
 - [Why GitHub Issues?](#why-github-issues)
 - [Core Principle: No Vibe Coding](#core-principle-no-vibe-coding)
-- [Installation](#installation)
-- [CLI Usage](#cli-usage)
-- [Get Started Now](#get-started-now)
-- [Platform Support](#platform-support)
-- [Troubleshooting](#troubleshooting)
 - [System Architecture](#system-architecture)
 - [Workflow Phases](#workflow-phases)
 - [Command Reference](#command-reference)
@@ -36,6 +62,7 @@ Stop losing context. Stop blocking on tasks. Stop shipping bugs. This battle-tes
 - [Key Features & Benefits](#key-features--benefits)
 - [Proven Results](#proven-results)
 - [Example Flow](#example-flow)
+- [Get Started Now](#get-started-now)
 - [Local vs Remote](#local-vs-remote)
 - [Technical Notes](#technical-notes)
 - [Support This Project](#support-this-project)
@@ -382,138 +409,35 @@ Teams using this system report:
 /pm:epic-show memory-system
 ```
 
-## Installation
-
-### Quick Install (Recommended)
-
-Install CCPM CLI directly from GitHub:
-
-```bash
-# Install from GitHub repository
-pip install git+https://github.com/jeremymanning/ccpm.git
-
-# Or clone and install locally
-git clone https://github.com/jeremymanning/ccpm.git
-cd ccpm
-pip install -e .
-```
-
-The installer will automatically:
-- ✅ Install GitHub CLI if not present
-- ✅ Set up GitHub authentication
-- ✅ Install required GitHub extensions
-- ✅ Configure your shell PATH
-
-### Alternative: Script Installation
-
-```bash
-# One-line installer
-curl -sSL https://raw.githubusercontent.com/jeremymanning/ccpm/main/installer.sh | bash
-```
-
-## CLI Usage
-
-### Setting Up a New Project
-
-```bash
-# Navigate to your project directory
-cd /path/to/your/project
-
-# Set up CCPM
-ccpm setup .
-
-# Or set up in a different directory
-ccpm setup /path/to/repo
-```
-
-### Core Commands
-
-```bash
-# Project Management
-ccpm init          # Initialize PM system (runs /pm:init)
-ccpm list          # List all PRDs (runs /pm:prd-list)
-ccpm status        # Show project status (runs /pm:prd-status)
-ccpm sync          # Sync with GitHub (runs /pm:sync)
-
-# Maintenance
-ccpm update        # Update CCPM to latest version
-ccpm validate      # Validate system integrity
-ccpm clean         # Clean up completed work
-ccpm search <term> # Search across all content
-
-# Other
-ccpm help          # Show all available commands
-ccpm uninstall     # Remove CCPM (preserves pre-existing files)
-```
-
-### Working with Existing .claude Directories
-
-If your project already has a `.claude` directory, CCPM will:
-1. Back up your existing content
-2. Merge it with CCPM's structure
-3. Preserve all your customizations
-4. Track what was added for clean uninstallation
-
-### Updating CCPM
-
-Keep CCPM up to date with the latest features:
-
-```bash
-# Update to latest version
-ccpm update
-
-# This will:
-# - Pull latest changes from automazeio/ccpm
-# - Merge updates while preserving your customizations
-# - Update the CLI tool itself
-```
-
-### Uninstalling
-
-Remove CCPM while preserving any pre-existing `.claude` content:
-
-```bash
-ccpm uninstall
-
-# This will:
-# - Remove CCPM-specific files
-# - Restore any pre-existing .claude content
-# - Clean up PATH modifications
-```
-
 ## Get Started Now
 
 ### Quick Setup (2 minutes)
 
-1. **Install CCPM CLI**:
+1. **Clone this repository into your project**:
    ```bash
-   pip install git+https://github.com/jeremymanning/ccpm.git
+   cd path/to/your/project/
+   git clone https://github.com/automazeio/ccpm.git .
    ```
+   > ⚠️ **IMPORTANT**: If you already have a `.claude` directory, clone this repository to a different directory and copy the contents of the cloned `.claude` directory to your project's `.claude` directory.
 
-2. **Set up in your project**:
+2. **Initialize the PM system**:
    ```bash
-   cd /path/to/your/project
-   ccpm setup .
-   ```
-
-3. **Initialize the PM system**:
-   ```bash
-   ccpm init
+   /pm:init
    ```
    This command will:
-   - Verify GitHub CLI installation
+   - Install GitHub CLI (if needed)
    - Authenticate with GitHub
-   - Install required extensions
+   - Install [gh-sub-issue extension](https://github.com/yahsan2/gh-sub-issue) for proper parent-child relationships
    - Create required directories
    - Update .gitignore
 
-4. **Create `CLAUDE.md`** with your repository information:
+3. **Create `CLAUDE.md`** with your repository information
    ```bash
    /init include rules from .claude/CLAUDE.md
    ```
    > If you already have a `CLAUDE.md` file, run: `/re-init` to update it with important rules from `.claude/CLAUDE.md`.
 
-5. **Prime the system**:
+4. **Prime the system**:
    ```bash
    /context:create
    ```
@@ -527,57 +451,6 @@ ccpm uninstall
 ```
 
 Watch as structured planning transforms into shipped code.
-
-## Platform Support
-
-CCPM CLI works on:
-- 🐧 **Linux** (Ubuntu, Debian, Fedora, RHEL, etc.)
-- 🍎 **macOS** (Intel and Apple Silicon)
-- 🪟 **Windows** (10, 11, Server 2019+)
-
-GitHub CLI will be automatically installed if not present.
-
-## Troubleshooting
-
-### GitHub CLI Installation Issues
-
-If automatic installation fails, install GitHub CLI manually:
-- **macOS**: `brew install gh`
-- **Ubuntu/Debian**: `sudo apt install gh`
-- **Windows**: `winget install --id GitHub.cli`
-- **Other**: See https://cli.github.com/
-
-### Authentication Issues
-
-If you encounter GitHub authentication problems:
-```bash
-# Re-authenticate
-gh auth login
-
-# Check status
-gh auth status
-```
-
-### Permission Issues
-
-On Unix systems, you may need to use `sudo` for global installation:
-```bash
-sudo pip install git+https://github.com/jeremymanning/ccpm.git
-```
-
-Or install for current user only:
-```bash
-pip install --user git+https://github.com/jeremymanning/ccpm.git
-```
-
-### Python Version Issues
-
-CCPM requires Python 3.8 or higher. Check your version:
-```bash
-python --version
-# or
-python3 --version
-```
 
 ## Local vs Remote
 

@@ -1,7 +1,5 @@
 """Command implementations for CCPM CLI."""
 
-from . import setup
-from . import pm
-from . import maintenance
+from . import maintenance, pm, setup
 
 __all__ = ["setup", "pm", "maintenance"]

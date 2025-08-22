@@ -1,6 +1,6 @@
 """Utility functions for CCPM."""
 
-from .shell import run_pm_script, run_command
 from .backup import BackupManager
+from .shell import run_command, run_pm_script
 
 __all__ = ["run_pm_script", "run_command", "BackupManager"]

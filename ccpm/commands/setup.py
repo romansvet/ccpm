@@ -8,7 +8,7 @@ from ..core.installer import CCPMInstaller
 
 def setup_command(path: Path) -> None:
     """Set up CCPM in a repository.
-    
+
     Args:
         path: Target directory for installation
     """

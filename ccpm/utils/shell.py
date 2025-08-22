@@ -2,34 +2,34 @@
 
 import subprocess
 from pathlib import Path
-from typing import Optional, List, Tuple
+from typing import List, Optional, Tuple
 
 
 def run_pm_script(script_name: str, cwd: Optional[Path] = None) -> Tuple[int, str, str]:
     """Execute PM shell scripts.
-    
+
     Args:
         script_name: Name of the script (without .sh extension)
         cwd: Working directory for script execution
-        
+
     Returns:
         Tuple of (return_code, stdout, stderr)
     """
     if cwd is None:
         cwd = Path.cwd()
-    
+
     script_path = cwd / ".claude" / "scripts" / "pm" / f"{script_name}.sh"
-    
+
     if not script_path.exists():
         return 1, "", f"Script not found: {script_path}"
-    
+
     try:
         result = subprocess.run(
             ["bash", str(script_path)],
             cwd=cwd,
             capture_output=True,
             text=True,
-            timeout=300  # 5 minute timeout
+            timeout=300,  # 5 minute timeout
         )
         return result.returncode, result.stdout, result.stderr
     except subprocess.TimeoutExpired:
@@ -39,33 +39,25 @@ def run_pm_script(script_name: str, cwd: Optional[Path] = None) -> Tuple[int, st
 
 
 def run_command(
-    args: List[str],
-    cwd: Optional[Path] = None,
-    timeout: int = 60,
-    check: bool = False
+    args: List[str], cwd: Optional[Path] = None, timeout: int = 60, check: bool = False
 ) -> Tuple[int, str, str]:
     """Run a shell command and return the result.
-    
+
     Args:
         args: Command and arguments as list
         cwd: Working directory for command
         timeout: Command timeout in seconds
         check: Whether to raise exception on non-zero return
-        
+
     Returns:
         Tuple of (return_code, stdout, stderr)
-        
+
     Raises:
         subprocess.CalledProcessError: If check=True and command fails
     """
     try:
         result = subprocess.run(
-            args,
-            cwd=cwd,
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-            check=check
+            args, cwd=cwd, capture_output=True, text=True, timeout=timeout, check=check
         )
         return result.returncode, result.stdout, result.stderr
     except subprocess.TimeoutExpired:

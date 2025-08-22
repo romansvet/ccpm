@@ -8,20 +8,20 @@ from ..utils.shell import run_pm_script
 def validate_command() -> None:
     """Validate system integrity (shortcut for /pm:validate)."""
     returncode, stdout, stderr = run_pm_script("validate")
-    
+
     if stdout:
         print(stdout)
     if stderr and returncode != 0:
         print(f"❌ Error: {stderr}")
-    
+
     if returncode != 0:
         if "Script not found" in stderr:
             # Fallback validation
             print("🔍 Validating CCPM installation...")
-            
+
             cwd = Path.cwd()
             issues = []
-            
+
             # Check .claude directory
             if not (cwd / ".claude").exists():
                 issues.append("Missing .claude directory")
@@ -31,11 +31,11 @@ def validate_command() -> None:
                 for dir_path in required_dirs:
                     if not (cwd / ".claude" / dir_path).exists():
                         issues.append(f"Missing {dir_path}")
-            
+
             # Check git
             if not (cwd / ".git").exists():
                 issues.append("Not a git repository")
-            
+
             if issues:
                 print("\n⚠️ Issues found:")
                 for issue in issues:
@@ -50,12 +50,12 @@ def validate_command() -> None:
 def clean_command() -> None:
     """Archive completed work (shortcut for /pm:clean)."""
     returncode, stdout, stderr = run_pm_script("clean")
-    
+
     if stdout:
         print(stdout)
     if stderr and returncode != 0:
         print(f"❌ Error: {stderr}")
-    
+
     if returncode != 0:
         if "Script not found" in stderr:
             print("🧹 Cleaning completed work...")
@@ -70,52 +70,52 @@ def clean_command() -> None:
 
 def search_command(query: str) -> None:
     """Search across all content (shortcut for /pm:search).
-    
+
     Args:
         query: Search term
     """
     returncode, stdout, stderr = run_pm_script("search", query)
-    
+
     if stdout:
         print(stdout)
     if stderr and returncode != 0:
         print(f"❌ Error: {stderr}")
-    
+
     if returncode != 0:
         if "Script not found" in stderr:
             # Fallback search using grep
             print(f"🔍 Searching for: {query}")
             print("=" * 40)
-            
+
             cwd = Path.cwd()
             claude_dir = cwd / ".claude"
-            
+
             if not claude_dir.exists():
                 print("❌ No CCPM installation found")
                 return
-            
+
             import subprocess
-            
+
             # Search in PRDs
             prds_dir = claude_dir / "prds"
             if prds_dir.exists():
                 result = subprocess.run(
                     ["grep", "-r", "-i", query, str(prds_dir)],
                     capture_output=True,
-                    text=True
+                    text=True,
                 )
                 if result.stdout:
                     print("\n📄 Found in PRDs:")
                     for line in result.stdout.splitlines()[:10]:
                         print(f"  {line}")
-            
+
             # Search in epics
             epics_dir = claude_dir / "epics"
             if epics_dir.exists():
                 result = subprocess.run(
                     ["grep", "-r", "-i", query, str(epics_dir)],
                     capture_output=True,
-                    text=True
+                    text=True,
                 )
                 if result.stdout:
                     print("\n📚 Found in Epics:")
@@ -128,12 +128,13 @@ def search_command(query: str) -> None:
 def help_command() -> None:
     """Display CCPM help and command summary."""
     returncode, stdout, stderr = run_pm_script("help")
-    
+
     if stdout:
         print(stdout)
     elif returncode != 0 or "Script not found" in stderr:
         # Fallback help text
-        print("""
+        print(
+            """
 📚 CCPM - Claude Code Project Management CLI
 =============================================
 
@@ -164,7 +165,8 @@ def help_command() -> None:
     /pm:next             Get next priority task
   
   • View README.md for complete documentation
-        """)
-    
+        """
+        )
+
     if stderr and returncode != 0 and "Script not found" not in stderr:
         print(f"\n⚠️ Warning: {stderr}")

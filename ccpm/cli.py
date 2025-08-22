@@ -1,31 +1,32 @@
 """Main CLI interface for CCPM."""
 
-import click
 import sys
 from pathlib import Path
 from typing import Optional
 
-from .commands.setup import setup_command, update_command, uninstall_command
+import click
+
+from .commands.maintenance import (
+    clean_command,
+    help_command,
+    search_command,
+    validate_command,
+)
 from .commands.pm import (
+    import_command,
     init_command,
     list_command,
     status_command,
     sync_command,
-    import_command,
 )
-from .commands.maintenance import (
-    validate_command,
-    clean_command,
-    search_command,
-    help_command,
-)
+from .commands.setup import setup_command, uninstall_command, update_command
 
 
 @click.group()
 @click.version_option(version="0.1.0", prog_name="ccpm")
 def cli() -> None:
     """Claude Code PM - Project Management System for spec-driven development.
-    
+
     CCPM transforms PRDs into epics, epics into GitHub issues, and issues into
     production code with full traceability at every step.
     """
@@ -36,7 +37,7 @@ def cli() -> None:
 @click.argument("path", type=click.Path(exists=False))
 def setup(path: str) -> None:
     """Set up CCPM in a repository.
-    
+
     PATH: Target directory for CCPM installation (can be . for current directory)
     """
     try:
@@ -49,7 +50,7 @@ def setup(path: str) -> None:
 @cli.command("update")
 def update() -> None:
     """Update CCPM to latest version.
-    
+
     Pulls latest changes from automazeio/ccpm and updates the .claude folder
     while preserving your customizations.
     """
@@ -63,7 +64,7 @@ def update() -> None:
 @cli.command("uninstall")
 def uninstall() -> None:
     """Remove CCPM from current directory.
-    
+
     Preserves any pre-existing .claude content that was present before
     CCPM installation.
     """
@@ -118,7 +119,7 @@ def sync() -> None:
 @click.argument("issue_number", type=int, required=False)
 def import_issue(issue_number: Optional[int]) -> None:
     """Import GitHub issues (shortcut for /pm:import).
-    
+
     ISSUE_NUMBER: Optional specific issue number to import
     """
     try:
@@ -152,7 +153,7 @@ def clean() -> None:
 @click.argument("query")
 def search(query: str) -> None:
     """Search across all content (shortcut for /pm:search).
-    
+
     QUERY: Search term to find across PRDs, epics, and tasks
     """
     try:
