@@ -37,7 +37,8 @@
       "Bash(gh repo view:*)",
       "Bash(gh issue list:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(chmod:*)"
     ]
   }
 }
