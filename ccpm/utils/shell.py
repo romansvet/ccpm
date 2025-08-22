@@ -1,5 +1,6 @@
 """Shell command execution utilities."""
 
+import sys
 import subprocess
 from pathlib import Path
 from typing import List, Optional, Tuple
@@ -23,8 +24,28 @@ def run_pm_script(script_name: str, args: Optional[List[str]] = None, cwd: Optio
 
     if not script_path.exists():
         return 1, "", f"Script not found: {script_path}"
-
-    cmd = ["bash", str(script_path)]
+    
+    # On Windows, shell scripts don't work without WSL or Git Bash
+    if sys.platform == "win32":
+        # Try to use Git Bash if available
+        import shutil
+        git_bash = shutil.which("git")
+        if git_bash:
+            # Git for Windows comes with bash
+            git_path = Path(git_bash).parent.parent
+            bash_path = git_path / "bin" / "bash.exe"
+            if not bash_path.exists():
+                bash_path = git_path / "usr" / "bin" / "bash.exe"
+            if bash_path.exists():
+                cmd = [str(bash_path), str(script_path)]
+            else:
+                # No bash available on Windows
+                return 1, "", f"Bash not available on Windows. Script '{script_name}' requires a Unix-like shell."
+        else:
+            return 1, "", f"Git Bash not found. Script '{script_name}' requires a Unix-like shell."
+    else:
+        cmd = ["bash", str(script_path)]
+    
     if args:
         cmd.extend(args)
 
