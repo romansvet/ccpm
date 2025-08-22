@@ -50,7 +50,8 @@
       "Bash(gh run view:*)",
       "Bash(python -m pytest tests/integration/test_github.py::TestGitHubIntegration::test_setup_without_gh_continues -xvs)",
       "Bash(git push:*)",
-      "Bash(gh api:*)"
+      "Bash(gh api:*)",
+      "Bash(python:*)"
     ],
     "additionalDirectories": [
       "/tmp"

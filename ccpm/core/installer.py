@@ -167,7 +167,7 @@ class CCPMInstaller:
         print(f"\n{get_emoji('🗑️', '>>>')} Uninstalling CCPM...")
 
         if not self.claude_dir.exists():
-            print_error("No CCPM installation found.")
+            print("No CCPM installation found.")
             return
 
         # Load tracking file
