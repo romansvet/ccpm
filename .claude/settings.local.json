@@ -44,7 +44,11 @@
       "Bash(pytest:*)",
       "Bash(black:*)",
       "Bash(isort:*)",
-      "Bash(flake8:*)"
+      "Bash(flake8:*)",
+      "Bash(grep:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(python -m pytest tests/integration/test_github.py::TestGitHubIntegration::test_setup_without_gh_continues -xvs)"
     ],
     "additionalDirectories": [
       "/tmp"

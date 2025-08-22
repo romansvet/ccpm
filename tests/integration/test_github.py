@@ -85,17 +85,23 @@ class TestGitHubIntegration:
 
     def test_setup_without_gh_continues(self, real_git_repo: Path, monkeypatch):
         """Test that setup continues even if GitHub CLI setup fails."""
+        
+        # Save the original subprocess.run
+        original_run = subprocess.run
 
         # Mock gh to not be found
         def mock_run(*args, **kwargs):
-            if args[0] == ["gh", "--version"]:
-                raise FileNotFoundError()
-            return subprocess.run(*args, **kwargs)
+            # Check if this is a gh command
+            if args and len(args) > 0 and isinstance(args[0], list):
+                if args[0][0] == "gh":
+                    raise FileNotFoundError()
+            # Use the original run for everything else
+            return original_run(*args, **kwargs)
 
         monkeypatch.setattr(subprocess, "run", mock_run)
 
         # Setup should still work (with warnings)
-        result = subprocess.run(
+        result = original_run(
             ["ccpm", "setup", str(real_git_repo)],
             capture_output=True,
             text=True,

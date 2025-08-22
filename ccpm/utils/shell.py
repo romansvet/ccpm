@@ -5,11 +5,12 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 
-def run_pm_script(script_name: str, cwd: Optional[Path] = None) -> Tuple[int, str, str]:
+def run_pm_script(script_name: str, args: Optional[List[str]] = None, cwd: Optional[Path] = None) -> Tuple[int, str, str]:
     """Execute PM shell scripts.
 
     Args:
         script_name: Name of the script (without .sh extension)
+        args: Optional arguments to pass to the script
         cwd: Working directory for script execution
 
     Returns:
@@ -23,9 +24,13 @@ def run_pm_script(script_name: str, cwd: Optional[Path] = None) -> Tuple[int, st
     if not script_path.exists():
         return 1, "", f"Script not found: {script_path}"
 
+    cmd = ["bash", str(script_path)]
+    if args:
+        cmd.extend(args)
+
     try:
         result = subprocess.run(
-            ["bash", str(script_path)],
+            cmd,
             cwd=cwd,
             capture_output=True,
             text=True,

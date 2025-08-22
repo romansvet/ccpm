@@ -74,7 +74,7 @@ def search_command(query: str) -> None:
     Args:
         query: Search term
     """
-    returncode, stdout, stderr = run_pm_script("search", query)
+    returncode, stdout, stderr = run_pm_script("search", [query])
 
     if stdout:
         print(stdout)
