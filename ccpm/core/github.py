@@ -308,7 +308,7 @@ class GitHubCLI:
                 return False
 
         except subprocess.TimeoutExpired:
-                print_warning("Extension installation timed out")
+            print_warning("Extension installation timed out")
             return False
         except FileNotFoundError:
             print_error("GitHub CLI not found")
