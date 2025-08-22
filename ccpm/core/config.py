@@ -2,7 +2,9 @@
 
 import json
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
+
+from ..utils.console import print_warning
 
 
 class ConfigManager:
@@ -30,7 +32,7 @@ class ConfigManager:
                 with open(self.config_path, "r") as f:
                     return json.load(f)
             except json.JSONDecodeError:
-                print(f"⚠️ Invalid config file: {self.config_path}")
+                print_warning(f"Invalid config file: {self.config_path}")
                 return {}
         return {}
 

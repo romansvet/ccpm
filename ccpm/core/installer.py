@@ -59,7 +59,7 @@ class CCPMInstaller:
         # 5. Check for existing .claude directory
         existing_claude = self.claude_dir.exists()
         if existing_claude:
-            print("\n📁 Found existing .claude directory")
+            print(f"\n{get_emoji('📁', '>>>')} Found existing .claude directory")
             # Backup existing content
             backup_path = self.backup.create_backup(self.claude_dir)
             print_success(f"Backed up to: {backup_path}")

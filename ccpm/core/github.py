@@ -20,7 +20,7 @@ class GitHubCLI:
             print_success("GitHub CLI already installed")
             return True
 
-        print("📦 GitHub CLI not found. Installing...")
+        print(f"{get_emoji('📦', '>>>')} GitHub CLI not found. Installing...")
         return self.install_gh()
 
     def check_installation(self) -> bool:
@@ -280,7 +280,7 @@ class GitHubCLI:
 
     def install_extensions(self) -> bool:
         """Install required gh extensions."""
-        print("\n📦 Installing gh-sub-issue extension...")
+        print(f"\n{get_emoji('📦', '>>>')} Installing gh-sub-issue extension...")
 
         try:
             # First check if already installed

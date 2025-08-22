@@ -3,6 +3,7 @@
 from pathlib import Path
 from typing import Optional
 
+from ..utils.console import get_emoji, print_error, print_info, print_success, print_warning
 from ..utils.shell import run_pm_script
 
 
@@ -13,7 +14,7 @@ def init_command() -> None:
     if stdout:
         print(stdout)
     if stderr and returncode != 0:
-        print(f"❌ Error: {stderr}")
+        print_error(f"Error: {stderr}")
 
     if returncode != 0:
         raise RuntimeError("Init command failed")
@@ -24,23 +25,23 @@ def list_command() -> None:
     # First check if .claude directory exists
     cwd = Path.cwd()
     if not (cwd / ".claude").exists():
-        print("❌ No CCPM installation found. Run 'ccpm setup .' first.")
+        print_error("No CCPM installation found. Run 'ccpm setup .' first.")
         raise RuntimeError("CCPM not installed")
 
     # Check for PRDs directory
     prds_dir = cwd / ".claude" / "prds"
     if not prds_dir.exists():
-        print("📄 No PRDs found")
+        print(f"{get_emoji('📄', '>>>')} No PRDs found")
         return
 
     # List PRD files
     prd_files = list(prds_dir.glob("*.md"))
 
     if not prd_files:
-        print("📄 No PRDs found")
+        print(f"{get_emoji('📄', '>>>')} No PRDs found")
         return
 
-    print("📄 Product Requirements Documents:")
+    print(f"{get_emoji('📄', '>>>')} Product Requirements Documents:")
     print("=" * 40)
 
     for prd_file in sorted(prd_files):
@@ -68,7 +69,7 @@ def status_command() -> None:
     if stdout:
         print(stdout)
     if stderr and returncode != 0:
-        print(f"❌ Error: {stderr}")
+        print_error(f"Error: {stderr}")
 
     if returncode != 0 and "Script not found" in stderr:
         # Fallback to basic status
@@ -80,7 +81,7 @@ def status_command() -> None:
         # Check PRDs
         prds_dir = cwd / ".claude" / "prds"
         prd_count = len(list(prds_dir.glob("*.md"))) if prds_dir.exists() else 0
-        print(f"📄 PRDs: {prd_count}")
+        print(f"{get_emoji('📄', '>>>')} PRDs: {prd_count}")
 
         # Check Epics
         epics_dir = cwd / ".claude" / "epics"
@@ -89,7 +90,7 @@ def status_command() -> None:
             if epics_dir.exists()
             else 0
         )
-        print(f"📚 Epics: {epic_count}")
+        print(f"{get_emoji('📚', '>>>')} Epics: {epic_count}")
 
         print("\nRun 'ccpm list' to see all PRDs")
         print("Run 'ccpm help' for available commands")
@@ -102,11 +103,11 @@ def sync_command() -> None:
     if stdout:
         print(stdout)
     if stderr and returncode != 0:
-        print(f"❌ Error: {stderr}")
+        print_error(f"Error: {stderr}")
 
     if returncode != 0:
         if "Script not found" in stderr:
-            print("⚠️ Sync script not found. This command requires a GitHub repository.")
+            print_warning("Sync script not found. This command requires a GitHub repository.")
             print("Make sure you have:")
             print("  1. Initialized a git repository")
             print("  2. Set up a GitHub remote")
@@ -123,10 +124,10 @@ def import_command(issue_number: Optional[int] = None) -> None:
     if issue_number:
         print(f"📥 Importing issue #{issue_number}...")
         # TODO: Implement specific issue import
-        print("⚠️ Specific issue import not yet implemented")
+        print_warning("Specific issue import not yet implemented")
     else:
         print("📥 Importing all open issues...")
         # TODO: Implement bulk import
-        print("⚠️ Bulk issue import not yet implemented")
+        print_warning("Bulk issue import not yet implemented")
 
     print("\nThis feature will be available in a future update.")

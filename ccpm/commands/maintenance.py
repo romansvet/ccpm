@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+from ..utils.console import get_emoji, print_error, print_info, print_success, print_warning
 from ..utils.shell import run_pm_script
 
 
@@ -12,12 +13,12 @@ def validate_command() -> None:
     if stdout:
         print(stdout)
     if stderr and returncode != 0:
-        print(f"❌ Error: {stderr}")
+        print_error(f"Error: {stderr}")
 
     if returncode != 0:
         if "Script not found" in stderr:
             # Fallback validation
-            print("🔍 Validating CCPM installation...")
+            print_info("Validating CCPM installation...")
 
             cwd = Path.cwd()
             issues = []
@@ -37,12 +38,12 @@ def validate_command() -> None:
                 issues.append("Not a git repository")
 
             if issues:
-                print("\n⚠️ Issues found:")
+                print_warning("\nIssues found:")
                 for issue in issues:
                     print(f"  • {issue}")
                 print("\nRun 'ccpm setup .' to fix issues")
             else:
-                print("✅ CCPM installation is valid")
+                print_success("CCPM installation is valid")
         else:
             raise RuntimeError("Validate command failed")
 
@@ -54,12 +55,12 @@ def clean_command() -> None:
     if stdout:
         print(stdout)
     if stderr and returncode != 0:
-        print(f"❌ Error: {stderr}")
+        print_error(f"Error: {stderr}")
 
     if returncode != 0:
         if "Script not found" in stderr:
-            print("🧹 Cleaning completed work...")
-            print("⚠️ Clean script not available. Manual cleanup required.")
+            print(f"{get_emoji('🧹', '>>>')} Cleaning completed work...")
+            print_warning("Clean script not available. Manual cleanup required.")
             print("\nTo clean manually:")
             print("  1. Archive completed epics in .claude/epics/")
             print("  2. Close completed GitHub issues")
@@ -79,19 +80,19 @@ def search_command(query: str) -> None:
     if stdout:
         print(stdout)
     if stderr and returncode != 0:
-        print(f"❌ Error: {stderr}")
+        print_error(f"Error: {stderr}")
 
     if returncode != 0:
         if "Script not found" in stderr:
             # Fallback search using grep
-            print(f"🔍 Searching for: {query}")
+            print_info(f"Searching for: {query}")
             print("=" * 40)
 
             cwd = Path.cwd()
             claude_dir = cwd / ".claude"
 
             if not claude_dir.exists():
-                print("❌ No CCPM installation found")
+                print_error("No CCPM installation found")
                 return
 
             import subprocess
@@ -105,7 +106,7 @@ def search_command(query: str) -> None:
                     text=True,
                 )
                 if result.stdout:
-                    print("\n📄 Found in PRDs:")
+                    print(f"\n{get_emoji('📄', '>>>')} Found in PRDs:")
                     for line in result.stdout.splitlines()[:10]:
                         print(f"  {line}")
 
@@ -118,7 +119,7 @@ def search_command(query: str) -> None:
                     text=True,
                 )
                 if result.stdout:
-                    print("\n📚 Found in Epics:")
+                    print(f"\n{get_emoji('📚', '>>>')} Found in Epics:")
                     for line in result.stdout.splitlines()[:10]:
                         print(f"  {line}")
         else:
@@ -169,4 +170,4 @@ def help_command() -> None:
         )
 
     if stderr and returncode != 0 and "Script not found" not in stderr:
-        print(f"\n⚠️ Warning: {stderr}")
+        print_warning(f"\nWarning: {stderr}")
