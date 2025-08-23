@@ -5,6 +5,9 @@
 [![Claude Code](https://img.shields.io/badge/+-Claude%20Code-d97757)](https://github.com/automazeio/ccpm/blob/main/README.md)
 [![GitHub Issues](https://img.shields.io/badge/+-GitHub%20Issues-1f2328)](https://github.com/automazeio/ccpm)
 &nbsp;
+[![Tests](https://github.com/automazeio/ccpm/actions/workflows/test.yml/badge.svg)](https://github.com/automazeio/ccpm/actions/workflows/test.yml)
+[![Coverage](https://codecov.io/gh/automazeio/ccpm/branch/main/graph/badge.svg)](https://codecov.io/gh/automazeio/ccpm)
+&nbsp;
 [![MIT License](https://img.shields.io/badge/License-MIT-28a745)](https://github.com/automazeio/ccpm/blob/main/LICENSE)
 &nbsp;
 [![Follow on 𝕏](https://img.shields.io/badge/𝕏-@aroussi-1c9bf0)](http://x.com/intent/follow?screen_name=aroussi)
