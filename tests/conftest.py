@@ -1,6 +1,7 @@
 """Pytest configuration and fixtures for CCPM tests."""
 
 import json
+import os
 import shutil
 import subprocess
 import tempfile
@@ -8,6 +9,29 @@ from pathlib import Path
 from typing import Generator
 
 import pytest
+
+# Import the claude utility to check for Claude Code
+try:
+    from ccpm.utils.claude import claude_available
+except ImportError:
+    def claude_available():
+        return False
+
+
+def pytest_configure(config):
+    """Configure pytest with custom markers."""
+    config.addinivalue_line(
+        "markers", 
+        "requires_claude: mark test as requiring Claude Code CLI"
+    )
+
+
+def pytest_collection_modifyitems(config, items):
+    """Automatically skip tests that require Claude Code in CI environments."""
+    # In CI, we want to skip tests that require Claude Code if it's not available
+    # The tests already have skipif decorators, but we need to ensure claude_available
+    # returns False in CI when Claude is not installed
+    pass  # Let the existing skipif decorators handle it
 
 
 @pytest.fixture

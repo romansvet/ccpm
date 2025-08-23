@@ -59,7 +59,9 @@
       "Bash(git -C /Users/jmanning/ccpm add README.md)",
       "Bash(git -C /Users/jmanning/ccpm status)",
       "Bash(git -C /Users/jmanning/ccpm add -A)",
-      "Bash(git -C /Users/jmanning/ccpm commit -m \"Reorganize README for improved clarity - Closes #2\")"
+      "Bash(git -C /Users/jmanning/ccpm commit -m \"Reorganize README for improved clarity - Closes #2\")",
+      "Bash(CI=true GITHUB_ACTIONS=true python -m pytest tests/integration/test_commands.py::TestPMCommands::test_init_command -xvs)",
+      "Bash(CI=true GITHUB_ACTIONS=true PATH=/usr/bin:/bin python -m pytest tests/integration/test_commands.py -v --co -q)"
     ],
     "additionalDirectories": [
       "/tmp"
