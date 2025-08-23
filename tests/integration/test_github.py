@@ -132,8 +132,13 @@ class TestGitHubIntegration:
 
         # Should handle the error gracefully
         if result.returncode != 0:
+            # Error could be either:
+            # 1. Claude Code not installed (in CI)
+            # 2. GitHub not configured (when Claude is available)
             assert (
                 "GitHub" in result.stdout
                 or "GitHub" in result.stderr
                 or "git" in result.stderr.lower()
+                or "Claude Code" in result.stdout
+                or "Claude Code" in result.stderr
             )
