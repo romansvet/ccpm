@@ -1,5 +1,7 @@
 """PM workflow commands."""
 
+import subprocess
+import shutil
 from pathlib import Path
 from typing import Optional
 
@@ -7,17 +9,54 @@ from ..utils.console import get_emoji, print_error, print_info, print_success, p
 from ..utils.shell import run_pm_script
 
 
+def invoke_claude_command(command: str) -> None:
+    """Invoke a Claude Code command directly.
+    
+    Args:
+        command: The command to pass to Claude (e.g., "/pm:sync")
+    """
+    # Check if Claude CLI is available
+    claude_cli = shutil.which("claude")
+    if not claude_cli:
+        print_error("Claude Code CLI not found. Please install Claude Code first.")
+        print_info("Visit: https://claude.ai/code")
+        raise RuntimeError("Claude Code not installed")
+    
+    # Check if .claude directory exists
+    if not Path(".claude").exists():
+        print_error("No CCPM installation found. Run 'ccpm setup .' first.")
+        raise RuntimeError("CCPM not installed")
+    
+    # Invoke Claude with the command
+    try:
+        # Use -p flag to get direct output without interactive session
+        result = subprocess.run(
+            [claude_cli, "-p", command],
+            capture_output=True,
+            text=True,
+            timeout=300,  # 5 minute timeout
+            cwd=Path.cwd()
+        )
+        
+        if result.stdout:
+            safe_print(result.stdout)
+        if result.stderr:
+            print_error(result.stderr)
+            
+        if result.returncode != 0:
+            raise RuntimeError(f"Claude command failed: {command}")
+            
+    except subprocess.TimeoutExpired:
+        print_error(f"Command timed out: {command}")
+        raise RuntimeError("Command timeout")
+    except Exception as e:
+        print_error(f"Failed to execute Claude command: {e}")
+        raise
+
+
 def init_command() -> None:
     """Initialize PM system (shortcut for /pm:init)."""
-    returncode, stdout, stderr = run_pm_script("init")
-
-    if stdout:
-        safe_print(stdout)
-    if stderr and returncode != 0:
-        print_error(f"Error: {stderr}")
-
-    if returncode != 0:
-        raise RuntimeError("Init command failed")
+    invoke_claude_command("/pm:init")
 
 
 def list_command() -> None:
@@ -64,55 +103,12 @@ def list_command() -> None:
 
 def status_command() -> None:
     """Show project status (shortcut for /pm:prd-status)."""
-    returncode, stdout, stderr = run_pm_script("status")
-
-    if stdout:
-        safe_print(stdout)
-    if stderr and returncode != 0:
-        print_error(f"Error: {stderr}")
-
-    if returncode != 0 and "Script not found" in stderr:
-        # Fallback to basic status
-        safe_print("📊 Project Status")
-        safe_print("=" * 40)
-
-        cwd = Path.cwd()
-
-        # Check PRDs
-        prds_dir = cwd / ".claude" / "prds"
-        prd_count = len(list(prds_dir.glob("*.md"))) if prds_dir.exists() else 0
-        safe_print(f"{get_emoji('📄', '>>>')} PRDs: {prd_count}")
-
-        # Check Epics
-        epics_dir = cwd / ".claude" / "epics"
-        epic_count = (
-            len([d for d in epics_dir.iterdir() if d.is_dir()])
-            if epics_dir.exists()
-            else 0
-        )
-        safe_print(f"{get_emoji('📚', '>>>')} Epics: {epic_count}")
-
-        print("\nRun 'ccpm list' to see all PRDs")
-        print("Run 'ccpm help' for available commands")
+    invoke_claude_command("/pm:status")
 
 
 def sync_command() -> None:
     """Sync with GitHub (shortcut for /pm:sync)."""
-    returncode, stdout, stderr = run_pm_script("sync")
-
-    if stdout:
-        safe_print(stdout)
-    if stderr and returncode != 0:
-        print_error(f"Error: {stderr}")
-
-    if returncode != 0:
-        if "Script not found" in stderr:
-            print_warning("Sync script not found. This command requires a GitHub repository.")
-            print("Make sure you have:")
-            print("  1. Initialized a git repository")
-            print("  2. Set up a GitHub remote")
-            print("  3. Authenticated with GitHub (gh auth login)")
-        raise RuntimeError("Sync command failed")
+    invoke_claude_command("/pm:sync")
 
 
 def import_command(issue_number: Optional[int] = None) -> None:
@@ -122,12 +118,6 @@ def import_command(issue_number: Optional[int] = None) -> None:
         issue_number: Optional specific issue to import
     """
     if issue_number:
-        safe_print(f"📥 Importing issue #{issue_number}...")
-        # TODO: Implement specific issue import
-        print_warning("Specific issue import not yet implemented")
+        invoke_claude_command(f"/pm:issue-import {issue_number}")
     else:
-        safe_print("📥 Importing all open issues...")
-        # TODO: Implement bulk import
-        print_warning("Bulk issue import not yet implemented")
-
-    safe_print("\nThis feature will be available in a future update.")
+        invoke_claude_command("/pm:import")

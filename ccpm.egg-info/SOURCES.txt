@@ -22,4 +22,6 @@ ccpm/core/installer.py
 ccpm/core/merger.py
 ccpm/utils/__init__.py
 ccpm/utils/backup.py
+ccpm/utils/console.py
+ccpm/utils/emoji_map.py
 ccpm/utils/shell.py

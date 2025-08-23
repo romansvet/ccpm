@@ -1,72 +1,66 @@
 """Maintenance and utility commands."""
 
+import subprocess
+import shutil
 from pathlib import Path
 
-from ..utils.console import get_emoji, print_error, print_info, print_success, print_warning
+from ..utils.console import get_emoji, print_error, print_info, print_success, print_warning, safe_print
 from ..utils.shell import run_pm_script
+
+
+def invoke_claude_command(command: str) -> None:
+    """Invoke a Claude Code command directly.
+    
+    Args:
+        command: The command to pass to Claude (e.g., "/pm:validate")
+    """
+    # Check if Claude CLI is available
+    claude_cli = shutil.which("claude")
+    if not claude_cli:
+        print_error("Claude Code CLI not found. Please install Claude Code first.")
+        print_info("Visit: https://claude.ai/code")
+        raise RuntimeError("Claude Code not installed")
+    
+    # Check if .claude directory exists
+    if not Path(".claude").exists():
+        print_error("No CCPM installation found. Run 'ccpm setup .' first.")
+        raise RuntimeError("CCPM not installed")
+    
+    # Invoke Claude with the command
+    try:
+        # Use -p flag to get direct output without interactive session
+        result = subprocess.run(
+            [claude_cli, "-p", command],
+            capture_output=True,
+            text=True,
+            timeout=300,  # 5 minute timeout
+            cwd=Path.cwd()
+        )
+        
+        if result.stdout:
+            safe_print(result.stdout)
+        if result.stderr:
+            print_error(result.stderr)
+            
+        if result.returncode != 0:
+            raise RuntimeError(f"Claude command failed: {command}")
+            
+    except subprocess.TimeoutExpired:
+        print_error(f"Command timed out: {command}")
+        raise RuntimeError("Command timeout")
+    except Exception as e:
+        print_error(f"Failed to execute Claude command: {e}")
+        raise
 
 
 def validate_command() -> None:
     """Validate system integrity (shortcut for /pm:validate)."""
-    returncode, stdout, stderr = run_pm_script("validate")
-
-    if stdout:
-        print(stdout)
-    if stderr and returncode != 0:
-        print_error(f"Error: {stderr}")
-
-    if returncode != 0:
-        if "Script not found" in stderr:
-            # Fallback validation
-            print_info("Validating CCPM installation...")
-
-            cwd = Path.cwd()
-            issues = []
-
-            # Check .claude directory
-            if not (cwd / ".claude").exists():
-                issues.append("Missing .claude directory")
-            else:
-                # Check required subdirectories
-                required_dirs = ["scripts/pm", "commands/pm", "agents"]
-                for dir_path in required_dirs:
-                    if not (cwd / ".claude" / dir_path).exists():
-                        issues.append(f"Missing {dir_path}")
-
-            # Check git
-            if not (cwd / ".git").exists():
-                issues.append("Not a git repository")
-
-            if issues:
-                print_warning("\nIssues found:")
-                for issue in issues:
-                    print(f"  • {issue}")
-                print("\nRun 'ccpm setup .' to fix issues")
-            else:
-                print_success("CCPM installation is valid")
-        else:
-            raise RuntimeError("Validate command failed")
+    invoke_claude_command("/pm:validate")
 
 
 def clean_command() -> None:
     """Archive completed work (shortcut for /pm:clean)."""
-    returncode, stdout, stderr = run_pm_script("clean")
-
-    if stdout:
-        print(stdout)
-    if stderr and returncode != 0:
-        print_error(f"Error: {stderr}")
-
-    if returncode != 0:
-        if "Script not found" in stderr:
-            print(f"{get_emoji('🧹', '>>>')} Cleaning completed work...")
-            print_warning("Clean script not available. Manual cleanup required.")
-            print("\nTo clean manually:")
-            print("  1. Archive completed epics in .claude/epics/")
-            print("  2. Close completed GitHub issues")
-            print("  3. Remove old backup files")
-        else:
-            raise RuntimeError("Clean command failed")
+    invoke_claude_command("/pm:clean")
 
 
 def search_command(query: str) -> None:
@@ -75,55 +69,11 @@ def search_command(query: str) -> None:
     Args:
         query: Search term
     """
-    returncode, stdout, stderr = run_pm_script("search", [query])
-
-    if stdout:
-        print(stdout)
-    if stderr and returncode != 0:
-        print_error(f"Error: {stderr}")
-
-    if returncode != 0:
-        if "Script not found" in stderr:
-            # Fallback search using grep
-            print_info(f"Searching for: {query}")
-            print("=" * 40)
-
-            cwd = Path.cwd()
-            claude_dir = cwd / ".claude"
-
-            if not claude_dir.exists():
-                print_error("No CCPM installation found")
-                return
-
-            import subprocess
-
-            # Search in PRDs
-            prds_dir = claude_dir / "prds"
-            if prds_dir.exists():
-                result = subprocess.run(
-                    ["grep", "-r", "-i", query, str(prds_dir)],
-                    capture_output=True,
-                    text=True,
-                )
-                if result.stdout:
-                    print(f"\n{get_emoji('📄', '>>>')} Found in PRDs:")
-                    for line in result.stdout.splitlines()[:10]:
-                        print(f"  {line}")
-
-            # Search in epics
-            epics_dir = claude_dir / "epics"
-            if epics_dir.exists():
-                result = subprocess.run(
-                    ["grep", "-r", "-i", query, str(epics_dir)],
-                    capture_output=True,
-                    text=True,
-                )
-                if result.stdout:
-                    print(f"\n{get_emoji('📚', '>>>')} Found in Epics:")
-                    for line in result.stdout.splitlines()[:10]:
-                        print(f"  {line}")
-        else:
-            raise RuntimeError("Search command failed")
+    if not query or not query.strip():
+        print_error("Search query is required")
+        raise RuntimeError("Empty search query")
+    
+    invoke_claude_command(f"/pm:search {query}")
 
 
 def help_command() -> None:
