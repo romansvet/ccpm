@@ -16,7 +16,7 @@ setup(
     description="Claude Code PM - Project Management System CLI",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/jeremymanning/ccpm",
+    url="https://github.com/automazeio/ccpm",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 3 - Alpha",

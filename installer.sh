@@ -1,6 +1,6 @@
 #!/bin/bash
 # CCPM CLI Installer Script
-# One-line installation: curl -sSL https://raw.githubusercontent.com/jeremymanning/ccpm/main/installer.sh | bash
+# One-line installation: curl -sSL https://raw.githubusercontent.com/automazeio/ccpm/main/installer.sh | bash
 
 set -e
 
@@ -113,7 +113,7 @@ echo "📥 Installing CCPM CLI..."
 # Use --user flag for non-root installation
 if [ "$EUID" -ne 0 ]; then
     echo "Installing for current user..."
-    $PIP_CMD install --user git+https://github.com/jeremymanning/ccpm.git
+    $PIP_CMD install --user git+https://github.com/automazeio/ccpm.git
     
     # Get user site directory
     USER_SITE=$($PYTHON_CMD -m site --user-base)
@@ -123,7 +123,7 @@ if [ "$EUID" -ne 0 ]; then
     add_to_path "$CCPM_PATH"
 else
     echo "Installing system-wide..."
-    $PIP_CMD install git+https://github.com/jeremymanning/ccpm.git
+    $PIP_CMD install git+https://github.com/automazeio/ccpm.git
 fi
 
 # Verify installation
@@ -175,6 +175,6 @@ if [ "$EUID" -ne 0 ] && [ -n "$CCPM_PATH" ]; then
     echo ""
 fi
 
-echo "📚 Full documentation: https://github.com/jeremymanning/ccpm"
+echo "📚 Full documentation: https://github.com/automazeio/ccpm"
 echo ""
 echo "Happy coding! 🚀"

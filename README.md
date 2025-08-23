@@ -390,10 +390,10 @@ Install CCPM CLI directly from GitHub:
 
 ```bash
 # Install from GitHub repository
-pip install git+https://github.com/jeremymanning/ccpm.git
+pip install git+https://github.com/automazeio/ccpm.git
 
 # Or clone and install locally
-git clone https://github.com/jeremymanning/ccpm.git
+git clone https://github.com/automazeio/ccpm.git
 cd ccpm
 pip install -e .
 ```
@@ -487,7 +487,7 @@ ccpm uninstall
 
 1. **Install CCPM CLI**:
    ```bash
-   pip install git+https://github.com/jeremymanning/ccpm.git
+   pip install git+https://github.com/automazeio/ccpm.git
    ```
 
 2. **Set up in your project**:
@@ -562,12 +562,12 @@ gh auth status
 
 On Unix systems, you may need to use `sudo` for global installation:
 ```bash
-sudo pip install git+https://github.com/jeremymanning/ccpm.git
+sudo pip install git+https://github.com/automazeio/ccpm.git
 ```
 
 Or install for current user only:
 ```bash
-pip install --user git+https://github.com/jeremymanning/ccpm.git
+pip install --user git+https://github.com/automazeio/ccpm.git
 ```
 
 ### Python Version Issues

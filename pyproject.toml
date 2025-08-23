@@ -31,8 +31,8 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/jeremymanning/ccpm"
-"Bug Tracker" = "https://github.com/jeremymanning/ccpm/issues"
+"Homepage" = "https://github.com/automazeio/ccpm"
+"Bug Tracker" = "https://github.com/automazeio/ccpm/issues"
 
 [project.scripts]
 ccpm = "ccpm.cli:cli"
