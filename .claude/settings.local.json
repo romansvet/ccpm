@@ -42,7 +42,8 @@
       "Bash(cp:*)",
       "List(**)",
       "WebFetch(domain:github.com)",
-      "WebSearch"
+      "WebSearch",
+      "Read(//usr/local/bin/**)"
     ],
     "additionalDirectories": [
       "/tmp"

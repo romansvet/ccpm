@@ -1,8 +1,5 @@
 """Pytest configuration and fixtures for CCPM tests."""
 
-import json
-import os
-import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -14,6 +11,7 @@ import pytest
 try:
     from ccpm.utils.claude import claude_available
 except ImportError:
+
     def claude_available():
         return False
 
@@ -21,8 +19,7 @@ except ImportError:
 def pytest_configure(config):
     """Configure pytest with custom markers."""
     config.addinivalue_line(
-        "markers", 
-        "requires_claude: mark test as requiring Claude Code CLI"
+        "markers", "requires_claude: mark test as requiring Claude Code CLI"
     )
 
 

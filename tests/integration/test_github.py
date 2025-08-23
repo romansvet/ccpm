@@ -85,7 +85,7 @@ class TestGitHubIntegration:
 
     def test_setup_without_gh_continues(self, real_git_repo: Path, monkeypatch):
         """Test that setup continues even if GitHub CLI setup fails."""
-        
+
         # Save the original subprocess.run
         original_run = subprocess.run
 

@@ -5,8 +5,8 @@
 [![Claude Code](https://img.shields.io/badge/+-Claude%20Code-d97757)](https://github.com/automazeio/ccpm/blob/main/README.md)
 [![GitHub Issues](https://img.shields.io/badge/+-GitHub%20Issues-1f2328)](https://github.com/automazeio/ccpm)
 &nbsp;
-[![Tests](https://github.com/automazeio/ccpm/actions/workflows/test.yml/badge.svg)](https://github.com/automazeio/ccpm/actions/workflows/test.yml)
-[![Coverage](https://codecov.io/gh/automazeio/ccpm/branch/main/graph/badge.svg)](https://codecov.io/gh/automazeio/ccpm)
+[![Tests](https://github.com/jeremymanning/ccpm/actions/workflows/test.yml/badge.svg?branch=feature/cli-and-readme-improvements)](https://github.com/jeremymanning/ccpm/actions/workflows/test.yml)
+[![Coverage](https://codecov.io/gh/jeremymanning/ccpm/branch/feature%2Fcli-and-readme-improvements/graph/badge.svg)](https://codecov.io/gh/jeremymanning/ccpm)
 &nbsp;
 [![MIT License](https://img.shields.io/badge/License-MIT-28a745)](https://github.com/automazeio/ccpm/blob/main/LICENSE)
 &nbsp;

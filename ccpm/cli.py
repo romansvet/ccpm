@@ -6,13 +6,6 @@ from typing import Optional
 
 import click
 
-from .utils.console import strip_emojis
-
-def safe_echo(message: str, err: bool = False) -> None:
-    """Echo with emoji handling for Windows."""
-    if sys.platform == "win32":
-        message = strip_emojis(message)
-    click.echo(message, err=err)
 from .commands.maintenance import (
     clean_command,
     help_command,
@@ -27,7 +20,14 @@ from .commands.pm import (
     sync_command,
 )
 from .commands.setup import setup_command, uninstall_command, update_command
-from .utils.console import print_error
+from .utils.console import print_error, strip_emojis
+
+
+def safe_echo(message: str, err: bool = False) -> None:
+    """Echo with emoji handling for Windows."""
+    if sys.platform == "win32":
+        message = strip_emojis(message)
+    click.echo(message, err=err)
 
 
 @click.group()

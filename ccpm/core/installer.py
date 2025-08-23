@@ -10,7 +10,14 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 from ..utils.backup import BackupManager
-from ..utils.console import get_emoji, print_error, print_info, print_success, print_warning, safe_print
+from ..utils.console import (
+    get_emoji,
+    print_error,
+    print_info,
+    print_success,
+    print_warning,
+    safe_print,
+)
 from ..utils.shell import run_command, run_pm_script
 from .config import ConfigManager
 from .github import GitHubCLI
@@ -69,33 +76,45 @@ class CCPMInstaller:
 
         # 6. Copy bundled .claude template
         safe_print("\n📥 Installing CCPM files...")
-        
+
         # Get the bundled claude_template from the package
         import ccpm
+
         package_dir = Path(ccpm.__file__).parent
         claude_template = package_dir / "claude_template"
-        
+
         if not claude_template.exists():
             # Fallback to cloning from repository if template not found
             safe_print("\n📥 Downloading CCPM from repository...")
             with tempfile.TemporaryDirectory() as tmpdir:
                 tmp_path = Path(tmpdir)
-                
+
                 result = run_command(
-                    ["git", "clone", "--depth", "1", self.CCPM_REPO, str(tmp_path / "ccpm")]
+                    [
+                        "git",
+                        "clone",
+                        "--depth",
+                        "1",
+                        self.CCPM_REPO,
+                        str(tmp_path / "ccpm"),
+                    ]
                 )
-                
+
                 if result[0] != 0:
                     raise RuntimeError(f"Failed to clone CCPM repository: {result[2]}")
-                
+
                 claude_template = tmp_path / "ccpm" / ".claude"
-                
+
                 if not claude_template.exists():
-                    raise RuntimeError("CCPM repository does not contain .claude directory")
-        
+                    raise RuntimeError(
+                        "CCPM repository does not contain .claude directory"
+                    )
+
         # 7. Merge or copy .claude directory
         if existing_claude:
-            safe_print(f"\n{get_emoji('🔄', '>>>')} Merging with existing .claude directory...")
+            safe_print(
+                f"\n{get_emoji('🔄', '>>>')} Merging with existing .claude directory..."
+            )
             self.merger.merge_directories(claude_template, self.claude_dir)
         else:
             safe_print("\n📂 Creating .claude directory...")
@@ -128,7 +147,9 @@ class CCPMInstaller:
         safe_print("\nNext steps:")
         safe_print("  1. Run 'ccpm init' to initialize the PM system")
         safe_print("  2. Run 'ccpm help' to see available commands")
-        safe_print("  3. Create your first PRD with Claude Code: /pm:prd-new <feature-name>")
+        safe_print(
+            "  3. Create your first PRD with Claude Code: /pm:prd-new <feature-name>"
+        )
 
     def update(self) -> None:
         """Update CCPM to latest version."""
@@ -195,7 +216,9 @@ class CCPMInstaller:
         tracking = self._load_tracking_file()
 
         if tracking.get("had_existing_claude"):
-            safe_print(f"{get_emoji('📁', '>>>')} Preserving pre-existing .claude content...")
+            safe_print(
+                f"{get_emoji('📁', '>>>')} Preserving pre-existing .claude content..."
+            )
 
             # Get list of CCPM files
             ccpm_files = tracking.get("ccpm_files", [])

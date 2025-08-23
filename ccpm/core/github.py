@@ -3,12 +3,17 @@
 import os
 import platform
 import subprocess
-import sys
-import time
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-from ..utils.console import get_emoji, print_error, print_info, print_success, print_warning, safe_print
+from ..utils.console import (
+    get_emoji,
+    print_error,
+    print_info,
+    print_success,
+    print_warning,
+    safe_print,
+)
 
 
 class GitHubCLI:
@@ -75,13 +80,13 @@ class GitHubCLI:
         print("Installing GitHub CLI binary...")
         try:
             # Download the latest release
-            download_cmd = """
-            curl -sL https://api.github.com/repos/cli/cli/releases/latest | 
-            grep "browser_download_url.*macOS.*tar.gz" | 
-            cut -d : -f 2,3 | 
-            tr -d '" ' | 
-            xargs curl -L -o /tmp/gh.tar.gz
-            """
+            download_cmd = (
+                "curl -sL https://api.github.com/repos/cli/cli/releases/latest | "
+                "grep 'browser_download_url.*macOS.*tar.gz' | "
+                "cut -d : -f 2,3 | "
+                "tr -d '\" ' | "
+                "xargs curl -L -o /tmp/gh.tar.gz"
+            )
 
             result = subprocess.run(
                 download_cmd, shell=True, capture_output=True, text=True, timeout=120
@@ -168,13 +173,13 @@ class GitHubCLI:
 
         try:
             # Download the latest release
-            download_cmd = f"""
-            curl -sL https://api.github.com/repos/cli/cli/releases/latest | 
-            grep "browser_download_url.*linux_{arch}.tar.gz" | 
-            cut -d : -f 2,3 | 
-            tr -d '" ' | 
-            xargs curl -L -o /tmp/gh.tar.gz
-            """
+            download_cmd = (
+                f"curl -sL https://api.github.com/repos/cli/cli/releases/latest | "
+                f"grep 'browser_download_url.*linux_{arch}.tar.gz' | "
+                f"cut -d : -f 2,3 | "
+                f"tr -d '\" ' | "
+                f"xargs curl -L -o /tmp/gh.tar.gz"
+            )
 
             result = subprocess.run(
                 download_cmd, shell=True, capture_output=True, text=True, timeout=120
@@ -269,7 +274,9 @@ class GitHubCLI:
 
         # Skip interactive auth in CI environments
         if os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS"):
-            print_warning("Running in CI environment - skipping interactive GitHub authentication")
+            print_warning(
+                "Running in CI environment - skipping interactive GitHub authentication"
+            )
             print_info("Set GITHUB_TOKEN environment variable for CI authentication")
             return False
 
@@ -299,8 +306,12 @@ class GitHubCLI:
                 return True
 
             # Skip extension installation in CI if not authenticated
-            if (os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS")) and list_result.returncode != 0:
-                print_warning("Skipping extension installation in CI - GitHub CLI not authenticated")
+            if (
+                os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS")
+            ) and list_result.returncode != 0:
+                print_warning(
+                    "Skipping extension installation in CI - GitHub CLI not authenticated"
+                )
                 return True  # Don't fail the setup
 
             # Install the extension
