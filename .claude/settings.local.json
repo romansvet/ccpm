@@ -43,7 +43,9 @@
       "List(**)",
       "WebFetch(domain:github.com)",
       "WebSearch",
-      "Read(//usr/local/bin/**)"
+      "Read(//usr/local/bin/**)",
+      "Bash(timeout:*)",
+      "Bash(/Users/jmanning/.claude/local/claude -p \"/pm:status\")"
     ],
     "additionalDirectories": [
       "/tmp"
