@@ -6,11 +6,16 @@ from pathlib import Path
 
 import pytest
 
+from ccpm.utils.claude import claude_available
+
 
 class TestPMCommands:
     """Test PM workflow commands with real execution."""
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Shell scripts not supported on Windows")
+    @pytest.mark.skipif(
+        not claude_available(),
+        reason="Claude Code CLI not available"
+    )
     def test_init_command(self, real_git_repo: Path):
         """Test the init command."""
         # Setup CCPM first
@@ -86,7 +91,10 @@ class TestPMCommands:
         assert "feature-2" in result.stdout
         assert "Total: 2 PRD(s)" in result.stdout
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Shell scripts not supported on Windows")
+    @pytest.mark.skipif(
+        not claude_available(),
+        reason="Claude Code CLI not available"
+    )
     def test_status_command(self, real_git_repo: Path):
         """Test status command."""
         # Setup CCPM
@@ -109,7 +117,10 @@ class TestPMCommands:
         assert result.returncode == 0
         assert "Project Status" in result.stdout or "PRDs:" in result.stdout
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Shell scripts not supported on Windows")
+    @pytest.mark.skipif(
+        not claude_available(),
+        reason="Claude Code CLI not available"
+    )
     def test_help_command(self, real_git_repo: Path):
         """Test help command."""
         # Setup CCPM
@@ -133,7 +144,10 @@ class TestPMCommands:
         assert "Claude Code PM" in result.stdout or "CCPM" in result.stdout
         assert "Commands" in result.stdout or "help" in result.stdout.lower()
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Shell scripts not supported on Windows")
+    @pytest.mark.skipif(
+        not claude_available(),
+        reason="Claude Code CLI not available"
+    )
     def test_validate_command(self, real_git_repo: Path):
         """Test validate command."""
         # Setup CCPM
@@ -157,7 +171,10 @@ class TestPMCommands:
         # Should report valid installation or run validation
         assert "valid" in result.stdout.lower() or "Validating" in result.stdout
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Shell scripts not supported on Windows")
+    @pytest.mark.skipif(
+        not claude_available(),
+        reason="Claude Code CLI not available"
+    )
     def test_search_command(self, real_git_repo: Path):
         """Test search command."""
         # Setup CCPM
@@ -191,6 +208,10 @@ class TestPMCommands:
 class TestMaintenanceCommands:
     """Test maintenance commands."""
 
+    @pytest.mark.skipif(
+        not claude_available(),
+        reason="Claude Code CLI not available"
+    )
     def test_clean_command(self, real_git_repo: Path):
         """Test clean command."""
         # Setup CCPM
@@ -213,6 +234,10 @@ class TestMaintenanceCommands:
         # Should complete (may not have anything to clean)
         assert result.returncode == 0 or "Manual cleanup required" in result.stdout
 
+    @pytest.mark.skipif(
+        not claude_available(),
+        reason="Claude Code CLI not available"
+    )
     def test_import_command(self, real_git_repo: Path):
         """Test import command (placeholder functionality)."""
         # Setup CCPM

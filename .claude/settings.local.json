@@ -52,7 +52,8 @@
       "Bash(git push:*)",
       "Bash(gh api:*)",
       "Bash(python:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Read(//Users/jmanning/.claude/local/**)"
     ],
     "additionalDirectories": [
       "/tmp"

@@ -1,9 +1,9 @@
 """Maintenance and utility commands."""
 
 import subprocess
-import shutil
 from pathlib import Path
 
+from ..utils.claude import find_claude_cli
 from ..utils.console import get_emoji, print_error, print_info, print_success, print_warning, safe_print
 from ..utils.shell import run_pm_script
 
@@ -15,7 +15,8 @@ def invoke_claude_command(command: str) -> None:
         command: The command to pass to Claude (e.g., "/pm:validate")
     """
     # Check if Claude CLI is available
-    claude_cli = shutil.which("claude")
+    claude_cli = find_claude_cli()
+    
     if not claude_cli:
         print_error("Claude Code CLI not found. Please install Claude Code first.")
         print_info("Visit: https://claude.ai/code")
