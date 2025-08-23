@@ -44,6 +44,6 @@ setup(
     },
     include_package_data=True,
     package_data={
-        "ccpm": [".claude/**/*"],
+        "ccpm": ["claude_template/**/*"],
     },
 )

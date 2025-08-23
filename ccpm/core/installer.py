@@ -64,31 +64,39 @@ class CCPMInstaller:
             backup_path = self.backup.create_backup(self.claude_dir)
             print_success(f"Backed up to: {backup_path}")
 
-        # 6. Clone CCPM repository
-        safe_print("\n📥 Downloading CCPM...")
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmp_path = Path(tmpdir)
-
-            # Clone the repository
-            result = run_command(
-                ["git", "clone", "--depth", "1", self.CCPM_REPO, str(tmp_path / "ccpm")]
-            )
-
-            if result[0] != 0:
-                raise RuntimeError(f"Failed to clone CCPM repository: {result[2]}")
-
-            ccpm_claude = tmp_path / "ccpm" / ".claude"
-
-            if not ccpm_claude.exists():
-                raise RuntimeError("CCPM repository does not contain .claude directory")
-
-            # 7. Merge or copy .claude directory
-            if existing_claude:
-                safe_print(f"\n{get_emoji('🔄', '>>>')} Merging with existing .claude directory...")
-                self.merger.merge_directories(ccpm_claude, self.claude_dir)
-            else:
-                safe_print("\n📂 Creating .claude directory...")
-                shutil.copytree(ccpm_claude, self.claude_dir)
+        # 6. Copy bundled .claude template
+        safe_print("\n📥 Installing CCPM files...")
+        
+        # Get the bundled claude_template from the package
+        import ccpm
+        package_dir = Path(ccpm.__file__).parent
+        claude_template = package_dir / "claude_template"
+        
+        if not claude_template.exists():
+            # Fallback to cloning from repository if template not found
+            safe_print("\n📥 Downloading CCPM from repository...")
+            with tempfile.TemporaryDirectory() as tmpdir:
+                tmp_path = Path(tmpdir)
+                
+                result = run_command(
+                    ["git", "clone", "--depth", "1", self.CCPM_REPO, str(tmp_path / "ccpm")]
+                )
+                
+                if result[0] != 0:
+                    raise RuntimeError(f"Failed to clone CCPM repository: {result[2]}")
+                
+                claude_template = tmp_path / "ccpm" / ".claude"
+                
+                if not claude_template.exists():
+                    raise RuntimeError("CCPM repository does not contain .claude directory")
+        
+        # 7. Merge or copy .claude directory
+        if existing_claude:
+            safe_print(f"\n{get_emoji('🔄', '>>>')} Merging with existing .claude directory...")
+            self.merger.merge_directories(claude_template, self.claude_dir)
+        else:
+            safe_print("\n📂 Creating .claude directory...")
+            shutil.copytree(claude_template, self.claude_dir)
 
         # 8. Initialize git repository if needed
         if not (self.target / ".git").exists():
