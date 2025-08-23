@@ -61,7 +61,8 @@
       "Bash(git -C /Users/jmanning/ccpm add -A)",
       "Bash(git -C /Users/jmanning/ccpm commit -m \"Reorganize README for improved clarity - Closes #2\")",
       "Bash(CI=true GITHUB_ACTIONS=true python -m pytest tests/integration/test_commands.py::TestPMCommands::test_init_command -xvs)",
-      "Bash(CI=true GITHUB_ACTIONS=true PATH=/usr/bin:/bin python -m pytest tests/integration/test_commands.py -v --co -q)"
+      "Bash(CI=true GITHUB_ACTIONS=true PATH=/usr/bin:/bin python -m pytest tests/integration/test_commands.py -v --co -q)",
+      "Bash(CI=true GITHUB_ACTIONS=true python -c \"\nimport sys\nsys.path.insert(0, ''/Users/jmanning/ccpm'')\nfrom ccpm.commands.pm import status_command\ntry:\n    status_command()\n    print(''Status command executed'')\nexcept Exception as e:\n    print(f''Status command handled CI gracefully: {e}'')\n\")"
     ],
     "additionalDirectories": [
       "/tmp"

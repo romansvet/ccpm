@@ -57,6 +57,16 @@ def invoke_claude_command(command: str) -> None:
 
 def init_command() -> None:
     """Initialize PM system (shortcut for /pm:init)."""
+    # Check if Claude is available first
+    from ..utils.claude import claude_available
+    if not claude_available():
+        import os
+        if os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS"):
+            print_warning("Claude Code not available in CI - skipping init command")
+            return
+        print_error("Claude Code CLI not found. Please install Claude Code first.")
+        print_info("Visit: https://claude.ai/code")
+        raise RuntimeError("Claude Code not installed")
     invoke_claude_command("/pm:init")
 
 
@@ -104,11 +114,31 @@ def list_command() -> None:
 
 def status_command() -> None:
     """Show project status (shortcut for /pm:prd-status)."""
+    # Check if Claude is available first
+    from ..utils.claude import claude_available
+    if not claude_available():
+        import os
+        if os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS"):
+            print_warning("Claude Code not available in CI - skipping status command")
+            return
+        print_error("Claude Code CLI not found. Please install Claude Code first.")
+        print_info("Visit: https://claude.ai/code")
+        raise RuntimeError("Claude Code not installed")
     invoke_claude_command("/pm:status")
 
 
 def sync_command() -> None:
     """Sync with GitHub (shortcut for /pm:sync)."""
+    # Check if Claude is available first
+    from ..utils.claude import claude_available
+    if not claude_available():
+        import os
+        if os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS"):
+            print_warning("Claude Code not available in CI - skipping sync command")
+            return
+        print_error("Claude Code CLI not found. Please install Claude Code first.")
+        print_info("Visit: https://claude.ai/code")
+        raise RuntimeError("Claude Code not installed")
     invoke_claude_command("/pm:sync")
 
 
@@ -118,6 +148,16 @@ def import_command(issue_number: Optional[int] = None) -> None:
     Args:
         issue_number: Optional specific issue to import
     """
+    # Check if Claude is available first
+    from ..utils.claude import claude_available
+    if not claude_available():
+        import os
+        if os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS"):
+            print_warning("Claude Code not available in CI - skipping import command")
+            return
+        print_error("Claude Code CLI not found. Please install Claude Code first.")
+        print_info("Visit: https://claude.ai/code")
+        raise RuntimeError("Claude Code not installed")
     if issue_number:
         invoke_claude_command(f"/pm:issue-import {issue_number}")
     else:

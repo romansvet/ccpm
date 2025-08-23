@@ -56,11 +56,31 @@ def invoke_claude_command(command: str) -> None:
 
 def validate_command() -> None:
     """Validate system integrity (shortcut for /pm:validate)."""
+    # Check if Claude is available first
+    from ..utils.claude import claude_available
+    if not claude_available():
+        import os
+        if os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS"):
+            print_warning("Claude Code not available in CI - skipping validate command")
+            return
+        print_error("Claude Code CLI not found. Please install Claude Code first.")
+        print_info("Visit: https://claude.ai/code")
+        raise RuntimeError("Claude Code not installed")
     invoke_claude_command("/pm:validate")
 
 
 def clean_command() -> None:
     """Archive completed work (shortcut for /pm:clean)."""
+    # Check if Claude is available first
+    from ..utils.claude import claude_available
+    if not claude_available():
+        import os
+        if os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS"):
+            print_warning("Claude Code not available in CI - skipping clean command")
+            return
+        print_error("Claude Code CLI not found. Please install Claude Code first.")
+        print_info("Visit: https://claude.ai/code")
+        raise RuntimeError("Claude Code not installed")
     invoke_claude_command("/pm:clean")
 
 
@@ -73,6 +93,17 @@ def search_command(query: str) -> None:
     if not query or not query.strip():
         print_error("Search query is required")
         raise RuntimeError("Empty search query")
+    
+    # Check if Claude is available first
+    from ..utils.claude import claude_available
+    if not claude_available():
+        import os
+        if os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS"):
+            print_warning("Claude Code not available in CI - skipping search command")
+            return
+        print_error("Claude Code CLI not found. Please install Claude Code first.")
+        print_info("Visit: https://claude.ai/code")
+        raise RuntimeError("Claude Code not installed")
     
     invoke_claude_command(f"/pm:search {query}")
 

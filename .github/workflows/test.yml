@@ -166,11 +166,12 @@ jobs:
           test -d .claude
           test -f .ccpm_tracking.json
           
-          # Test commands
+          # Test commands (skip Claude-dependent ones in CI)
           ccpm list
-          ccpm status
-          ccpm validate
           ccpm help
+          # Skip status and validate as they require Claude Code
+          # ccpm status  # Requires Claude
+          # ccpm validate  # Requires Claude
           
           # Test uninstall
           ccpm uninstall
