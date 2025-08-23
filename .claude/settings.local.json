@@ -53,7 +53,13 @@
       "Bash(gh api:*)",
       "Bash(python:*)",
       "Bash(cp:*)",
-      "Read(//Users/jmanning/.claude/local/**)"
+      "Read(//Users/jmanning/.claude/local/**)",
+      "Bash(PATH=/nonexistent:$PATH ccpm sync)",
+      "Bash(pip show:*)",
+      "Bash(git -C /Users/jmanning/ccpm add README.md)",
+      "Bash(git -C /Users/jmanning/ccpm status)",
+      "Bash(git -C /Users/jmanning/ccpm add -A)",
+      "Bash(git -C /Users/jmanning/ccpm commit -m \"Reorganize README for improved clarity - Closes #2\")"
     ],
     "additionalDirectories": [
       "/tmp"

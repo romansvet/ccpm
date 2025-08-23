@@ -267,6 +267,12 @@ class GitHubCLI:
         except (subprocess.TimeoutExpired, FileNotFoundError):
             pass
 
+        # Skip interactive auth in CI environments
+        if os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS"):
+            print_warning("Running in CI environment - skipping interactive GitHub authentication")
+            print_info("Set GITHUB_TOKEN environment variable for CI authentication")
+            return False
+
         safe_print("\n🔐 Setting up GitHub authentication...")
         print("Please follow the prompts to authenticate with GitHub:")
         print("(You'll need to press Enter to continue, then follow the browser flow)")
@@ -291,6 +297,11 @@ class GitHubCLI:
             if "yahsan2/gh-sub-issue" in list_result.stdout:
                 print_success("gh-sub-issue extension already installed")
                 return True
+
+            # Skip extension installation in CI if not authenticated
+            if (os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS")) and list_result.returncode != 0:
+                print_warning("Skipping extension installation in CI - GitHub CLI not authenticated")
+                return True  # Don't fail the setup
 
             # Install the extension
             result = subprocess.run(

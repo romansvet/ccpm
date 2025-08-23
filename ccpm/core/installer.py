@@ -1,6 +1,7 @@
 """CCPM installation and setup logic."""
 
 import json
+import os
 import shutil
 import subprocess
 import tempfile
@@ -49,9 +50,11 @@ class CCPMInstaller:
 
         # 3. Setup GitHub authentication (optional, don't fail if skipped)
         if not self.gh_cli.setup_auth():
-            print_warning(
-                "GitHub authentication skipped. You may need to run 'gh auth login' later."
-            )
+            # In CI, this is expected - don't show warning
+            if not (os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS")):
+                print_warning(
+                    "GitHub authentication skipped. You may need to run 'gh auth login' later."
+                )
 
         # 4. Install required extensions
         self.gh_cli.install_extensions()
