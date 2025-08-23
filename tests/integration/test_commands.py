@@ -54,7 +54,7 @@ class TestPMCommands:
             cwd=real_git_repo,
             capture_output=True,
             text=True,
-            timeout=30,
+            timeout=1800,  # 30 minutes for Claude commands
         )
 
         assert result.returncode == 0
@@ -83,7 +83,7 @@ class TestPMCommands:
             cwd=real_git_repo,
             capture_output=True,
             text=True,
-            timeout=30,
+            timeout=1800,  # 30 minutes for Claude commands
         )
 
         assert result.returncode == 0
@@ -111,7 +111,7 @@ class TestPMCommands:
             cwd=real_git_repo,
             capture_output=True,
             text=True,
-            timeout=30,
+            timeout=1800,  # 30 minutes for Claude commands
         )
 
         assert result.returncode == 0
@@ -137,7 +137,7 @@ class TestPMCommands:
             cwd=real_git_repo,
             capture_output=True,
             text=True,
-            timeout=30,
+            timeout=1800,  # 30 minutes for Claude commands
         )
 
         assert result.returncode == 0
@@ -164,7 +164,7 @@ class TestPMCommands:
             cwd=real_git_repo,
             capture_output=True,
             text=True,
-            timeout=30,
+            timeout=1800,  # 30 minutes for Claude commands
         )
 
         assert result.returncode == 0
@@ -198,7 +198,7 @@ class TestPMCommands:
             cwd=real_git_repo,
             capture_output=True,
             text=True,
-            timeout=30,
+            timeout=1800,  # 30 minutes for Claude commands
         )
 
         assert result.returncode == 0
@@ -228,7 +228,7 @@ class TestMaintenanceCommands:
             cwd=real_git_repo,
             capture_output=True,
             text=True,
-            timeout=30,
+            timeout=1800,  # 30 minutes for Claude commands
         )
 
         # Should complete (may not have anything to clean)
@@ -254,7 +254,7 @@ class TestMaintenanceCommands:
             cwd=real_git_repo,
             capture_output=True,
             text=True,
-            timeout=30,
+            timeout=1800,  # 30 minutes for Claude commands
         )
 
         # Currently returns placeholder message

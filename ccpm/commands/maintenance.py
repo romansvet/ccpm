@@ -34,7 +34,7 @@ def invoke_claude_command(command: str) -> None:
             [claude_cli, "-p", command],
             capture_output=True,
             text=True,
-            timeout=300,  # 5 minute timeout
+            timeout=1800,  # 30 minute timeout
             cwd=Path.cwd()
         )
         

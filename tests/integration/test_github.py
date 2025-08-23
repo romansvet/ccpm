@@ -127,7 +127,7 @@ class TestGitHubIntegration:
             cwd=real_git_repo,
             capture_output=True,
             text=True,
-            timeout=30,
+            timeout=1800,  # 30 minutes for Claude commands
         )
 
         # Should handle the error gracefully

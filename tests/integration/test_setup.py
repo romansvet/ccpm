@@ -171,7 +171,7 @@ class TestUpdateCommand:
             cwd=real_git_repo,
             capture_output=True,
             text=True,
-            timeout=30,
+            timeout=1800,  # 30 minutes for Claude commands
         )
 
         # Should fail with appropriate message
@@ -204,7 +204,7 @@ class TestUninstallCommand:
             cwd=real_git_repo,
             capture_output=True,
             text=True,
-            timeout=30,
+            timeout=1800,  # 30 minutes for Claude commands
         )
 
         assert result.returncode == 0
@@ -241,7 +241,7 @@ class TestUninstallCommand:
             cwd=repo_with_existing_claude,
             capture_output=True,
             text=True,
-            timeout=30,
+            timeout=1800,  # 30 minutes for Claude commands
         )
 
         assert result.returncode == 0
@@ -262,7 +262,7 @@ class TestUninstallCommand:
             cwd=real_git_repo,
             capture_output=True,
             text=True,
-            timeout=30,
+            timeout=1800,  # 30 minutes for Claude commands
         )
 
         # Should complete without error
