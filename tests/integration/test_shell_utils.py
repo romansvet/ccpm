@@ -4,7 +4,7 @@ import platform
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Generator
+from typing import Generator, Tuple
 
 import pytest
 
@@ -15,7 +15,7 @@ class TestShellUtilities:
     @pytest.fixture
     def temp_test_files(
         self,
-    ) -> Generator[tuple[Path, Path, Path], None, None]:
+    ) -> Generator[Tuple[Path, Path, Path], None, None]:
         """Create temporary test files for shell utility testing.
 
         Yields:
@@ -26,7 +26,10 @@ class TestShellUtilities:
 
             # Copy utils.sh to temp directory
             utils_source = (
-                Path(__file__).parent.parent.parent / ".claude" / "scripts" / "utils.sh"
+                Path(__file__).parent.parent.parent
+                / ".claude"
+                / "scripts"
+                / "utils.sh"
             )
             utils_script = temp_path / "utils.sh"
 
@@ -38,7 +41,8 @@ class TestShellUtilities:
             # Create test file
             test_file = temp_path / "test_file.txt"
             test_file.write_text(
-                "line1: original content\nline2: more content\n" "line3: final line\n"
+                "line1: original content\nline2: more content\n"
+                "line3: final line\n"
             )
 
             # Create backup directory
@@ -60,6 +64,10 @@ class TestShellUtilities:
         Returns:
             CompletedProcess result
         """
+        # Skip shell utility tests on Windows - bash not reliably available
+        if platform.system() == "Windows":
+            pytest.skip("Shell utility tests not supported on Windows")
+
         full_script = f"""#!/bin/bash
 set -e
 source "{utils_script}"
@@ -147,7 +155,9 @@ cat "{test_file}.bak"
         # Should be in backup section
         assert original_content in result.stdout
 
-    def test_cross_platform_sed_backup_restore_on_failure(self, temp_test_files):
+    def test_cross_platform_sed_backup_restore_on_failure(
+        self, temp_test_files
+    ):
         """Test sed backup restores original file on failure."""
         utils_script, test_file, _ = temp_test_files
 
@@ -292,7 +302,8 @@ status: inactive
 echo "=== All names ==="
 robust_parse '/^name:/ {{print $2}}' "{test_file}"
 echo "=== Active projects ==="
-robust_parse '/^status: active/ {{found=1}} found && /^name:/ {{print $2; found=0}}' "{test_file}"
+robust_parse '/^status: active/ {{found=1}} found && /^name:/ ' \\
+  '{{print $2; found=0}}' "{test_file}"
 """
 
         result = self._run_bash_with_utils(script, utils_script)
@@ -339,7 +350,10 @@ class TestPMScriptIntegration:
 
         # Copy utils.sh
         utils_source = (
-            Path(__file__).parent.parent.parent / ".claude" / "scripts" / "utils.sh"
+            Path(__file__).parent.parent.parent
+            / ".claude"
+            / "scripts"
+            / "utils.sh"
         )
         if utils_source.exists():
             (scripts_dir / "utils.sh").write_text(utils_source.read_text())
@@ -363,6 +377,10 @@ class TestPMScriptIntegration:
 
     def test_status_script_execution(self, pm_test_environment: Path):
         """Test that status.sh script executes without errors."""
+        # Skip on Windows - bash not reliably available
+        if platform.system() == "Windows":
+            pytest.skip("Shell script tests not supported on Windows")
+
         result = subprocess.run(
             ["bash", ".claude/scripts/pm/status.sh"],
             cwd=pm_test_environment,
@@ -380,10 +398,15 @@ class TestPMScriptIntegration:
 
     def test_status_script_with_content(self, pm_test_environment: Path):
         """Test status.sh with actual PRD and epic content."""
+        # Skip on Windows - bash not reliably available
+        if platform.system() == "Windows":
+            pytest.skip("Shell script tests not supported on Windows")
         # Create test content
         prds_dir = pm_test_environment / ".claude" / "prds"
         prds_dir.mkdir()
-        (prds_dir / "test-feature.md").write_text("# Test Feature\n\nTest PRD content")
+        (prds_dir / "test-feature.md").write_text(
+            "# Test Feature\n\nTest PRD content"
+        )
         (prds_dir / "another-feature.md").write_text(
             "# Another Feature\n\nMore content"
         )
@@ -414,6 +437,9 @@ class TestPMScriptIntegration:
 
     def test_utils_sourcing_fallback(self, pm_test_environment: Path):
         """Test that scripts handle missing utils.sh gracefully."""
+        # Skip on Windows - bash not reliably available
+        if platform.system() == "Windows":
+            pytest.skip("Shell script tests not supported on Windows")
         # Remove utils.sh to test fallback
         utils_file = pm_test_environment / ".claude" / "scripts" / "utils.sh"
         utils_file.unlink()
@@ -438,6 +464,10 @@ class TestShellCompatibility:
 
     def test_utils_in_different_shells(self, shell: str, tmp_path: Path):
         """Test utility functions work in different shell environments."""
+        # Skip shell compatibility tests on Windows
+        if platform.system() == "Windows":
+            pytest.skip("Shell compatibility tests not supported on Windows")
+
         # Skip if shell not available
         try:
             subprocess.run(
@@ -451,7 +481,10 @@ class TestShellCompatibility:
 
         # Copy utils.sh
         utils_source = (
-            Path(__file__).parent.parent.parent / ".claude" / "scripts" / "utils.sh"
+            Path(__file__).parent.parent.parent
+            / ".claude"
+            / "scripts"
+            / "utils.sh"
         )
         if not utils_source.exists():
             pytest.skip("utils.sh not found")
@@ -486,7 +519,10 @@ class TestEdgeCasesAndErrorScenarios:
     def test_file_permission_handling(self, tmp_path: Path):
         """Test handling of file permission issues."""
         utils_source = (
-            Path(__file__).parent.parent.parent / ".claude" / "scripts" / "utils.sh"
+            Path(__file__).parent.parent.parent
+            / ".claude"
+            / "scripts"
+            / "utils.sh"
         )
         if not utils_source.exists():
             pytest.skip("utils.sh not found")
@@ -527,12 +563,18 @@ fi
         readonly_file.parent.chmod(0o755)
 
         # Should handle the permission error gracefully
-        assert "PERMISSION_ERROR_HANDLED" in result.stdout or result.returncode != 0
+        assert (
+            "PERMISSION_ERROR_HANDLED" in result.stdout
+            or result.returncode != 0
+        )
 
     def test_large_file_handling(self, tmp_path: Path):
         """Test utility functions with larger files."""
         utils_source = (
-            Path(__file__).parent.parent.parent / ".claude" / "scripts" / "utils.sh"
+            Path(__file__).parent.parent.parent
+            / ".claude"
+            / "scripts"
+            / "utils.sh"
         )
         if not utils_source.exists():
             pytest.skip("utils.sh not found")
@@ -559,13 +601,18 @@ grep -c "REPLACED" "{large_file}"
             timeout=60,  # Longer timeout for large file
         )
 
-        assert result.returncode == 0, f"Large file test failed: {result.stderr}"
+        assert (
+            result.returncode == 0
+        ), f"Large file test failed: {result.stderr}"
         assert "1000" in result.stdout  # Should have replaced 1000 occurrences
 
     def test_concurrent_access_safety(self, tmp_path: Path):
         """Test utility functions under concurrent access."""
         utils_source = (
-            Path(__file__).parent.parent.parent / ".claude" / "scripts" / "utils.sh"
+            Path(__file__).parent.parent.parent
+            / ".claude"
+            / "scripts"
+            / "utils.sh"
         )
         if not utils_source.exists():
             pytest.skip("utils.sh not found")
@@ -600,7 +647,9 @@ echo "PROCESS_{i}_COMPLETE"
             results.append((proc.returncode, stdout, stderr, test_file))
 
         # At least one should succeed (they shouldn't conflict now)
-        success_count = sum(1 for returncode, _, _, _ in results if returncode == 0)
+        success_count = sum(
+            1 for returncode, _, _, _ in results if returncode == 0
+        )
         assert (
             success_count > 0
         ), f"All concurrent operations failed: {[r[2] for r in results]}"
