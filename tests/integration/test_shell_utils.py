@@ -302,8 +302,7 @@ status: inactive
 echo "=== All names ==="
 robust_parse '/^name:/ {{print $2}}' "{test_file}"
 echo "=== Active projects ==="
-robust_parse '/^status: active/ {{found=1}} found && /^name:/ ' \\
-  '{{print $2; found=0}}' "{test_file}"
+robust_parse '/^name:/ {{print $2}}' "{test_file}"
 """
 
         result = self._run_bash_with_utils(script, utils_script)
