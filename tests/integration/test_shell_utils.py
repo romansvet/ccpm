@@ -355,7 +355,7 @@ class TestPMScriptIntegration:
             / "utils.sh"
         )
         if utils_source.exists():
-            (scripts_dir / "utils.sh").write_text(utils_source.read_text())
+            (scripts_dir / "utils.sh").write_text(utils_source.read_text(encoding='utf-8'))
         else:
             pytest.skip("utils.sh not found")
 
@@ -368,7 +368,7 @@ class TestPMScriptIntegration:
             / "status.sh"
         )
         if status_source.exists():
-            (pm_dir / "status.sh").write_text(status_source.read_text())
+            (pm_dir / "status.sh").write_text(status_source.read_text(encoding='utf-8'))
         else:
             pytest.skip("status.sh not found")
 
@@ -569,6 +569,9 @@ fi
 
     def test_large_file_handling(self, tmp_path: Path):
         """Test utility functions with larger files."""
+        # Skip on Windows - shell utility tests not supported
+        if platform.system() == "Windows":
+            pytest.skip("Shell utility tests not supported on Windows")
         utils_source = (
             Path(__file__).parent.parent.parent
             / ".claude"
@@ -607,6 +610,9 @@ grep -c "REPLACED" "{large_file}"
 
     def test_concurrent_access_safety(self, tmp_path: Path):
         """Test utility functions under concurrent access."""
+        # Skip on Windows - shell utility tests not supported  
+        if platform.system() == "Windows":
+            pytest.skip("Shell utility tests not supported on Windows")
         utils_source = (
             Path(__file__).parent.parent.parent
             / ".claude"
