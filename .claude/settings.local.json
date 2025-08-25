@@ -46,7 +46,9 @@
       "Read(//usr/local/bin/**)",
       "Bash(timeout:*)",
       "Bash(/Users/jmanning/.claude/local/claude -p \"/pm:status\")",
-      "Bash(gh issue close:*)"
+      "Bash(gh issue close:*)",
+      "Bash(bash:*)",
+      "Bash(source:*)"
     ],
     "additionalDirectories": [
       "/tmp"
