@@ -45,7 +45,8 @@
       "WebSearch",
       "Read(//usr/local/bin/**)",
       "Bash(timeout:*)",
-      "Bash(/Users/jmanning/.claude/local/claude -p \"/pm:status\")"
+      "Bash(/Users/jmanning/.claude/local/claude -p \"/pm:status\")",
+      "Bash(gh issue close:*)"
     ],
     "additionalDirectories": [
       "/tmp"
