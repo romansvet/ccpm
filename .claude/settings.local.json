@@ -49,7 +49,9 @@
       "Bash(gh issue close:*)",
       "Bash(git merge:*)",
       "Bash(bash:*)",
-      "Bash(source:*)"
+      "Bash(source:*)",
+      "WebFetch(domain:)",
+      "Bash(find:*)"
     ],
     "additionalDirectories": [
       "/tmp"
