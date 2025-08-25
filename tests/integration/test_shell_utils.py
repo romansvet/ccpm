@@ -337,6 +337,9 @@ class TestPMScriptIntegration:
     @pytest.fixture
     def pm_test_environment(self, tmp_path: Path) -> Path:
         """Set up PM test environment with utils.sh."""
+        # Skip on Windows - shell script tests not supported
+        if platform.system() == "Windows":
+            pytest.skip("Shell script tests not supported on Windows")
         # Create .claude structure
         claude_dir = tmp_path / ".claude"
         claude_dir.mkdir()
@@ -376,9 +379,6 @@ class TestPMScriptIntegration:
 
     def test_status_script_execution(self, pm_test_environment: Path):
         """Test that status.sh script executes without errors."""
-        # Skip on Windows - bash not reliably available
-        if platform.system() == "Windows":
-            pytest.skip("Shell script tests not supported on Windows")
 
         result = subprocess.run(
             ["bash", ".claude/scripts/pm/status.sh"],
@@ -397,9 +397,6 @@ class TestPMScriptIntegration:
 
     def test_status_script_with_content(self, pm_test_environment: Path):
         """Test status.sh with actual PRD and epic content."""
-        # Skip on Windows - bash not reliably available
-        if platform.system() == "Windows":
-            pytest.skip("Shell script tests not supported on Windows")
         # Create test content
         prds_dir = pm_test_environment / ".claude" / "prds"
         prds_dir.mkdir()
@@ -436,9 +433,6 @@ class TestPMScriptIntegration:
 
     def test_utils_sourcing_fallback(self, pm_test_environment: Path):
         """Test that scripts handle missing utils.sh gracefully."""
-        # Skip on Windows - bash not reliably available
-        if platform.system() == "Windows":
-            pytest.skip("Shell script tests not supported on Windows")
         # Remove utils.sh to test fallback
         utils_file = pm_test_environment / ".claude" / "scripts" / "utils.sh"
         utils_file.unlink()

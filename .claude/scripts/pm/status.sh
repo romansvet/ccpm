@@ -10,11 +10,11 @@ echo ""
 echo ""
 
 
-echo "📊 Project Status"
+echo "PROJECT STATUS"
 echo "================"
 echo ""
 
-echo "📄 PRDs:"
+echo "PRDs:"
 if [ -d ".claude/prds" ]; then
   # Use more robust counting that works across platforms
   total=$(find .claude/prds -name "*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
@@ -24,7 +24,7 @@ else
 fi
 
 echo ""
-echo "📚 Epics:"
+echo "Epics:"
 if [ -d ".claude/epics" ]; then
   # Use more robust directory counting
   total=$(find .claude/epics -maxdepth 1 -type d ! -path ".claude/epics" 2>/dev/null | wc -l | tr -d ' ')
@@ -34,7 +34,7 @@ else
 fi
 
 echo ""
-echo "📝 Tasks:"
+echo "Tasks:"
 if [ -d ".claude/epics" ]; then
   # Use more robust task counting with better cross-platform support
   total=$(find .claude/epics -name "[0-9]*.md" -type f 2>/dev/null | wc -l | tr -d ' ')
