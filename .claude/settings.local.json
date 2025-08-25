@@ -51,7 +51,8 @@
       "Bash(bash:*)",
       "Bash(source:*)",
       "WebFetch(domain:)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(gh run watch:*)"
     ],
     "additionalDirectories": [
       "/tmp"
