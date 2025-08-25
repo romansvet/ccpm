@@ -1,7 +1,6 @@
 """Setup and installation commands."""
 
 from pathlib import Path
-from typing import Optional
 
 from ..core.installer import CCPMInstaller
 
