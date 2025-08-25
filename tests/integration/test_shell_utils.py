@@ -390,7 +390,7 @@ class TestPMScriptIntegration:
 
         # Should execute without errors
         assert result.returncode == 0, f"status.sh failed: {result.stderr}"
-        assert "Project Status" in result.stdout
+        assert "PROJECT STATUS" in result.stdout
         assert "PRDs:" in result.stdout
         assert "Epics:" in result.stdout
         assert "Tasks:" in result.stdout
@@ -448,7 +448,7 @@ class TestPMScriptIntegration:
         # Should still execute but with warning
         assert result.returncode == 0, f"status.sh failed: {result.stderr}"
         assert "Warning: Could not load utility functions" in result.stderr
-        assert "Project Status" in result.stdout
+        assert "PROJECT STATUS" in result.stdout
 
 
 @pytest.mark.parametrize("shell", ["bash", "zsh"])
