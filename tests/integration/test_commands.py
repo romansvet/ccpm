@@ -54,7 +54,7 @@ class TestPMCommands:
         )
 
         assert result.returncode == 0
-        assert "No PRDs found" in result.stdout
+        assert "No PRD files found" in result.stdout
 
     def test_list_command_with_prds(self, real_git_repo: Path):
         """Test list command with existing PRDs."""

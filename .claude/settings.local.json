@@ -47,7 +47,9 @@
       "Bash(timeout:*)",
       "Bash(/Users/jmanning/.claude/local/claude -p \"/pm:status\")",
       "Bash(gh issue close:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(bash:*)",
+      "Bash(source:*)"
     ],
     "additionalDirectories": [
       "/tmp"
