@@ -12,13 +12,13 @@ echo "Searching for '$query'..."
 echo ""
 echo ""
 
-echo "🔍 Search results for: '$query'"
+echo "SEARCH RESULTS FOR: '$query'"
 echo "================================"
 echo ""
 
 # Search in PRDs
 if [ -d ".claude/prds" ]; then
-  echo "📄 PRDs:"
+  echo "PRDs:"
   results=$(grep -l -i "$query" .claude/prds/*.md 2>/dev/null)
   if [ -n "$results" ]; then
     for file in $results; do
@@ -34,7 +34,7 @@ fi
 
 # Search in Epics
 if [ -d ".claude/epics" ]; then
-  echo "📚 Epics:"
+  echo "EPICS:"
   results=$(find .claude/epics -name "epic.md" -exec grep -l -i "$query" {} \; 2>/dev/null)
   if [ -n "$results" ]; then
     for file in $results; do
@@ -50,7 +50,7 @@ fi
 
 # Search in Tasks
 if [ -d ".claude/epics" ]; then
-  echo "📝 Tasks:"
+  echo "TASKS:"
   results=$(find .claude/epics -name "[0-9]*.md" -exec grep -l -i "$query" {} \; 2>/dev/null | head -10)
   if [ -n "$results" ]; then
     for file in $results; do
@@ -66,6 +66,6 @@ fi
 # Summary
 total=$(find .claude -name "*.md" -exec grep -l -i "$query" {} \; 2>/dev/null | wc -l)
 echo ""
-echo "📊 Total files with matches: $total"
+echo "TOTAL FILES WITH MATCHES: $total"
 
 exit 0

@@ -74,7 +74,7 @@ handle_error() {
     local command=${2:-"unknown command"}
     
     if [[ $exit_code -ne 0 ]]; then
-        echo "ERROR: Error on line $line_number: '$command' failed with exit code $exit_code" >&2
+        echo "❌ Error on line $line_number: '$command' failed with exit code $exit_code" >&2
         exit $exit_code
     fi
 }

@@ -52,7 +52,8 @@
       "Bash(source:*)",
       "WebFetch(domain:)",
       "Bash(find:*)",
-      "Bash(gh run watch:*)"
+      "Bash(gh run watch:*)",
+      "Bash(gh workflow view:*)"
     ],
     "additionalDirectories": [
       "/tmp"
