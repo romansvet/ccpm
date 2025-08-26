@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 echo "Validating PM System..."
 echo ""
@@ -61,7 +62,7 @@ echo ""
 echo "FRONTMATTER VALIDATION:"
 invalid=0
 
-for file in $(find .claude -name "*.md" -path "*/epics/*" -o -path "*/prds/*" 2>/dev/null); do
+find .claude -name "*.md" -path "*/epics/*" -o -path "*/prds/*" 2>/dev/null | while IFS= read -r file; do
   if ! grep -q "^---" "$file"; then
     echo "  WARNING Missing frontmatter: $(basename "$file")"
     ((invalid++))

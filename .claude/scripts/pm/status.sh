@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # Load cross-platform utilities for better error handling
 source "$(dirname "$0")/../utils.sh" 2>/dev/null || {

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 echo "PRD PRD Status Report"
 echo "===================="

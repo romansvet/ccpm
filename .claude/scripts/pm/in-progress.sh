@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 echo "Getting status..."
 echo ""
 echo ""
@@ -15,7 +16,7 @@ if [ -d ".claude/epics" ]; then
     [ -d "$updates_dir" ] || continue
 
     issue_num=$(basename "$updates_dir")
-    epic_name=$(basename $(dirname $(dirname "$updates_dir")))
+    epic_name=$(basename "$(dirname "$(dirname "$updates_dir")")")
 
     if [ -f "$updates_dir/progress.md" ]; then
       completion=$(grep "^completion:" "$updates_dir/progress.md" | head -1 | sed 's/^completion: *//')

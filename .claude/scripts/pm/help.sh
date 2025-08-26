@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 echo "Helping..."
 echo ""
 echo ""

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 epic_name="$1"
 
