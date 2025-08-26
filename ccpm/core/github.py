@@ -115,8 +115,8 @@ class GitHubCLI:
             print_success("GitHub CLI installed successfully")
             return True
 
-        except Exception as e:
-            print_error(f"Failed to install GitHub CLI: {e}")
+        except Exception as exc:
+            print_error(f"Failed to install GitHub CLI: {exc}")
             return False
 
     def _install_gh_linux(self) -> bool:
@@ -207,8 +207,8 @@ class GitHubCLI:
             print_success("GitHub CLI installed successfully")
             return True
 
-        except Exception as e:
-            print_error(f"Failed to install GitHub CLI: {e}")
+        except Exception as exc:
+            print_error(f"Failed to install GitHub CLI: {exc}")
             return False
 
     def _install_gh_windows(self) -> bool:

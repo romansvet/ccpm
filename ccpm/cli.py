@@ -1,5 +1,6 @@
 """Main CLI interface for CCPM."""
 
+import os
 import sys
 from pathlib import Path
 from typing import Optional
@@ -50,8 +51,8 @@ def setup(path: str) -> None:
     """
     try:
         setup_command(Path(path))
-    except Exception as e:
-        print_error(f"Setup failed: {e}")
+    except Exception as exc:
+        print_error(f"Setup failed: {exc}")
         sys.exit(1)
 
 
@@ -64,23 +65,36 @@ def update() -> None:
     """
     try:
         update_command()
-    except Exception as e:
-        print_error(f"Update failed: {e}")
+    except Exception as exc:
+        print_error(f"Update failed: {exc}")
         sys.exit(1)
 
 
 @cli.command("uninstall")
-def uninstall() -> None:
+@click.option("--force", is_flag=True, help="Skip confirmation prompts")
+@click.option("--preserve-user-data", is_flag=True, default=True, 
+              help="Preserve user content (default: true)")
+def uninstall(force: bool, preserve_user_data: bool) -> None:
     """Remove CCPM from current directory.
 
     Preserves any pre-existing .claude content that was present before
     CCPM installation.
     """
+    # Set environment for non-interactive behavior
+    if force:
+        os.environ["CCPM_FORCE"] = "1"
+    if not preserve_user_data:
+        os.environ["CCPM_UNINSTALL_SCAFFOLDING"] = "y"
+        
     try:
         uninstall_command()
-    except Exception as e:
-        print_error(f"Uninstall failed: {e}")
+    except Exception as exc:
+        print_error(f"Uninstall failed: {exc}")
         sys.exit(1)
+    finally:
+        # Clean up environment variables
+        os.environ.pop("CCPM_FORCE", None)
+        os.environ.pop("CCPM_UNINSTALL_SCAFFOLDING", None)
 
 
 @cli.command("init")
@@ -88,8 +102,8 @@ def init() -> None:
     """Initialize PM system (shortcut for /pm:init)."""
     try:
         init_command()
-    except Exception as e:
-        safe_echo(f"❌ Init failed: {e}", err=True)
+    except Exception as exc:
+        safe_echo(f"❌ Init failed: {exc}", err=True)
         sys.exit(1)
 
 
@@ -98,8 +112,8 @@ def list_prds() -> None:
     """List all PRDs (shortcut for /pm:prd-list)."""
     try:
         list_command()
-    except Exception as e:
-        safe_echo(f"❌ List failed: {e}", err=True)
+    except Exception as exc:
+        safe_echo(f"❌ List failed: {exc}", err=True)
         sys.exit(1)
 
 
@@ -108,8 +122,8 @@ def status() -> None:
     """Show project status (shortcut for /pm:prd-status)."""
     try:
         status_command()
-    except Exception as e:
-        safe_echo(f"❌ Status failed: {e}", err=True)
+    except Exception as exc:
+        safe_echo(f"❌ Status failed: {exc}", err=True)
         sys.exit(1)
 
 
@@ -118,8 +132,8 @@ def sync() -> None:
     """Sync with GitHub (shortcut for /pm:sync)."""
     try:
         sync_command()
-    except Exception as e:
-        safe_echo(f"❌ Sync failed: {e}", err=True)
+    except Exception as exc:
+        safe_echo(f"❌ Sync failed: {exc}", err=True)
         sys.exit(1)
 
 
@@ -132,8 +146,8 @@ def import_issue(issue_number: Optional[int]) -> None:
     """
     try:
         import_command(issue_number)
-    except Exception as e:
-        safe_echo(f"❌ Import failed: {e}", err=True)
+    except Exception as exc:
+        safe_echo(f"❌ Import failed: {exc}", err=True)
         sys.exit(1)
 
 
@@ -142,8 +156,8 @@ def validate() -> None:
     """Validate system integrity (shortcut for /pm:validate)."""
     try:
         validate_command()
-    except Exception as e:
-        safe_echo(f"❌ Validate failed: {e}", err=True)
+    except Exception as exc:
+        safe_echo(f"❌ Validate failed: {exc}", err=True)
         sys.exit(1)
 
 
@@ -152,8 +166,8 @@ def clean() -> None:
     """Archive completed work (shortcut for /pm:clean)."""
     try:
         clean_command()
-    except Exception as e:
-        safe_echo(f"❌ Clean failed: {e}", err=True)
+    except Exception as exc:
+        safe_echo(f"❌ Clean failed: {exc}", err=True)
         sys.exit(1)
 
 
@@ -166,8 +180,8 @@ def search(query: str) -> None:
     """
     try:
         search_command(query)
-    except Exception as e:
-        safe_echo(f"❌ Search failed: {e}", err=True)
+    except Exception as exc:
+        safe_echo(f"❌ Search failed: {exc}", err=True)
         sys.exit(1)
 
 
@@ -176,8 +190,8 @@ def help_cmd() -> None:
     """Display CCPM help and command summary."""
     try:
         help_command()
-    except Exception as e:
-        safe_echo(f"❌ Help failed: {e}", err=True)
+    except Exception as exc:
+        safe_echo(f"❌ Help failed: {exc}", err=True)
         sys.exit(1)
 
 

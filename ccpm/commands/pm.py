@@ -15,7 +15,7 @@ from ..utils.console import (
 
 
 def invoke_claude_command(command: str, description: str = "") -> None:
-    """Invoke a Claude Code command directly with progress indication.
+    """Invoke a Claude Code command directly with progress indication and cancellation support.
 
     Args:
         command: The command to pass to Claude (e.g., "/pm:sync")
@@ -34,13 +34,20 @@ def invoke_claude_command(command: str, description: str = "") -> None:
         print_error("No CCPM installation found. Run 'ccpm setup .' first.")
         raise RuntimeError("CCPM not installed")
 
-    # Show progress indication
+    # Show progress indication with cancellation info
     if description:
         safe_print(f"{get_emoji('⚙️', 'Working...')} {description}")
     else:
         safe_print(f"{get_emoji('⚙️', 'Working...')} Executing Claude Code command: {command}")
     
     safe_print("=" * 60)
+    safe_print("Press Ctrl+C to cancel...")
+    
+    # Get configurable timeout
+    import os
+    from ..utils.shell import get_timeout_for_operation, DEFAULT_TIMEOUTS
+    
+    timeout = get_timeout_for_operation("claude_command", DEFAULT_TIMEOUTS["claude_command"])
 
     # Invoke Claude with the command
     try:
@@ -49,7 +56,7 @@ def invoke_claude_command(command: str, description: str = "") -> None:
             [claude_cli, "-p", command],
             capture_output=True,
             text=True,
-            timeout=1800,  # 30 minute timeout
+            timeout=timeout,
             cwd=Path.cwd(),
         )
 
@@ -65,13 +72,16 @@ def invoke_claude_command(command: str, description: str = "") -> None:
             safe_print("=" * 60)
             safe_print(f"{get_emoji('✅', 'Done!')} Command completed successfully")
 
-    except subprocess.TimeoutExpired:
-        print_error(f"Command timed out: {command}")
-        print_info("Consider breaking large operations into smaller steps")
-        raise RuntimeError("Command timeout")
-    except Exception as e:
-        print_error(f"Failed to execute Claude command: {e}")
-        raise
+    except subprocess.TimeoutExpired as exc:
+        print_error(f"Command timed out after {timeout} seconds: {command}")
+        print_info("Consider:")
+        print_info("  • Breaking the operation into smaller steps")
+        print_info(f"  • Setting CCPM_TIMEOUT_CLAUDE_COMMAND={timeout * 2} for longer timeout")
+        print_info("  • Checking if Claude Code is responsive")
+        raise RuntimeError("Claude command timeout - operation too complex") from exc
+    except Exception as exc:
+        print_error(f"Failed to execute Claude command: {exc}")
+        raise RuntimeError(f"Claude command execution failed: {exc}") from exc
 
 
 def init_command() -> None:
