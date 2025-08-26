@@ -11,7 +11,6 @@ from ..utils.console import (
     print_warning,
     safe_print,
 )
-from ..utils.shell import run_pm_script
 
 
 def invoke_claude_command(command: str, description: str = "") -> None:
@@ -38,16 +37,19 @@ def invoke_claude_command(command: str, description: str = "") -> None:
     if description:
         safe_print(f"{get_emoji('⚙️', '[Working...]')} {description}")
     else:
-        safe_print(f"{get_emoji('⚙️', '[Working...]')} Executing Claude Code command: {command}")
-    
+        safe_print(
+            f"{get_emoji('⚙️', '[Working...]')} Executing Claude Code command: {command}"
+        )
+
     safe_print("=" * 60)
     safe_print("Press Ctrl+C to cancel...")
-    
+
     # Get configurable timeout
-    import os
     from ..utils.shell import get_timeout_for_operation, DEFAULT_TIMEOUTS
-    
-    timeout = get_timeout_for_operation("claude_command", DEFAULT_TIMEOUTS["claude_command"])
+
+    timeout = get_timeout_for_operation(
+        "claude_command", DEFAULT_TIMEOUTS["claude_command"]
+    )
 
     # Invoke Claude with the command
     try:
@@ -76,7 +78,9 @@ def invoke_claude_command(command: str, description: str = "") -> None:
         print_error(f"Command timed out after {timeout} seconds: {command}")
         print_info("Consider:")
         print_info("  • Breaking the operation into smaller steps")
-        print_info(f"  • Setting CCPM_TIMEOUT_CLAUDE_COMMAND={timeout * 2} for longer timeout")
+        print_info(
+            f"  • Setting CCPM_TIMEOUT_CLAUDE_COMMAND={timeout * 2} for longer timeout"
+        )
         print_info("  • Checking if Claude Code is responsive")
         raise RuntimeError("Claude command timeout - operation too complex") from exc
     except Exception as exc:
@@ -98,7 +102,9 @@ def validate_command() -> None:
         print_error("Claude Code CLI not found. Please install Claude Code first.")
         print_info("Visit: https://claude.ai/code")
         raise RuntimeError("Claude Code not installed")
-    invoke_claude_command("/pm:validate", "Validating system integrity and checking for issues")
+    invoke_claude_command(
+        "/pm:validate", "Validating system integrity and checking for issues"
+    )
 
 
 def clean_command() -> None:
@@ -115,7 +121,9 @@ def clean_command() -> None:
         print_error("Claude Code CLI not found. Please install Claude Code first.")
         print_info("Visit: https://claude.ai/code")
         raise RuntimeError("Claude Code not installed")
-    invoke_claude_command("/pm:clean", "Archiving completed work and cleaning up old files")
+    invoke_claude_command(
+        "/pm:clean", "Archiving completed work and cleaning up old files"
+    )
 
 
 def search_command(query: str) -> None:
@@ -141,13 +149,17 @@ def search_command(query: str) -> None:
         print_info("Visit: https://claude.ai/code")
         raise RuntimeError("Claude Code not installed")
 
-    invoke_claude_command(f"/pm:search {query}", f"Searching for '{query}' across all PRDs, epics, and tasks")
+    invoke_claude_command(
+        f"/pm:search {query}",
+        f"Searching for '{query}' across all PRDs, epics, and tasks",
+    )
 
 
 def help_command() -> None:
     """Display CCPM CLI help and command summary."""
     # Always show CLI-focused help instead of PM script help
-    safe_print(f"""
+    safe_print(
+        f"""
 {get_emoji('📚', '[CCPM]')} CCPM - Claude Code Project Management CLI
 =============================================
 
@@ -184,4 +196,5 @@ def help_command() -> None:
 {get_emoji('📄', '[Docs]')} Documentation
   • View README.md for complete setup and workflow documentation
   • Visit https://github.com/jeremymanning/ccpm for examples and updates
-""")
+"""
+    )

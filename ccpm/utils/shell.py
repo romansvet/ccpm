@@ -9,40 +9,40 @@ from typing import Dict, List, Optional, Tuple
 
 # Default timeout values in seconds
 DEFAULT_TIMEOUTS = {
-    "pm_script": 300,       # 5 minutes for PM scripts
-    "git_command": 60,      # 1 minute for git operations
-    "claude_command": 1800, # 30 minutes for Claude operations
-    "github_api": 30        # 30 seconds for GitHub API
+    "pm_script": 300,  # 5 minutes for PM scripts
+    "git_command": 60,  # 1 minute for git operations
+    "claude_command": 1800,  # 30 minutes for Claude operations
+    "github_api": 30,  # 30 seconds for GitHub API
 }
 
 
 def get_timeout_for_operation(operation: str, default: int) -> int:
     """Get timeout for specific operation with environment override.
-    
+
     Args:
         operation: Operation name (e.g., 'pm_script', 'git_command')
         default: Default timeout value
-        
+
     Returns:
         Timeout value in seconds
     """
     # Check for environment override
     env_var = f"CCPM_TIMEOUT_{operation.upper()}"
     env_timeout = os.environ.get(env_var)
-    
+
     if env_timeout:
         try:
             return int(env_timeout)
         except ValueError:
             # Invalid value, use default
             pass
-            
+
     return default
 
 
 def get_shell_environment() -> Dict[str, str]:
     """Detect and configure cross-platform shell environment.
-    
+
     Returns:
         Dictionary with shell environment information
     """
@@ -50,35 +50,35 @@ def get_shell_environment() -> Dict[str, str]:
         "platform": sys.platform,
         "shell_available": False,
         "shell_path": None,
-        "shell_type": None
+        "shell_type": None,
     }
-    
+
     if sys.platform == "win32":
         # Try multiple Windows shell options in order of preference
         candidates = [
             ("git-bash", _find_git_bash()),
             ("wsl-bash", _find_wsl_bash()),
-            ("msys2-bash", _find_msys2_bash())
+            ("msys2-bash", _find_msys2_bash()),
         ]
-        
+
         for shell_type, shell_path in candidates:
             if shell_path:
-                env_info.update({
-                    "shell_available": True,
-                    "shell_path": shell_path,
-                    "shell_type": shell_type
-                })
+                env_info.update(
+                    {
+                        "shell_available": True,
+                        "shell_path": shell_path,
+                        "shell_type": shell_type,
+                    }
+                )
                 break
     else:
         # Unix-like systems
         bash_path = shutil.which("bash")
         if bash_path:
-            env_info.update({
-                "shell_available": True,
-                "shell_path": bash_path,
-                "shell_type": "bash"
-            })
-    
+            env_info.update(
+                {"shell_available": True, "shell_path": bash_path, "shell_type": "bash"}
+            )
+
     return env_info
 
 
@@ -87,14 +87,14 @@ def _find_git_bash() -> Optional[str]:
     git_path = shutil.which("git")
     if not git_path:
         return None
-        
+
     git_dir = Path(git_path).parent.parent
     potential_bash_paths = [
         git_dir / "bin" / "bash.exe",
         git_dir / "usr" / "bin" / "bash.exe",
-        git_dir / "git-bash.exe"
+        git_dir / "git-bash.exe",
     ]
-    
+
     for bash_path in potential_bash_paths:
         if bash_path.exists():
             return str(bash_path)
@@ -108,10 +108,7 @@ def _find_wsl_bash() -> Optional[str]:
         # Test if WSL bash is available
         try:
             result = subprocess.run(
-                [wsl_path, "which", "bash"],
-                capture_output=True,
-                timeout=5,
-                text=True
+                [wsl_path, "which", "bash"], capture_output=True, timeout=5, text=True
             )
             if result.returncode == 0:
                 return wsl_path
@@ -127,9 +124,9 @@ def _find_msys2_bash() -> Optional[str]:
         Path("C:/msys64/usr/bin/bash.exe"),
         Path("C:/msys32/usr/bin/bash.exe"),
         Path(os.path.expanduser("~/msys64/usr/bin/bash.exe")),
-        Path(os.path.expanduser("~/msys32/usr/bin/bash.exe"))
+        Path(os.path.expanduser("~/msys32/usr/bin/bash.exe")),
     ]
-    
+
     for bash_path in msys2_paths:
         if bash_path.exists():
             return str(bash_path)
@@ -137,10 +134,10 @@ def _find_msys2_bash() -> Optional[str]:
 
 
 def run_pm_script(
-    script_name: str, 
-    args: Optional[List[str]] = None, 
+    script_name: str,
+    args: Optional[List[str]] = None,
     cwd: Optional[Path] = None,
-    timeout: Optional[int] = None
+    timeout: Optional[int] = None,
 ) -> Tuple[int, str, str]:
     """Execute PM shell scripts with configurable timeout.
 
@@ -163,15 +160,15 @@ def run_pm_script(
 
     # Use cross-platform shell detection
     shell_env = get_shell_environment()
-    
+
     if not shell_env["shell_available"]:
         return (
             1,
             "",
             f"No compatible shell found for script '{script_name}'. "
-            f"On Windows, install Git for Windows, WSL, or MSYS2."
+            f"On Windows, install Git for Windows, WSL, or MSYS2.",
         )
-    
+
     # Build command based on shell type
     if shell_env["shell_type"] == "wsl-bash":
         # For WSL, we need to use wsl bash instead of direct bash
@@ -186,7 +183,7 @@ def run_pm_script(
     # Get configurable timeout
     if timeout is None:
         timeout = get_timeout_for_operation("pm_script", DEFAULT_TIMEOUTS["pm_script"])
-        
+
         # Check for script-specific timeout override
         script_timeout_env = f"CCPM_TIMEOUT_{script_name.upper()}"
         script_timeout = os.environ.get(script_timeout_env)
@@ -212,10 +209,10 @@ def run_pm_script(
 
 
 def run_command(
-    args: List[str], 
-    cwd: Optional[Path] = None, 
-    timeout: Optional[int] = None, 
-    check: bool = False
+    args: List[str],
+    cwd: Optional[Path] = None,
+    timeout: Optional[int] = None,
+    check: bool = False,
 ) -> Tuple[int, str, str]:
     """Run a shell command and return the result.
 
@@ -235,12 +232,16 @@ def run_command(
     if timeout is None:
         command = args[0] if args else "unknown"
         if command == "git":
-            timeout = get_timeout_for_operation("git_command", DEFAULT_TIMEOUTS["git_command"])
+            timeout = get_timeout_for_operation(
+                "git_command", DEFAULT_TIMEOUTS["git_command"]
+            )
         elif command in ["gh", "github"]:
-            timeout = get_timeout_for_operation("github_api", DEFAULT_TIMEOUTS["github_api"])
+            timeout = get_timeout_for_operation(
+                "github_api", DEFAULT_TIMEOUTS["github_api"]
+            )
         else:
             timeout = 60  # Default 1 minute timeout
-    
+
     try:
         result = subprocess.run(
             args, cwd=cwd, capture_output=True, text=True, timeout=timeout, check=check

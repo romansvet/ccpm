@@ -9,50 +9,57 @@ from .emoji_map import EMOJI_MAP
 
 def is_interactive_environment() -> bool:
     """Detect if running in interactive environment.
-    
+
     Returns:
         True if interactive, False if non-interactive/automated
     """
     # Check TTY
     if not sys.stdin.isatty():
         return False
-        
+
     # Check CI environments
     ci_indicators = [
-        "CI", "GITHUB_ACTIONS", "JENKINS_URL", "TRAVIS",
-        "CIRCLECI", "BUILDBOT_WORKER", "GITLAB_CI"
+        "CI",
+        "GITHUB_ACTIONS",
+        "JENKINS_URL",
+        "TRAVIS",
+        "CIRCLECI",
+        "BUILDBOT_WORKER",
+        "GITLAB_CI",
     ]
-    
+
     if any(os.environ.get(indicator) for indicator in ci_indicators):
         return False
-        
+
     # Check automation flags
     if os.environ.get("CCPM_FORCE") or os.environ.get("AUTOMATION_MODE"):
         return False
-        
+
     return True
 
 
-def safe_input(prompt: str, default: str = "N", force_value: Optional[str] = None) -> str:
+def safe_input(
+    prompt: str, default: str = "N", force_value: Optional[str] = None
+) -> str:
     """Safe input with non-interactive fallback.
-    
+
     Args:
         prompt: Input prompt to display
         default: Default value for non-interactive mode
         force_value: Override value (for testing/automation)
-        
+
     Returns:
         User input or default value
     """
     # Check for forced value (testing, automation)
     if force_value is not None:
         return force_value
-        
+
     # Check environment override
     if not is_interactive_environment():
         print_info(f"Non-interactive mode: using default '{default}' for: {prompt}")
         return default
-        
+
     # Interactive input
     try:
         return input(prompt)

@@ -4,7 +4,6 @@ import json
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 
 class BackupManager:

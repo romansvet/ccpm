@@ -38,16 +38,19 @@ def invoke_claude_command(command: str, description: str = "") -> None:
     if description:
         safe_print(f"{get_emoji('⚙️', 'Working...')} {description}")
     else:
-        safe_print(f"{get_emoji('⚙️', 'Working...')} Executing Claude Code command: {command}")
-    
+        safe_print(
+            f"{get_emoji('⚙️', 'Working...')} Executing Claude Code command: {command}"
+        )
+
     safe_print("=" * 60)
     safe_print("Press Ctrl+C to cancel...")
-    
+
     # Get configurable timeout
-    import os
     from ..utils.shell import get_timeout_for_operation, DEFAULT_TIMEOUTS
-    
-    timeout = get_timeout_for_operation("claude_command", DEFAULT_TIMEOUTS["claude_command"])
+
+    timeout = get_timeout_for_operation(
+        "claude_command", DEFAULT_TIMEOUTS["claude_command"]
+    )
 
     # Invoke Claude with the command
     try:
@@ -76,7 +79,9 @@ def invoke_claude_command(command: str, description: str = "") -> None:
         print_error(f"Command timed out after {timeout} seconds: {command}")
         print_info("Consider:")
         print_info("  • Breaking the operation into smaller steps")
-        print_info(f"  • Setting CCPM_TIMEOUT_CLAUDE_COMMAND={timeout * 2} for longer timeout")
+        print_info(
+            f"  • Setting CCPM_TIMEOUT_CLAUDE_COMMAND={timeout * 2} for longer timeout"
+        )
         print_info("  • Checking if Claude Code is responsive")
         raise RuntimeError("Claude command timeout - operation too complex") from exc
     except Exception as exc:
@@ -98,17 +103,19 @@ def init_command() -> None:
         print_error("Claude Code CLI not found. Please install Claude Code first.")
         print_info("Visit: https://claude.ai/code")
         raise RuntimeError("Claude Code not installed")
-    invoke_claude_command("/pm:init", "Initializing PM system and configuring GitHub integration")
+    invoke_claude_command(
+        "/pm:init", "Initializing PM system and configuring GitHub integration"
+    )
 
 
 def list_command() -> None:
-    """List all PRDs with detailed information."""    
+    """List all PRDs with detailed information."""
     # First check if .claude directory exists
     cwd = Path.cwd()
     if not (cwd / ".claude").exists():
         print_error("No CCPM installation found. Run 'ccpm setup .' first.")
         raise RuntimeError("CCPM not installed")
-        
+
     safe_print(f"{get_emoji('🔍', 'Searching for PRDs...')}")
 
     # Check for PRDs directory
@@ -118,8 +125,8 @@ def list_command() -> None:
         safe_print(f"{get_emoji('📄', 'PRDs')} Product Requirements Documents")
         safe_print("=" * 50)
         safe_print(f"  No PRDs directory found at {prds_dir}")
-        safe_print(f"  Create your first PRD using: /pm:prd-new <name> (in Claude Code)")
-        safe_print(f"  Or set up the directory structure with: ccpm init")
+        safe_print("  Create your first PRD using: /pm:prd-new <name> (in Claude Code)")
+        safe_print("  Or set up the directory structure with: ccpm init")
         return
 
     # List PRD files
@@ -131,8 +138,8 @@ def list_command() -> None:
 
     if not prd_files:
         safe_print(f"  No PRD files found in {prds_dir}")
-        safe_print(f"  Create your first PRD using: /pm:prd-new <name> (in Claude Code)")
-        safe_print(f"\nTotal: 0 PRDs")
+        safe_print("  Create your first PRD using: /pm:prd-new <name> (in Claude Code)")
+        safe_print("\nTotal: 0 PRDs")
         return
 
     for prd_file in sorted(prd_files):
@@ -141,16 +148,16 @@ def list_command() -> None:
         try:
             with open(prd_file, "r") as f:
                 content = f.read()
-                first_line = content.split('\n')[0].strip()
+                first_line = content.split("\n")[0].strip()
                 if first_line.startswith("#"):
                     title = first_line.lstrip("#").strip()
                 else:
                     title = name
-                
+
                 # Get basic stats
-                lines = len(content.split('\n'))
+                lines = len(content.split("\n"))
                 words = len(content.split())
-                
+
         except Exception:
             title = name
             lines = words = 0
@@ -163,15 +170,17 @@ def list_command() -> None:
 
     safe_print(f"Total: {len(prd_files)} PRD(s)")
     safe_print(f"Location: {prds_dir}")
-    
+
     # Also check for related epics
     epics_dir = cwd / ".claude" / "epics"
     if epics_dir.exists():
         epic_dirs = [d for d in epics_dir.iterdir() if d.is_dir()]
         if epic_dirs:
             safe_print(f"\nRelated: {len(epic_dirs)} epic(s) in {epics_dir}")
-    
-    safe_print(f"\n{get_emoji('💡', 'Tip:')} Use 'ccpm status' for detailed project dashboard")
+
+    safe_print(
+        f"\n{get_emoji('💡', 'Tip:')} Use 'ccpm status' for detailed project dashboard"
+    )
 
 
 def status_command() -> None:
@@ -227,6 +236,9 @@ def import_command(issue_number: Optional[int] = None) -> None:
         print_info("Visit: https://claude.ai/code")
         raise RuntimeError("Claude Code not installed")
     if issue_number:
-        invoke_claude_command(f"/pm:issue-import {issue_number}", f"Importing GitHub issue #{issue_number}")
+        invoke_claude_command(
+            f"/pm:issue-import {issue_number}",
+            f"Importing GitHub issue #{issue_number}",
+        )
     else:
         invoke_claude_command("/pm:import", "Importing all GitHub issues")

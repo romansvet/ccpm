@@ -72,8 +72,12 @@ def update() -> None:
 
 @cli.command("uninstall")
 @click.option("--force", is_flag=True, help="Skip confirmation prompts")
-@click.option("--preserve-user-data", is_flag=True, default=True, 
-              help="Preserve user content (default: true)")
+@click.option(
+    "--preserve-user-data",
+    is_flag=True,
+    default=True,
+    help="Preserve user content (default: true)",
+)
 def uninstall(force: bool, preserve_user_data: bool) -> None:
     """Remove CCPM from current directory.
 
@@ -85,7 +89,7 @@ def uninstall(force: bool, preserve_user_data: bool) -> None:
         os.environ["CCPM_FORCE"] = "1"
     if not preserve_user_data:
         os.environ["CCPM_UNINSTALL_SCAFFOLDING"] = "y"
-        
+
     try:
         uninstall_command()
     except Exception as exc:

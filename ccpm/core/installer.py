@@ -3,16 +3,14 @@
 import json
 import os
 import shutil
-import subprocess
 import tempfile
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List
 
 from ..utils.backup import BackupManager
 from ..utils.console import (
     get_emoji,
-    is_interactive_environment,
     print_error,
     print_info,
     print_success,
@@ -176,7 +174,14 @@ class CCPMInstaller:
 
                 # Clone the repository
                 result = run_command(
-                    ["git", "clone", "--depth", "1", self.CCPM_REPO, str(tmp_path / "ccpm")]
+                    [
+                        "git",
+                        "clone",
+                        "--depth",
+                        "1",
+                        self.CCPM_REPO,
+                        str(tmp_path / "ccpm"),
+                    ]
                 )
 
                 if result[0] != 0:
@@ -184,7 +189,9 @@ class CCPMInstaller:
 
                 ccpm_claude = tmp_path / "ccpm" / ".claude"
                 if not ccpm_claude.exists():
-                    raise RuntimeError("Downloaded CCPM repository does not contain .claude directory")
+                    raise RuntimeError(
+                        "Downloaded CCPM repository does not contain .claude directory"
+                    )
 
                 # Critical merge operation with recovery
                 safe_print(f"\n{get_emoji('🔄', '>>>')} Merging updates...")
@@ -197,7 +204,9 @@ class CCPMInstaller:
                     if backup_path and backup_path.exists():
                         self.backup.restore_backup(backup_path, self.claude_dir)
                         print_info("Previous state restored successfully")
-                    raise RuntimeError("Update failed during merge, previous state restored") from merge_exc
+                    raise RuntimeError(
+                        "Update failed during merge, previous state restored"
+                    ) from merge_exc
 
             # Update tracking file
             try:
@@ -210,7 +219,7 @@ class CCPMInstaller:
                 # Don't fail the entire update for tracking file issues
 
             print_success("\nCCPM updated successfully!")
-            
+
         except Exception as exc:
             print_error("Update failed, attempting to restore backup...")
             if backup_path and backup_path.exists():
@@ -229,7 +238,7 @@ class CCPMInstaller:
         if not self.claude_dir.exists():
             safe_print("No CCPM installation found.")
             return
-            
+
         # Pre-flight safety check
         user_content = self._detect_user_content()
         if user_content:
@@ -239,23 +248,25 @@ class CCPMInstaller:
         # Load tracking with safety validation
         if not self.tracking_file.exists():
             print_warning("No tracking file found - using safe mode")
-            
+
             response = safe_input(
                 "Remove CCPM scaffolding only? [y/N]: ",
                 default="N",
-                force_value=os.environ.get("CCPM_UNINSTALL_SCAFFOLDING")
+                force_value=os.environ.get("CCPM_UNINSTALL_SCAFFOLDING"),
             )
-            
+
             if response.lower() != "y":
-                print_info("Uninstall cancelled - use --force flag in scripts if needed")
+                print_info(
+                    "Uninstall cancelled - use --force flag in scripts if needed"
+                )
                 return
-            
+
             self._safe_uninstall_without_tracking()
             return
 
         # Tracked uninstall with user data protection
         tracking = self._load_tracking_file()
-        
+
         # Use new safe tracking format if available
         if "ccpm_scaffolding_files" in tracking:
             scaffolding_files = tracking["ccpm_scaffolding_files"]
@@ -264,7 +275,8 @@ class CCPMInstaller:
             legacy_files = tracking.get("ccpm_files", [])
             # Filter out user content directories from legacy tracking
             scaffolding_files = [
-                f for f in legacy_files 
+                f
+                for f in legacy_files
                 if not any(user_dir in f for user_dir in ["agents", "prds", "epics"])
             ]
             print_warning("Using legacy tracking file - extra safety measures applied")
@@ -312,94 +324,90 @@ class CCPMInstaller:
 
         # Only track CCPM scaffolding files, never user content
         ccpm_scaffolding_files = [
-            "scripts/pm/",              # PM shell scripts
+            "scripts/pm/",  # PM shell scripts
             "scripts/test-and-log.sh",  # Test runner script
-            "commands/pm/",             # PM command templates  
-            "settings.local.json",      # Template settings
-            "context/",                 # Context templates (if exists)
-            "CLAUDE.md"                 # Project instructions
+            "commands/pm/",  # PM command templates
+            "settings.local.json",  # Template settings
+            "context/",  # Context templates (if exists)
+            "CLAUDE.md",  # Project instructions
         ]
-        
+
         # NEVER track user content directories:
         # - agents/  (user-created task agents)
-        # - prds/    (user product requirements) 
+        # - prds/    (user product requirements)
         # - epics/   (user project epics)
-        
-        user_content_dirs = [
-            "agents", "prds", "epics", "context/custom"
-        ]
-        
-        tracking_data.update({
-            "ccpm_scaffolding_files": ccpm_scaffolding_files,
-            "user_content_dirs": user_content_dirs,  # For informational purposes
-            "data_safety_version": "1.0"  # Track safety model version
-        })
+
+        user_content_dirs = ["agents", "prds", "epics", "context/custom"]
+
+        tracking_data.update(
+            {
+                "ccpm_scaffolding_files": ccpm_scaffolding_files,
+                "user_content_dirs": user_content_dirs,  # For informational purposes
+                "data_safety_version": "1.0",  # Track safety model version
+            }
+        )
 
         self._save_tracking_file(tracking_data)
 
     def _detect_user_content(self) -> List[str]:
         """Detect user-created content that must be preserved.
-        
+
         Returns:
             List of user content descriptions
         """
         user_content = []
-        
+
         check_dirs = [
             ("prds", "*.md"),
             ("epics", "*/"),
             ("agents", "*.py"),
-            ("context/custom", "*")
+            ("context/custom", "*"),
         ]
-        
+
         for dir_name, pattern in check_dirs:
             dir_path = self.claude_dir / dir_name
             if dir_path.exists():
                 files = list(dir_path.glob(pattern))
                 if files:
                     user_content.append(f"{dir_name} ({len(files)} items)")
-        
+
         return user_content
-    
+
     def _is_directory_empty_of_user_content(self, directory: Path) -> bool:
         """Check if directory contains only CCPM scaffolding (no user content).
-        
+
         Args:
             directory: Directory to check
-            
+
         Returns:
             True if safe to remove, False if contains user content
         """
         if not directory.exists() or not directory.is_dir():
             return True
-            
+
         # Check for user content patterns
         user_patterns = [
             "*.md",  # User PRDs, documentation
             "*.py",  # User agents, custom scripts
-            "*.json", # User configuration
-            "*.txt", # User notes
-            "*/epic.md", # User epic files
-            "*/task_*.md", # User task files
+            "*.json",  # User configuration
+            "*.txt",  # User notes
+            "*/epic.md",  # User epic files
+            "*/task_*.md",  # User task files
         ]
-        
+
         for pattern in user_patterns:
             if list(directory.rglob(pattern)):
                 return False
-                
+
         return True
-    
+
     def _safe_uninstall_without_tracking(self) -> None:
         """Safely uninstall without tracking file (conservative approach)."""
         print_info("Using conservative uninstall - removing only known CCPM files")
-        
+
         # Only remove files we know are definitely CCPM scaffolding
-        safe_to_remove = [
-            "scripts/test-and-log.sh",
-            "settings.local.json",
-            "CLAUDE.md"
-        ]
-        
+        safe_to_remove = ["scripts/test-and-log.sh", "settings.local.json", "CLAUDE.md"]
+
         removed_count = 0
         for file_path in safe_to_remove:
             full_path = self.claude_dir / file_path
@@ -414,7 +422,7 @@ class CCPMInstaller:
                         removed_count += 1
                 except Exception as exc:
                     print_warning(f"Could not remove {file_path}: {exc}")
-        
+
         # Carefully handle scripts directory
         scripts_dir = self.claude_dir / "scripts"
         if scripts_dir.exists():
@@ -428,7 +436,7 @@ class CCPMInstaller:
                         scripts_dir.rmdir()
                 except Exception as exc:
                     print_warning(f"Could not remove scripts/pm: {exc}")
-        
+
         print_success(f"Removed {removed_count} CCPM files using conservative approach")
 
     def _load_tracking_file(self) -> Dict[str, Any]:
