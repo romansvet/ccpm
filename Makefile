@@ -6,14 +6,19 @@ UNAME_S := $(shell uname -s 2>/dev/null || echo Windows)
 UNAME_M := $(shell uname -m 2>/dev/null || echo unknown)
 
 # Platform-specific variables
+# Check for Windows in multiple ways (native Windows, Git Bash, MSYS2, etc.)
 ifeq ($(OS),Windows_NT)
     PLATFORM := windows
-    SHELL_EXT := .bat
-    DELETE_CMD := del /q
-    DELETE_DIR_CMD := rmdir /s /q
-    NULL_DEVICE := nul
-    PYTHON := python
-    PATH_SEP := \\
+    NATIVE_WINDOWS := true
+else ifeq ($(UNAME_S),MINGW64_NT-10.0-22631)
+    PLATFORM := windows
+    NATIVE_WINDOWS := false
+else ifeq ($(findstring MINGW,$(UNAME_S)),MINGW)
+    PLATFORM := windows
+    NATIVE_WINDOWS := false
+else ifeq ($(findstring MSYS,$(UNAME_S)),MSYS)
+    PLATFORM := windows
+    NATIVE_WINDOWS := false
 else
     ifeq ($(UNAME_S),Darwin)
         PLATFORM := macos
@@ -22,12 +27,33 @@ else
     else
         PLATFORM := unix
     endif
+    NATIVE_WINDOWS := false
+endif
+
+# Set platform-specific variables
+ifeq ($(PLATFORM),windows)
+    SHELL_EXT := .bat
+    PYTHON := python
+    # Use forward slashes for Git Bash compatibility even on Windows
+    PATH_SEP := /
+    ifeq ($(NATIVE_WINDOWS),true)
+        DELETE_CMD := del /q
+        DELETE_DIR_CMD := rmdir /s /q
+        NULL_DEVICE := nul
+    else
+        # Git Bash environment
+        DELETE_CMD := rm -f
+        DELETE_DIR_CMD := rm -rf
+        NULL_DEVICE := /dev/null
+    endif
+else
     SHELL_EXT := .sh
     DELETE_CMD := rm -f
     DELETE_DIR_CMD := rm -rf
     NULL_DEVICE := /dev/null
     PYTHON := python3
     PATH_SEP := /
+    NATIVE_WINDOWS := false
 endif
 
 # Colors for output (only on Unix-like systems)
@@ -147,15 +173,10 @@ test: test-pm test-scripts
 test-pm:
 	@echo "$(YELLOW)Testing PM scripts...$(NC)"
 	@mkdir -p $(LOGS_DIR)
-ifeq ($(PLATFORM),windows)
-	@echo "Testing PM help..." && cd $(PM_SCRIPTS_DIR) && help.bat > ..\..\$(LOGS_DIR)\pm-help-test.log 2>&1
-	@echo "Testing PM status..." && cd $(PM_SCRIPTS_DIR) && status.bat > ..\..\$(LOGS_DIR)\pm-status-test.log 2>&1
-	@echo "Testing PM validate..." && cd $(PM_SCRIPTS_DIR) && validate.bat > ..\..\$(LOGS_DIR)\pm-validate-test.log 2>&1
-else
-	@echo "Testing PM help..." && chmod +x $(PM_SCRIPTS_DIR)/*.sh && $(PM_SCRIPTS_DIR)/help.sh > $(LOGS_DIR)/pm-help-test.log 2>&1
+# Use consistent approach across all platforms with forward slashes
+	@echo "Testing PM help..." && chmod +x $(PM_SCRIPTS_DIR)/*.sh 2>$(NULL_DEVICE) || true && $(PM_SCRIPTS_DIR)/help.sh > $(LOGS_DIR)/pm-help-test.log 2>&1
 	@echo "Testing PM status..." && $(PM_SCRIPTS_DIR)/status.sh > $(LOGS_DIR)/pm-status-test.log 2>&1
 	@echo "Testing PM validate..." && $(PM_SCRIPTS_DIR)/validate.sh > $(LOGS_DIR)/pm-validate-test.log 2>&1
-endif
 	@echo "$(GREEN)PM tests completed. Check $(LOGS_DIR) for detailed logs.$(NC)"
 
 # Test scripts functionality
@@ -180,86 +201,44 @@ else
 endif
 	@echo "$(GREEN)Script tests completed.$(NC)"
 
-# PM command shortcuts
+# PM command shortcuts - Use shell scripts universally
 pm-help:
-ifeq ($(PLATFORM),windows)
-	@cd $(PM_SCRIPTS_DIR) && help.bat
-else
-	@cd $(PM_SCRIPTS_DIR) && chmod +x help.sh && ./help.sh
-endif
+	@cd $(PM_SCRIPTS_DIR) && chmod +x help.sh 2>$(NULL_DEVICE) || true && ./help.sh
 
 pm-status:
-ifeq ($(PLATFORM),windows)
-	@cd $(PM_SCRIPTS_DIR) && status.bat
-else
-	@cd $(PM_SCRIPTS_DIR) && chmod +x status.sh && ./status.sh
-endif
+	@cd $(PM_SCRIPTS_DIR) && chmod +x status.sh 2>$(NULL_DEVICE) || true && ./status.sh
 
 pm-standup:
-ifeq ($(PLATFORM),windows)
-	@cd $(PM_SCRIPTS_DIR) && standup.bat
-else
-	@cd $(PM_SCRIPTS_DIR) && chmod +x standup.sh && ./standup.sh
-endif
+	@cd $(PM_SCRIPTS_DIR) && chmod +x standup.sh 2>$(NULL_DEVICE) || true && ./standup.sh
 
 pm-init:
-ifeq ($(PLATFORM),windows)
-	@cd $(PM_SCRIPTS_DIR) && init.bat
-else
-	@cd $(PM_SCRIPTS_DIR) && chmod +x init.sh && ./init.sh
-endif
+	@cd $(PM_SCRIPTS_DIR) && chmod +x init.sh 2>$(NULL_DEVICE) || true && ./init.sh
 
 pm-blocked:
-ifeq ($(PLATFORM),windows)
-	@cd $(PM_SCRIPTS_DIR) && blocked.bat
-else
-	@cd $(PM_SCRIPTS_DIR) && chmod +x blocked.sh && ./blocked.sh
-endif
+	@cd $(PM_SCRIPTS_DIR) && chmod +x blocked.sh 2>$(NULL_DEVICE) || true && ./blocked.sh
 
 pm-next:
-ifeq ($(PLATFORM),windows)
-	@cd $(PM_SCRIPTS_DIR) && next.bat
-else
-	@cd $(PM_SCRIPTS_DIR) && chmod +x next.sh && ./next.sh
-endif
+	@cd $(PM_SCRIPTS_DIR) && chmod +x next.sh 2>$(NULL_DEVICE) || true && ./next.sh
 
 pm-search:
 ifndef QUERY
 	@echo "$(RED)Error: Please provide a search query. Usage: make pm-search QUERY='your search term'$(NC)"
 else
-ifeq ($(PLATFORM),windows)
-	@cd $(PM_SCRIPTS_DIR) && search.bat "$(QUERY)"
-else
-	@cd $(PM_SCRIPTS_DIR) && chmod +x search.sh && ./search.sh "$(QUERY)"
-endif
+	@cd $(PM_SCRIPTS_DIR) && chmod +x search.sh 2>$(NULL_DEVICE) || true && ./search.sh "$(QUERY)"
 endif
 
 validate:
-ifeq ($(PLATFORM),windows)
-	@cd $(PM_SCRIPTS_DIR) && validate.bat
-else
-	@cd $(PM_SCRIPTS_DIR) && chmod +x validate.sh && ./validate.sh
-endif
+	@cd $(PM_SCRIPTS_DIR) && chmod +x validate.sh 2>$(NULL_DEVICE) || true && ./validate.sh
 
 # Cleanup targets
 clean-logs:
 	@echo "$(YELLOW)Cleaning test logs...$(NC)"
-ifeq ($(PLATFORM),windows)
-	@if exist "$(LOGS_DIR)" $(DELETE_DIR_CMD) "$(LOGS_DIR)" 2>$(NULL_DEVICE)
-else
 	@$(DELETE_DIR_CMD) $(LOGS_DIR) 2>$(NULL_DEVICE) || true
-endif
 	@echo "$(GREEN)Test logs cleaned.$(NC)"
 
 clean:
 	@echo "$(YELLOW)Cleaning temporary files...$(NC)"
-ifeq ($(PLATFORM),windows)
-	@$(DELETE_CMD) *.tmp 2>$(NULL_DEVICE) || echo.
-	@$(DELETE_CMD) *.log 2>$(NULL_DEVICE) || echo.
-	@$(DELETE_CMD) temp_*.py 2>$(NULL_DEVICE) || echo.
-else
 	@$(DELETE_CMD) *.tmp *.log temp_*.py 2>$(NULL_DEVICE) || true
-endif
 	@echo "$(GREEN)Temporary files cleaned.$(NC)"
 
 clean-all: clean clean-logs
@@ -268,20 +247,12 @@ clean-all: clean clean-logs
 # Check if Python is available
 check-python:
 	@echo "$(YELLOW)Checking Python installation...$(NC)"
-ifeq ($(PLATFORM),windows)
-	@python --version >$(NULL_DEVICE) 2>&1 && echo "Python: OK" || echo "$(RED)Python not found$(NC)"
-else
-	@$(PYTHON) --version >/dev/null 2>&1 && echo "$(GREEN)Python: OK$(NC)" || echo "$(RED)Python not found$(NC)"
-endif
+	@$(PYTHON) --version >$(NULL_DEVICE) 2>&1 && echo "$(GREEN)Python: OK$(NC)" || echo "$(RED)Python not found$(NC)"
 
 # Check if git is available
 check-git:
 	@echo "$(YELLOW)Checking Git installation...$(NC)"
-ifeq ($(PLATFORM),windows)
-	@git --version >$(NULL_DEVICE) 2>&1 && echo "Git: OK" || echo "$(RED)Git not found$(NC)"
-else
-	@git --version >/dev/null 2>&1 && echo "$(GREEN)Git: OK$(NC)" || echo "$(RED)Git not found$(NC)"
-endif
+	@git --version >$(NULL_DEVICE) 2>&1 && echo "$(GREEN)Git: OK$(NC)" || echo "$(RED)Git not found$(NC)"
 
 # Run all system checks
 check-system: check-python check-git
