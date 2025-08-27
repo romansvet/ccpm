@@ -183,22 +183,15 @@ test-pm:
 test-scripts:
 	@echo "$(YELLOW)Testing core scripts...$(NC)"
 	@mkdir -p $(LOGS_DIR)
-ifeq ($(PLATFORM),windows)
 	@echo "Testing test-and-log script..."
 	@echo "print('Hello from test script')" > temp_test.py
-	@echo "Test script functionality not fully supported on Windows in this Makefile"
-	@$(DELETE_CMD) temp_test.py 2>$(NULL_DEVICE)
-else
-	@echo "Testing test-and-log script..."
-	@echo "print('Hello from test script')" > temp_test.py
-	@chmod +x $(SCRIPTS_DIR)/test-and-log.sh
+	@chmod +x $(SCRIPTS_DIR)/test-and-log.sh 2>$(NULL_DEVICE) || true
 	@if [ -f "$(SCRIPTS_DIR)/test-and-log.sh" ]; then \
 		./$(SCRIPTS_DIR)/test-and-log.sh temp_test.py test-makefile-run || echo "$(YELLOW)Test script execution completed with warnings$(NC)"; \
 	else \
 		echo "$(RED)Test script not found$(NC)"; \
 	fi
-	@$(DELETE_CMD) temp_test.py 2>/dev/null || true
-endif
+	@$(DELETE_CMD) temp_test.py 2>$(NULL_DEVICE) || true
 	@echo "$(GREEN)Script tests completed.$(NC)"
 
 # PM command shortcuts - Use shell scripts universally
