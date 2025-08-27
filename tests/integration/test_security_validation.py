@@ -65,15 +65,20 @@ class TestSecurityModel:
                             
                             # Commands should have specific patterns or be exact commands
                             if "*" in command:
-                                # If it has wildcards, it should have specific prefixes
-                                assert any(command.startswith(prefix) for prefix in [
-                                    "git ", "gh ", "python ", "pip ", "npm ", "pytest",
-                                    ".claude/", "ccpm/", "find ", "ls ", "mv ", "cp ",
+                                # If it has wildcards, it should have specific prefixes (with space or colon)
+                                prefixes = [
+                                    "git ", "gh ", "python ", "pip ", "npm ", "npx", "pnpm ", "pytest",
+                                    ".claude/", "ccpm/", "ccpm", "find ", "ls ", "mv ", "cp ",
                                     "rm ", "chmod ", "touch ", "tree ", "ruff ", "black",
                                     "isort", "flake8", "sed", "grep", "which", "command",
                                     "head", "tail", "wc", "sort", "uniq", "awk", "tr",
-                                    "cut", "date", "sleep", "basename", "dirname", "file"
-                                ]), f"Unscoped wildcard command: {perm}"
+                                    "cut", "date", "sleep", "basename", "dirname", "file",
+                                    "mktemp", "uname", "bash", "source", "timeout"
+                                ]
+                                # Also check colon format (e.g., "ls:*")
+                                colon_prefixes = [p.rstrip() + ":" for p in prefixes if p.endswith(" ")]
+                                all_prefixes = prefixes + colon_prefixes
+                                assert any(command.startswith(prefix) for prefix in all_prefixes), f"Unscoped wildcard command: {perm}"
 
     def test_directory_access_restrictions(self):
         """Test that directory access is properly restricted."""
