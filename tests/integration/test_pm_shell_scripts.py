@@ -203,7 +203,7 @@ description: A backlog feature
         
         (prds_dir / "active-feature.md").write_text("""---
 name: Active Feature
-status: in-progress  
+status: in-progress
 description: An active feature
 ---
 
