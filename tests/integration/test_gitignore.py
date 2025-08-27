@@ -77,7 +77,7 @@ class TestGitignoreEffectiveness:
         
         for dir_name in egg_info_dirs:
             egg_dir = repo_path / dir_name
-            egg_dir.mkdir()
+            egg_dir.mkdir(exist_ok=True)
             
             # Create typical .egg-info contents
             (egg_dir / "PKG-INFO").write_text("Name: test\nVersion: 1.0.0")
@@ -108,18 +108,18 @@ ccpm = ccpm.cli:cli
         
         # Create build directory structure
         build_dir = repo_path / "build"
-        build_dir.mkdir()
+        build_dir.mkdir(exist_ok=True)
         
         # Create typical build artifacts
-        (build_dir / "lib").mkdir()
-        (build_dir / "lib" / "ccpm").mkdir()
+        (build_dir / "lib").mkdir(exist_ok=True)
+        (build_dir / "lib" / "ccpm").mkdir(exist_ok=True)
         (build_dir / "lib" / "ccpm" / "__init__.py").write_text('__version__ = "0.1.0"')
-        (build_dir / "bdist.linux-x86_64").mkdir()
-        (build_dir / "temp.linux-x86_64-3.12").mkdir()
+        (build_dir / "bdist.linux-x86_64").mkdir(exist_ok=True)
+        (build_dir / "temp.linux-x86_64-3.12").mkdir(exist_ok=True)
         
         # Create dist directory
         dist_dir = repo_path / "dist"
-        dist_dir.mkdir()
+        dist_dir.mkdir(exist_ok=True)
         (dist_dir / "ccpm-0.1.0-py3-none-any.whl").write_text("fake wheel content")
         (dist_dir / "ccpm-0.1.0.tar.gz").write_text("fake tarball content")
         
@@ -293,15 +293,15 @@ ccpm = ccpm.cli:cli
         # Add to git to see what happens
         subprocess.run(["git", "add", "."], cwd=repo_path, capture_output=True)
         
-        # Check git status to see what was staged
+        # Check what files were staged
         result = subprocess.run(
-            ["git", "status", "--cached", "--porcelain"], 
+            ["git", "diff", "--name-only", "--cached"], 
             cwd=repo_path, 
             capture_output=True, 
             text=True
         )
         
-        staged_files = [line[3:].strip() for line in result.stdout.splitlines() if line.strip()]
+        staged_files = [line.strip() for line in result.stdout.splitlines() if line.strip()]
         
         # All our source files should have been staged
         missing_source_files = []
