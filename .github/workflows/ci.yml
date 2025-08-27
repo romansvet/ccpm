@@ -34,70 +34,30 @@ env:
   PYTHONUNBUFFERED: 1
 
 jobs:
-  # Job to detect changes and set up matrix
-  setup:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-      should-test: ${{ steps.changes.outputs.should-test }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Detect changes
-        id: changes
-        run: |
-          # Check if this is a manual dispatch or if files changed
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "should-test=true" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event_name }}" = "push" ]; then
-            echo "should-test=true" >> $GITHUB_OUTPUT
-          else
-            # For PRs, check if relevant files changed
-            git diff --name-only HEAD~1 HEAD | grep -E '\.(sh|bat|py|yml|yaml|Makefile|md)$' && echo "should-test=true" >> $GITHUB_OUTPUT || echo "should-test=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Set up test matrix
-        id: set-matrix
-        run: |
-          echo 'matrix={
-            "os": [
-              {
-                "name": "Ubuntu Latest",
-                "runner": "ubuntu-latest",
-                "shell": "bash",
-                "install-script": "./install/ccpm.sh",
-                "make-command": "make"
-              },
-              {
-                "name": "macOS Latest", 
-                "runner": "macos-latest",
-                "shell": "bash",
-                "install-script": "./install/ccpm.sh",
-                "make-command": "make"
-              },
-              {
-                "name": "Windows Latest",
-                "runner": "windows-latest", 
-                "shell": "pwsh",
-                "install-script": ".\\install\\ccpm.bat",
-                "make-command": "make"
-              }
-            ]
-          }' >> $GITHUB_OUTPUT
-
   # Main test job that runs across all platforms
   test:
-    needs: setup
-    if: needs.setup.outputs.should-test == 'true'
-    runs-on: ${{ matrix.os.runner }}
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: "Ubuntu Latest"
+            shell: bash
+            install-script: "./install/ccpm.sh"
+            make-command: "make"
+          - os: macos-latest
+            name: "macOS Latest"
+            shell: bash
+            install-script: "./install/ccpm.sh"
+            make-command: "make"
+          - os: windows-latest
+            name: "Windows Latest"
+            shell: pwsh
+            install-script: ".\\install\\ccpm.bat"
+            make-command: "make"
     
-    name: Test on ${{ matrix.os.name }}
+    name: Test on ${{ matrix.name }}
     
     steps:
       - name: Checkout repository
@@ -111,6 +71,7 @@ jobs:
       # Windows-specific setup
       - name: Set up Windows environment
         if: runner.os == 'Windows'
+        shell: pwsh
         run: |
           # Ensure make is available on Windows
           choco install make -y
@@ -120,34 +81,50 @@ jobs:
       # Unix-like systems setup
       - name: Set up Unix environment  
         if: runner.os != 'Windows'
+        shell: bash
         run: |
           # Make scripts executable
           find . -name "*.sh" -type f -exec chmod +x {} \;
           # Verify make is available
           which make || (echo "Make not found" && exit 1)
       
-      - name: Display system information
-        shell: ${{ matrix.os.shell }}
+      # Display system information - Windows
+      - name: Display Windows system information
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Write-Host "=== System Information ==="
+          Write-Host "OS: ${{ runner.os }}"
+          Write-Host "Runner: ${{ matrix.os }}"
+          Write-Host "Shell: ${{ matrix.shell }}"
+
+          Write-Host "Windows Version:"
+          systeminfo | findstr /C:"OS Name" /C:"OS Version"
+          Write-Host "PowerShell Version:"
+          $PSVersionTable.PSVersion
+
+          Write-Host "Git version:"
+          git --version
+
+          Write-Host "Make version:"
+          make --version
+
+      # Display system information - Unix/Linux/macOS
+      - name: Display Unix system information
+        if: runner.os != 'Windows'
+        shell: bash
         run: |
           echo "=== System Information ==="
           echo "OS: ${{ runner.os }}"
-          echo "Runner: ${{ matrix.os.runner }}"
-          echo "Shell: ${{ matrix.os.shell }}"
-          
-          # Platform-specific system info
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            echo "Windows Version:"
-            systeminfo | findstr /C:"OS Name" /C:"OS Version"
-            echo "PowerShell Version:"
-            $PSVersionTable.PSVersion
-          else
-            echo "System:"
-            uname -a
-            echo "Shell:"
-            echo $SHELL
-            echo "Python version:"
-            python3 --version || python --version
-          fi
+          echo "Runner: ${{ matrix.os }}"
+          echo "Shell: ${{ matrix.shell }}"
+
+          echo "System:"
+          uname -a
+          echo "Shell:"
+          echo $SHELL
+          echo "Python version:"
+          python3 --version || python --version
           
           echo "Git version:"
           git --version
@@ -156,129 +133,134 @@ jobs:
           make --version
 
       - name: Run system checks
-        shell: ${{ matrix.os.shell }}
+        shell: ${{ matrix.shell }}
         run: |
           echo "=== Running System Checks ==="
-          ${{ matrix.os.make-command }} check-system
+          ${{ matrix.make-command }} check-system
       
       - name: Display project information
-        shell: ${{ matrix.os.shell }}
+        shell: ${{ matrix.shell }}
         run: |
           echo "=== Project Information ==="
-          ${{ matrix.os.make-command }} info
+          ${{ matrix.make-command }} info
 
       - name: Run test suite
         if: ${{ github.event.inputs.test_suite != 'install-only' }}
-        shell: ${{ matrix.os.shell }}
+        shell: ${{ matrix.shell }}
         run: |
           echo "=== Running Test Suite ==="
-          ${{ matrix.os.make-command }} test || exit 1
+          ${{ matrix.make-command }} test || exit 1
 
-      - name: Test install script
-        if: ${{ github.event.inputs.test_suite != 'test-only' }}
-        shell: ${{ matrix.os.shell }}
+      # Test install script - Windows
+      - name: Test Windows install script
+        if: ${{ github.event.inputs.test_suite != 'test-only' && runner.os == 'Windows' }}
+        shell: pwsh
         run: |
-          echo "=== Testing Install Script ==="
+          Write-Host "=== Testing Windows Install Script ==="
           
           # Create a temporary directory for install testing
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            $temp_dir = New-Item -ItemType Directory -Path "$env:TEMP\ccpm-install-test" -Force
-            cd $temp_dir.FullName
-            echo "Testing in directory: $($temp_dir.FullName)"
-          else
-            temp_dir=$(mktemp -d)
-            cd "$temp_dir"
-            echo "Testing in directory: $temp_dir"
-          fi
+          $temp_dir = New-Item -ItemType Directory -Path "$env:TEMP\ccpm-install-test" -Force
+          Set-Location $temp_dir.FullName
+          Write-Host "Testing in directory: $($temp_dir.FullName)"
           
           # Copy install script to temp directory
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            Copy-Item "${{ github.workspace }}\install\ccpm.bat" -Destination "."
-            # Test the install script (but don't actually install to avoid conflicts)
-            echo "Install script copied successfully"
-            # We could run: .\ccpm.bat
-            # But for CI we'll just verify it exists and is executable
-            if (Test-Path "ccpm.bat") {
-              echo "✅ Install script test passed"
-            } else {
-              echo "❌ Install script test failed"
-              exit 1
-            }
+          Copy-Item "${{ github.workspace }}\install\ccpm.bat" -Destination "."
+          Write-Host "Install script copied successfully"
+
+          # Test the install script exists and is accessible
+          if (Test-Path "ccpm.bat") {
+            Write-Host "✅ Windows install script test passed"
+          } else {
+            Write-Host "❌ Windows install script test failed"
+            exit 1
+          }
+
+      # Test install script - Unix/Linux/macOS
+      - name: Test Unix install script
+        if: ${{ github.event.inputs.test_suite != 'test-only' && runner.os != 'Windows' }}
+        shell: bash
+        run: |
+          echo "=== Testing Unix Install Script ==="
+
+          # Create a temporary directory for install testing
+          temp_dir=$(mktemp -d)
+          cd "$temp_dir"
+          echo "Testing in directory: $temp_dir"
+
+          # Copy install script to temp directory
+          cp "${{ github.workspace }}/install/ccpm.sh" .
+          chmod +x ccpm.sh
+          echo "Install script copied and made executable"
+
+          # Test the install script exists and is executable
+          if [ -x "./ccpm.sh" ]; then
+            echo "✅ Unix install script test passed"
           else
-            cp "${{ github.workspace }}/install/ccpm.sh" .
-            chmod +x ccpm.sh
-            # Test the install script (but don't actually install to avoid conflicts)
-            echo "Install script copied and made executable"
-            # We could run: ./ccpm.sh
-            # But for CI we'll just verify it exists and is executable
-            if [ -x "./ccpm.sh" ]; then
-              echo "✅ Install script test passed"
-            else
-              echo "❌ Install script test failed"
-              exit 1
-            fi
+            echo "❌ Unix install script test failed"
+            exit 1
           fi
 
       - name: Run validation
-        shell: ${{ matrix.os.shell }}
+        shell: ${{ matrix.shell }}
         run: |
           echo "=== Running Validation ==="
-          ${{ matrix.os.make-command }} validate
+          ${{ matrix.make-command }} validate
 
       - name: Test PM commands
-        shell: ${{ matrix.os.shell }}
+        shell: ${{ matrix.shell }}
         run: |
           echo "=== Testing PM Commands ==="
-          ${{ matrix.os.make-command }} pm-help
-          ${{ matrix.os.make-command }} pm-status
+          ${{ matrix.make-command }} pm-help
+          ${{ matrix.make-command }} pm-status
 
       - name: Upload test logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-logs-${{ matrix.os.name }}-${{ github.run_id }}
+          name: test-logs-${{ matrix.name }}-${{ github.run_id }}
           path: |
             tests/logs/
             *.log
           retention-days: 7
           if-no-files-found: ignore
 
-      - name: Debug information
-        if: ${{ github.event.inputs.debug_enabled == 'true' && failure() }}
-        shell: ${{ matrix.os.shell }}
+      # Debug information - Windows
+      - name: Debug information (Windows)
+        if: ${{ github.event.inputs.debug_enabled == 'true' && failure() && runner.os == 'Windows' }}
+        shell: pwsh
+        run: |
+          Write-Host "=== Debug Information ==="
+          Write-Host "Working directory contents:"
+          Get-ChildItem -Recurse -Force | Select-Object -First 20
+
+          Write-Host "Environment variables:"
+          Get-ChildItem Env: | Where-Object { $_.Name -like "*CCPM*" -or $_.Name -like "*CI*" }
+
+      # Debug information - Unix/Linux/macOS
+      - name: Debug information (Unix)
+        if: ${{ github.event.inputs.debug_enabled == 'true' && failure() && runner.os != 'Windows' }}
+        shell: bash
         run: |
           echo "=== Debug Information ==="
           echo "Working directory contents:"
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            Get-ChildItem -Recurse -Force
-          else
-            find . -type f -name "*.log" -o -name "*.sh" -o -name "*.bat" | head -20
-          fi
+          find . -type f -name "*.log" -o -name "*.sh" -o -name "*.bat" | head -20
           
           echo "Environment variables:"
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            Get-ChildItem Env: | Where-Object { $_.Name -like "*CCPM*" -or $_.Name -like "*CI*" }
-          else
-            env | grep -E "(CCPM|CI|PATH)" || true
-          fi
+          env | grep -E "(CCPM|CI|PATH)" || true
 
   # Job to report overall status
   report:
-    needs: [setup, test]
+    needs: [test]
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Report test results
         run: |
           echo "=== CI Results Summary ==="
-          echo "Setup job: ${{ needs.setup.result }}"
           echo "Test job: ${{ needs.test.result }}"
           
-          if [ "${{ needs.setup.result }}" = "success" ] && [ "${{ needs.test.result }}" = "success" ]; then
+          if [ "${{ needs.test.result }}" = "success" ]; then
             echo "✅ All tests passed across all platforms!"
-            exit 0
-          elif [ "${{ needs.setup.outputs.should-test }}" = "false" ]; then
-            echo "ℹ️ No relevant changes detected, tests skipped"
             exit 0
           else
             echo "❌ Some tests failed"
@@ -291,24 +273,18 @@ jobs:
         with:
           script: |
             const testResult = '${{ needs.test.result }}';
-            const setupResult = '${{ needs.setup.result }}';
-            const shouldTest = '${{ needs.setup.outputs.should-test }}';
             
             let body;
-            if (setupResult === 'success' && testResult === 'success') {
+            if (testResult === 'success') {
               body = '✅ **Cross-Platform CI: All tests passed!**\n\n' +
                 'Tests successfully completed on:\n' +
                 '- Ubuntu Latest ✅\n' +
                 '- macOS Latest ✅\n' +
                 '- Windows Latest ✅\n\n' +
                 'Ready for merge! 🚀';
-            } else if (shouldTest === 'false') {
-              body = 'ℹ️ **Cross-Platform CI: No relevant changes detected**\n\n' +
-                'No files requiring testing were modified.';
             } else {
               body = '❌ **Cross-Platform CI: Some tests failed**\n\n' +
                 'Please check the workflow logs for details.\n\n' +
-                `Setup: ${setupResult}\n` +
                 `Tests: ${testResult}`;
             }
             
