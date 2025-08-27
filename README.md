@@ -14,9 +14,9 @@
 &nbsp;
 [![Star this repo](https://img.shields.io/badge/★-Star%20this%20repo-e7b10b)](https://github.com/automazeio/ccpm)
 
-### Transform PRDs into shipped features using spec-driven development, GitHub Issues, and parallel AI agents.
+## Transform PRDs into shipped features using spec-driven development, GitHub Issues, and parallel AI agents
 
-Stop losing context. Stop blocking on tasks. Stop shipping bugs. This battle-tested system turns product requirements into production code with full traceability at every step.
+Stop losing context. Eliminate task blocking. Reduce shipped bugs. This battle-tested system turns product requirements into production code with full traceability at every step.
 
 ![Claude Code PM](screenshot.webp)
 
@@ -30,6 +30,7 @@ pip install git+https://github.com/automazeio/ccpm.git
 ```
 
 The installer automatically:
+
 - ✅ Installs GitHub CLI if needed
 - ✅ Sets up GitHub authentication
 - ✅ Installs required extensions
@@ -103,9 +104,13 @@ graph LR
 | `ccpm sync` | Sync with GitHub | `ccpm sync` |
 | `ccpm list` | List all PRDs | `ccpm list` |
 | `ccpm search <term>` | Search content | `ccpm search auth` |
+| `ccpm validate` | Validate system integrity | `ccpm validate` |
+| `ccpm clean` | Archive completed work | `ccpm clean` |
+| `ccpm import` | Import GitHub issues | `ccpm import` |
 | `ccpm update` | Update CCPM | `ccpm update` |
 | `ccpm uninstall` | Remove CCPM | `ccpm uninstall` |
 | `ccpm help` | Show help | `ccpm help` |
+| `ccpm --help` | Show help | `ccpm --help` |
 
 ### Claude Code Commands (/pm:*)
 
@@ -164,9 +169,10 @@ graph LR
 
 Traditional approach: One issue = One developer = Sequential work
 
-**CCPM approach: One issue = Multiple parallel work streams**
+#### CCPM approach: One issue = Multiple parallel work streams
 
 Example: "Implement user authentication" becomes:
+
 - **Agent 1**: Database schema and migrations
 - **Agent 2**: Service layer and business logic  
 - **Agent 3**: API endpoints and middleware
@@ -189,6 +195,7 @@ All running **simultaneously** in the same worktree.
 ### Team Collaboration
 
 GitHub Issues enable:
+
 - Multiple Claude instances working simultaneously
 - Real-time progress visibility for all team members
 - Seamless handoffs between AI and human developers
@@ -196,7 +203,7 @@ GitHub Issues enable:
 
 ## File Structure
 
-```
+```text
 .claude/
 ├── prds/              # Product Requirements Documents
 ├── epics/             # Implementation plans
@@ -215,6 +222,7 @@ GitHub Issues enable:
 <summary><b>Installation Issues</b></summary>
 
 **GitHub CLI not installing automatically?**
+
 ```bash
 # macOS
 brew install gh
@@ -228,11 +236,13 @@ winget install --id GitHub.cli
 
 **Python version issues?**
 CCPM requires Python 3.8+. Check with:
+
 ```bash
 python --version
 ```
 
 **Permission issues?**
+
 ```bash
 # Install for current user only
 pip install --user git+https://github.com/automazeio/ccpm.git
@@ -260,7 +270,8 @@ gh extension list
 <summary><b>Claude Code Integration</b></summary>
 
 If Claude Code commands aren't working:
-1. Ensure Claude Code is installed: https://claude.ai/code
+
+1. Ensure Claude Code is installed: <https://claude.ai/code>
 2. Verify CCPM setup completed: `ccpm validate`
 3. Check `.claude/` directory exists in your project
 4. Re-initialize if needed: `ccpm init`
@@ -308,6 +319,7 @@ Run `ccpm update` to get the latest version while preserving your customizations
 Claude Code PM was developed at [Automaze](https://automaze.io) **for developers who ship, by developers who ship**.
 
 If CCPM helps your team ship better:
+
 - ⭐ **[Star this repository](https://github.com/automazeio/ccpm)**
 - 🐦 **[Follow @aroussi on X](https://x.com/aroussi)** for updates
 

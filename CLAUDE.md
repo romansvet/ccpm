@@ -30,7 +30,7 @@ For complete command reference: `/pm:help`
 ## Architecture
 
 ### Directory Structure
-```
+```text
 .claude/
 ├── prds/              # Product Requirements Documents
 ├── epics/             # Implementation plans and tasks
