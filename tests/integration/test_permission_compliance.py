@@ -71,13 +71,27 @@ class TestPermissionCompliance:
             ["git", "status", "--porcelain"],
             ["git", "commit", "-m", "Test commit"],
             ["git", "log", "--oneline", "-1"],
-            ["git", "diff", "HEAD~1", "HEAD"],
             ["git", "show", "HEAD"],
             ["git", "rev-parse", "HEAD"],
             ["git", "ls-files"],
         ]
         
         for cmd in git_commands:
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            assert result.returncode == 0, f"Command {' '.join(cmd)} failed: {result.stderr}"
+        
+        # Add another commit to test diff operations
+        test_file2 = self.test_dir / "test2.txt"
+        test_file2.write_text("second content")
+        subprocess.run(["git", "add", "."], check=True, capture_output=True)
+        subprocess.run(["git", "commit", "-m", "Second commit"], check=True, capture_output=True)
+        
+        # Now test diff operations with two commits
+        diff_commands = [
+            ["git", "diff", "HEAD~1", "HEAD"],
+        ]
+        
+        for cmd in diff_commands:
             result = subprocess.run(cmd, capture_output=True, text=True)
             assert result.returncode == 0, f"Command {' '.join(cmd)} failed: {result.stderr}"
 

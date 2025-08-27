@@ -34,9 +34,9 @@ def pm_git_repo():
                       cwd=repo_path, check=True, capture_output=True)
         
         # Create CCPM directory structure
-        (repo_path / ".claude" / "prds").mkdir(parents=True)
-        (repo_path / ".claude" / "epics").mkdir(parents=True)
-        (repo_path / ".claude" / "rules").mkdir(parents=True)
+        (repo_path / ".claude" / "prds").mkdir(parents=True, exist_ok=True)
+        (repo_path / ".claude" / "epics").mkdir(parents=True, exist_ok=True)
+        (repo_path / ".claude" / "rules").mkdir(parents=True, exist_ok=True)
         
         # Add initial commit
         subprocess.run(["git", "add", "."], cwd=repo_path, check=True, capture_output=True)
@@ -140,7 +140,7 @@ class TestStatusScript:
         returncode, stdout, stderr = run_pm_script("status.sh", cwd=pm_git_repo)
         
         assert returncode == 0, f"Status script failed: {stderr}"
-        assert "PRDS:" in stdout
+        assert "PRDs:" in stdout
         assert "EPICS:" in stdout
         assert "TASKS:" in stdout
     
