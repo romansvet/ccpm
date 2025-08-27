@@ -96,7 +96,7 @@ jobs:
           Write-Host "=== System Information ==="
           Write-Host "OS: ${{ runner.os }}"
           Write-Host "Runner: ${{ matrix.os }}"
-          Write-Host "Shell: ${{ matrix.shell }}"
+          Write-Host "Shell: PowerShell"
 
           Write-Host "Windows Version:"
           systeminfo | findstr /C:"OS Name" /C:"OS Version"
@@ -117,7 +117,7 @@ jobs:
           echo "=== System Information ==="
           echo "OS: ${{ runner.os }}"
           echo "Runner: ${{ matrix.os }}"
-          echo "Shell: ${{ matrix.shell }}"
+          echo "Shell: Bash"
 
           echo "System:"
           uname -a
@@ -133,20 +133,20 @@ jobs:
           make --version
 
       - name: Run system checks
-        shell: ${{ matrix.shell }}
+        shell: bash
         run: |
           echo "=== Running System Checks ==="
           ${{ matrix.make-command }} check-system
       
       - name: Display project information
-        shell: ${{ matrix.shell }}
+        shell: bash
         run: |
           echo "=== Project Information ==="
           ${{ matrix.make-command }} info
 
       - name: Run test suite
         if: ${{ github.event.inputs.test_suite != 'install-only' }}
-        shell: ${{ matrix.shell }}
+        shell: bash
         run: |
           echo "=== Running Test Suite ==="
           ${{ matrix.make-command }} test || exit 1
@@ -201,13 +201,13 @@ jobs:
           fi
 
       - name: Run validation
-        shell: ${{ matrix.shell }}
+        shell: bash
         run: |
           echo "=== Running Validation ==="
           ${{ matrix.make-command }} validate
 
       - name: Test PM commands
-        shell: ${{ matrix.shell }}
+        shell: bash
         run: |
           echo "=== Testing PM Commands ==="
           ${{ matrix.make-command }} pm-help
