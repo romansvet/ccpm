@@ -37,10 +37,10 @@ echo ""
 echo "BACKLOG PRDs:"
 for file in .claude/prds/*.md; do
   [ -f "$file" ] || continue
-  status=$(grep "^status:" "$file" | head -1 | sed 's/^status: *//')
+  status=$(grep "^status:" "$file" | head -1 | sed 's/^status: *//' || true)
   if [ "$status" = "backlog" ] || [ "$status" = "draft" ] || [ -z "$status" ]; then
-    name=$(grep "^name:" "$file" | head -1 | sed 's/^name: *//')
-    desc=$(grep "^description:" "$file" | head -1 | sed 's/^description: *//')
+    name=$(grep "^name:" "$file" | head -1 | sed 's/^name: *//' || true)
+    desc=$(grep "^description:" "$file" | head -1 | sed 's/^description: *//' || true)
     [ -z "$name" ] && name=$(basename "$file" .md)
     [ -z "$desc" ] && desc="No description"
     # echo "   PRD $name - $desc"
@@ -55,10 +55,10 @@ echo ""
 echo "IN-PROGRESS PRDs:"
 for file in .claude/prds/*.md; do
   [ -f "$file" ] || continue
-  status=$(grep "^status:" "$file" | head -1 | sed 's/^status: *//')
+  status=$(grep "^status:" "$file" | head -1 | sed 's/^status: *//' || true)
   if [ "$status" = "in-progress" ] || [ "$status" = "active" ]; then
-    name=$(grep "^name:" "$file" | head -1 | sed 's/^name: *//')
-    desc=$(grep "^description:" "$file" | head -1 | sed 's/^description: *//')
+    name=$(grep "^name:" "$file" | head -1 | sed 's/^name: *//' || true)
+    desc=$(grep "^description:" "$file" | head -1 | sed 's/^description: *//' || true)
     [ -z "$name" ] && name=$(basename "$file" .md)
     [ -z "$desc" ] && desc="No description"
     # echo "   PRD $name - $desc"
@@ -72,10 +72,10 @@ echo ""
 echo "IMPLEMENTED PRDs:"
 for file in .claude/prds/*.md; do
   [ -f "$file" ] || continue
-  status=$(grep "^status:" "$file" | head -1 | sed 's/^status: *//')
+  status=$(grep "^status:" "$file" | head -1 | sed 's/^status: *//' || true)
   if [ "$status" = "implemented" ] || [ "$status" = "completed" ] || [ "$status" = "done" ]; then
-    name=$(grep "^name:" "$file" | head -1 | sed 's/^name: *//')
-    desc=$(grep "^description:" "$file" | head -1 | sed 's/^description: *//')
+    name=$(grep "^name:" "$file" | head -1 | sed 's/^name: *//' || true)
+    desc=$(grep "^description:" "$file" | head -1 | sed 's/^description: *//' || true)
     [ -z "$name" ] && name=$(basename "$file" .md)
     [ -z "$desc" ] && desc="No description"
     # echo "   PRD $name - $desc"

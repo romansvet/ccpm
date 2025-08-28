@@ -5,7 +5,7 @@ echo "Getting status..."
 echo ""
 echo ""
 
-epic_name="$1"
+epic_name="${1:-}"
 
 if [ -z "$epic_name" ]; then
   echo "ERROR Please specify an epic name"

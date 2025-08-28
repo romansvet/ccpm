@@ -22,21 +22,21 @@ for dir in .claude/epics/*/; do
   [ -f "$dir/epic.md" ] || continue
 
   # Extract metadata
-  n=$(grep "^name:" "$dir/epic.md" | head -1 | sed 's/^name: *//')
-  s=$(grep "^status:" "$dir/epic.md" | head -1 | sed 's/^status: *//' | tr '[:upper:]' '[:lower:]')
-  p=$(grep "^progress:" "$dir/epic.md" | head -1 | sed 's/^progress: *//')
-  g=$(grep "^github:" "$dir/epic.md" | head -1 | sed 's/^github: *//')
+  n=$(grep "^name:" "$dir/epic.md" | head -1 | sed 's/^name: *//' || true)
+  s=$(grep "^status:" "$dir/epic.md" | head -1 | sed 's/^status: *//' | tr '[:upper:]' '[:lower:]' || true)
+  p=$(grep "^progress:" "$dir/epic.md" | head -1 | sed 's/^progress: *//' || true)
+  g=$(grep "^github:" "$dir/epic.md" | head -1 | sed 's/^github: *//' || true)
 
   # Defaults
   [ -z "$n" ] && n=$(basename "$dir")
   [ -z "$p" ] && p="0%"
 
   # Count tasks
-  t=$(ls "$dir"[0-9]*.md 2>/dev/null | wc -l)
+  t=$(ls "$dir"[0-9]*.md 2>/dev/null | wc -l || echo "0")
 
   # Format output with GitHub issue number if available
   if [ -n "$g" ]; then
-    i=$(echo "$g" | grep -o '/[0-9]*$' | tr -d '/')
+    i=$(echo "$g" | grep -o '/[0-9]*$' | tr -d '/' || true)
     entry="   TASK ${dir}epic.md (#$i) - $p complete ($t tasks)"
   else
     entry="   TASK ${dir}epic.md - $p complete ($t tasks)"
@@ -87,8 +87,8 @@ fi
 # Summary
 echo ""
 echo "STATUS Summary"
-total=$(ls -d .claude/epics/*/ 2>/dev/null | wc -l)
-tasks=$(find .claude/epics -name "[0-9]*.md" 2>/dev/null | wc -l)
+total=$(ls -d .claude/epics/*/ 2>/dev/null | wc -l || echo "0")
+tasks=$(find .claude/epics -name "[0-9]*.md" 2>/dev/null | wc -l || echo "0")
 echo "   Total epics: $total"
 echo "   Total tasks: $tasks"
 

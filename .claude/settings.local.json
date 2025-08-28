@@ -134,7 +134,12 @@
       "Bash(sleep:*)",
       "Bash(basename:*)",
       "Bash(dirname:*)",
-      "Bash(file:*)"
+      "Bash(file:*)",
+      "Bash(echo \"Exit code: $?\")",
+      "Read(//private/var/folders/tp/qtzc39jx5w556wl5w3dj21wr0000gn/T/**)",
+      "Bash(git init:*)",
+      "Bash(git config:*)",
+      "Bash(CCPM_UNINSTALL_SCAFFOLDING=y ccpm uninstall)"
     ],
     "additionalDirectories": [
       "/tmp/ccpm"

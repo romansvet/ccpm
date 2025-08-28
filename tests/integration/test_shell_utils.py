@@ -392,8 +392,8 @@ class TestPMScriptIntegration:
         assert result.returncode == 0, f"status.sh failed: {result.stderr}"
         assert "PROJECT STATUS" in result.stdout
         assert "PRDs:" in result.stdout
-        assert "Epics:" in result.stdout
-        assert "Tasks:" in result.stdout
+        assert "EPICS:" in result.stdout
+        assert "TASKS:" in result.stdout
 
     def test_status_script_with_content(self, pm_test_environment: Path):
         """Test status.sh with actual PRD and epic content."""

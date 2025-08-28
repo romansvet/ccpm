@@ -288,23 +288,41 @@ class CCPMInstaller:
             if full_path.exists():
                 try:
                     if full_path.is_dir():
-                        # Only remove if directory contains no user files
-                        if self._is_directory_empty_of_user_content(full_path):
-                            shutil.rmtree(full_path)
-                            removed_count += 1
-                        else:
-                            print_info(f"Skipping {file_path} - contains user content")
+                        # For scaffolding directories, remove them completely
+                        # They're explicitly tracked as safe to remove
+                        shutil.rmtree(full_path)
+                        removed_count += 1
                     else:
                         full_path.unlink()
                         removed_count += 1
                 except Exception as exc:
                     print_warning(f"Could not remove {file_path}: {exc}")
 
+        # For clean installations, remove template-only directories
+        if not tracking.get("had_existing_claude", True):
+            # Check all remaining directories for template-only content
+            template_dirs_to_check = ["agents", "prds", "epics", "context/custom", "commands", "rules", "scripts"]
+            for dir_name in template_dirs_to_check:
+                dir_path = self.claude_dir / dir_name
+                if dir_path.exists() and self._is_template_only_directory(dir_path):
+                    try:
+                        shutil.rmtree(dir_path)
+                        removed_count += 1
+                    except Exception as exc:
+                        print_warning(f"Could not remove template directory {dir_name}: {exc}")
+
         # Remove tracking file
         try:
             self.tracking_file.unlink()
         except Exception as exc:
             print_warning(f"Could not remove tracking file: {exc}")
+
+        # If .claude directory is now empty, remove it completely
+        if self.claude_dir.exists() and not list(self.claude_dir.iterdir()):
+            try:
+                self.claude_dir.rmdir()
+            except Exception as exc:
+                print_warning(f"Could not remove empty .claude directory: {exc}")
 
         print_success(f"Removed {removed_count} CCPM files, preserved user content")
         print_success("\nCCPM uninstalled successfully!")
@@ -400,6 +418,65 @@ class CCPMInstaller:
                 return False
 
         return True
+
+    def _is_template_only_directory(self, directory: Path) -> bool:
+        """Check if directory contains only CCPM template files (safe to remove in clean installs).
+        
+        Args:
+            directory: Directory to check
+            
+        Returns:
+            True if directory only contains CCPM templates, False if it has user content
+        """
+        if not directory.exists() or not directory.is_dir():
+            return True
+            
+        # Known CCPM template files that are safe to remove
+        template_files = {
+            "agents/code-analyzer.md",
+            "agents/file-analyzer.md", 
+            "agents/parallel-worker.md",
+            "agents/test-runner.md",
+            "context/README.md",
+            "prds/.gitkeep",
+            "epics/.gitkeep",
+            "commands/code-rabbit.md",
+            "commands/prompt.md",
+            "commands/re-init.md",
+            "commands/context/create.md",
+            "commands/context/update.md",
+            "commands/context/prime.md",
+            "commands/testing/run.md",
+            "commands/testing/prime.md",
+            "rules/worktree-operations.md",
+            "rules/standard-patterns.md",
+            "rules/github-operations.md",
+            "rules/frontmatter-operations.md",
+            "rules/datetime.md",
+            "rules/branch-management.md",
+            "rules/iteration-patterns.md", 
+            "rules/project-structure.md",
+            "rules/tracking-operations.md",
+            "rules/code-generation.md",
+            "rules/coordination-operations.md",
+            "rules/agent-coordination.md",
+            "rules/branch-operations.md",
+            "rules/strip-frontmatter.md",
+            "rules/test-execution.md",
+            "rules/use-ast-grep.md",
+            "scripts/utils.sh",
+        }
+        
+        # Get all files in directory relative to .claude/
+        claude_relative = directory.relative_to(self.claude_dir)
+        all_files = set()
+        for file_path in directory.rglob("*"):
+            if file_path.is_file():
+                relative_path = file_path.relative_to(self.claude_dir)
+                all_files.add(str(relative_path))
+        
+        # Directory is template-only if all files are known templates
+        return all_files.issubset(template_files)
 
     def _safe_uninstall_without_tracking(self) -> None:
         """Safely uninstall without tracking file (conservative approach)."""

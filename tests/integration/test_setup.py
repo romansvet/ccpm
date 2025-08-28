@@ -1,6 +1,7 @@
 """Integration tests for CCPM setup commands."""
 
 import json
+import os
 import subprocess
 from pathlib import Path
 
@@ -199,12 +200,15 @@ class TestUninstallCommand:
         assert (real_git_repo / ".claude").exists()
 
         # Uninstall
+        env = os.environ.copy()
+        env["CCPM_UNINSTALL_SCAFFOLDING"] = "y"
         result = subprocess.run(
             ["ccpm", "uninstall"],
             cwd=real_git_repo,
             capture_output=True,
             text=True,
             timeout=1800,  # 30 minutes for Claude commands
+            env=env,
         )
 
         assert result.returncode == 0
@@ -236,12 +240,15 @@ class TestUninstallCommand:
         assert (claude_dir / "scripts" / "pm").exists()
 
         # Uninstall
+        env = os.environ.copy()
+        env["CCPM_UNINSTALL_SCAFFOLDING"] = "y"
         result = subprocess.run(
             ["ccpm", "uninstall"],
             cwd=repo_with_existing_claude,
             capture_output=True,
             text=True,
             timeout=1800,  # 30 minutes for Claude commands
+            env=env,
         )
 
         assert result.returncode == 0

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-epic_name="$1"
+epic_name="${1:-}"
 
 if [ -z "$epic_name" ]; then
   echo "ERROR Please provide an epic name"

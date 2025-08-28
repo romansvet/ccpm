@@ -2,9 +2,12 @@
 set -euo pipefail
 
 # Load cross-platform utilities for better error handling
-source "$(dirname "$0")/../utils.sh" 2>/dev/null || {
+# Turn off errexit temporarily to handle missing utils.sh gracefully
+set +e
+source "$(dirname "${BASH_SOURCE[0]:-$0}")/../utils.sh" 2>/dev/null || {
   echo "Warning: Could not load utility functions, proceeding with basic functionality" >&2
 }
+set -e
 
 echo "Getting status..."
 echo ""
