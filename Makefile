@@ -81,7 +81,11 @@ LOGS_DIR := tests$(PATH_SEP)logs
 PROJECT_NAME := ccpm
 REPO_URL := https://github.com/automazeio/ccpm.git
 
-.PHONY: help install install-unix install-windows test test-pm clean clean-logs clean-all info validate pm-help
+.PHONY: all help info install install-unix install-windows \
+        test test-pm test-scripts \
+        pm-help pm-status pm-standup pm-init pm-blocked pm-next pm-search validate \
+        clean clean-logs clean-all \
+        check-python check-git check-system dev
 
 # Default target
 all: info
