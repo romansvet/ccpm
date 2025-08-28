@@ -15,11 +15,11 @@ from unittest.mock import patch
 import pytest
 
 from ccpm.utils.shell import (
+    _find_git_bash,
+    _find_msys2_bash,
+    _find_wsl_bash,
     get_shell_environment,
     run_pm_script,
-    _find_git_bash,
-    _find_wsl_bash,
-    _find_msys2_bash,
 )
 
 

@@ -101,7 +101,8 @@ class TestGitHubIntegration:
         monkeypatch.setattr(subprocess, "run", mock_run)
 
         # Setup should still work (with warnings)
-        result = original_run(
+        # result = original_run(  # Result not used
+        original_run(
             ["ccpm", "setup", str(real_git_repo)],
             capture_output=True,
             text=True,

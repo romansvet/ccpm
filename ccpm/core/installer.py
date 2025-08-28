@@ -60,7 +60,8 @@ class CCPMInstaller:
             # In CI, this is expected - don't show warning
             if not (os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS")):
                 print_warning(
-                    "GitHub authentication skipped. You may need to run 'gh auth login' later."
+                    "GitHub authentication skipped. "
+                    "You may need to run 'gh auth login' later."
                 )
 
         # 4. Install required extensions
@@ -305,7 +306,15 @@ class CCPMInstaller:
         if not tracking.get("had_existing_claude", True):
             # Check all remaining directories for template-only content
             # For clean installs, we can also clean context directory of template files
-            template_dirs_to_check = ["agents", "prds", "epics", "commands", "rules", "scripts", "context"]
+            template_dirs_to_check = [
+                "agents",
+                "prds",
+                "epics",
+                "commands",
+                "rules",
+                "scripts",
+                "context",
+            ]
             for dir_name in template_dirs_to_check:
                 dir_path = self.claude_dir / dir_name
                 if dir_path.exists() and self._is_template_only_directory(dir_path):
@@ -313,7 +322,9 @@ class CCPMInstaller:
                         shutil.rmtree(dir_path)
                         removed_count += 1
                     except Exception as exc:
-                        print_warning(f"Could not remove template directory {dir_name}: {exc}")
+                        print_warning(
+                            f"Could not remove template directory {dir_name}: {exc}"
+                        )
 
         # Remove tracking file
         try:
@@ -424,21 +435,23 @@ class CCPMInstaller:
         return True
 
     def _is_template_only_directory(self, directory: Path) -> bool:
-        """Check if directory contains only CCPM template files (safe to remove in clean installs).
-        
+        """Check if directory contains only CCPM template files.
+
+        Safe to remove in clean installs.
+
         Args:
             directory: Directory to check
-            
+
         Returns:
             True if directory only contains CCPM templates, False if it has user content
         """
         if not directory.exists() or not directory.is_dir():
             return True
-            
+
         # Known CCPM template files that are safe to remove
         template_files = {
             "agents/code-analyzer.md",
-            "agents/file-analyzer.md", 
+            "agents/file-analyzer.md",
             "agents/parallel-worker.md",
             "agents/test-runner.md",
             "context/README.md",
@@ -458,7 +471,7 @@ class CCPMInstaller:
             "rules/frontmatter-operations.md",
             "rules/datetime.md",
             "rules/branch-management.md",
-            "rules/iteration-patterns.md", 
+            "rules/iteration-patterns.md",
             "rules/project-structure.md",
             "rules/tracking-operations.md",
             "rules/code-generation.md",
@@ -470,15 +483,15 @@ class CCPMInstaller:
             "rules/use-ast-grep.md",
             "scripts/utils.sh",
         }
-        
+
         # Get all files in directory relative to .claude/
-        claude_relative = directory.relative_to(self.claude_dir)
+        # claude_relative = directory.relative_to(self.claude_dir)  # Unused
         all_files = set()
         for file_path in directory.rglob("*"):
             if file_path.is_file():
                 relative_path = file_path.relative_to(self.claude_dir)
                 all_files.add(str(relative_path))
-        
+
         # Directory is template-only if all files are known templates
         return all_files.issubset(template_files)
 

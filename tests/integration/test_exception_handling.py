@@ -57,7 +57,7 @@ sys.exit(0)
     def test_timeout_exception_chaining_maintenance_command(
         self, temp_project_with_git
     ):
-        """Test that timeout exceptions preserve original context in maintenance commands."""
+        """Test timeout exceptions preserve original context in maintenance."""
         from ccpm.commands.maintenance import invoke_claude_command
 
         # Create a mock Claude CLI that will timeout

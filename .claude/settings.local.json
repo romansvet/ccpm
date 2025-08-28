@@ -140,7 +140,8 @@
       "Bash(git init:*)",
       "Bash(git config:*)",
       "Bash(CCPM_UNINSTALL_SCAFFOLDING=y ccpm uninstall)",
-      "Bash(pip uninstall:*)"
+      "Bash(pip uninstall:*)",
+      "Bash(mypy:*)"
     ],
     "additionalDirectories": [
       "/tmp/ccpm"

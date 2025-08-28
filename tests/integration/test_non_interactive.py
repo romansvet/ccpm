@@ -174,7 +174,8 @@ class TestNonInteractiveInstallation:
                 try:
                     installer.setup()
                 except Exception as e:
-                    # Setup might fail for other reasons (missing template), but not auth
+                    # Setup might fail for other reasons (missing template),
+                    # but not auth
                     assert "authentication" not in str(e).lower()
 
 

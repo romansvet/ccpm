@@ -38,14 +38,15 @@ def invoke_claude_command(command: str, description: str = "") -> None:
         safe_print(f"{get_emoji('⚙️', '[Working...]')} {description}")
     else:
         safe_print(
-            f"{get_emoji('⚙️', '[Working...]')} Executing Claude Code command: {command}"
+            f"{get_emoji('⚙️', '[Working...]')} "
+            f"Executing Claude Code command: {command}"
         )
 
     safe_print("=" * 60)
     safe_print("Press Ctrl+C to cancel...")
 
     # Get configurable timeout
-    from ..utils.shell import get_timeout_for_operation, DEFAULT_TIMEOUTS
+    from ..utils.shell import DEFAULT_TIMEOUTS, get_timeout_for_operation
 
     timeout = get_timeout_for_operation(
         "claude_command", DEFAULT_TIMEOUTS["claude_command"]
@@ -110,8 +111,9 @@ def validate_command() -> None:
 def clean_command() -> None:
     """Archive completed work (shortcut for /pm:clean)."""
     # Check if Claude is available first
-    from ..utils.claude import claude_available
     import os
+
+    from ..utils.claude import claude_available
 
     if not claude_available():
         if os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS"):
@@ -124,15 +126,21 @@ def clean_command() -> None:
     # Check if there's anything to clean before calling Claude
     epics_dir = Path(".claude/epics")
     if not epics_dir.exists():
-        safe_print(f"{get_emoji('ℹ️', '[Info]')} No epics directory found - nothing to clean")
+        safe_print(
+            f"{get_emoji('ℹ️', '[Info]')} No epics directory found - nothing to clean"
+        )
         return
-    
+
     # Check if there are any epics (exclude .gitkeep and hidden files)
-    epic_dirs = [d for d in epics_dir.iterdir() if d.is_dir() and not d.name.startswith('.')]
-    epic_files = [f for f in epics_dir.glob("*.md") if not f.name.startswith('.')]
-    
+    epic_dirs = [
+        d for d in epics_dir.iterdir() if d.is_dir() and not d.name.startswith(".")
+    ]
+    epic_files = [f for f in epics_dir.glob("*.md") if not f.name.startswith(".")]
+
     if not epic_dirs and not epic_files:
-        safe_print(f"{get_emoji('✨', '[Clean]')} No epics found - system is already clean")
+        safe_print(
+            f"{get_emoji('✨', '[Clean]')} No epics found - system is already clean"
+        )
         return
 
     # Check if any epics are actually completed
@@ -147,9 +155,11 @@ def clean_command() -> None:
                     break
             except Exception:
                 pass  # Skip unreadable files
-    
+
     if not completed_found:
-        safe_print(f"{get_emoji('ℹ️', '[Info]')} No completed epics found - nothing to clean")
+        safe_print(
+            f"{get_emoji('ℹ️', '[Info]')} No completed epics found - nothing to clean"
+        )
         return
 
     # Only invoke Claude if there's actually something to clean
@@ -197,7 +207,7 @@ def help_command() -> None:
 
 {get_emoji('🎯', '[Start]')} Quick Start
   ccpm setup <path>    Set up CCPM in a repository
-  ccpm init            Initialize PM system  
+  ccpm init            Initialize PM system
   ccpm help            Show this help message
 
 {get_emoji('📄', '[PM]')} Project Management
@@ -217,7 +227,6 @@ def help_command() -> None:
 
 {get_emoji('💡', '[Advanced]')} Advanced Usage with Claude Code
   Once CCPM is set up, use these commands inside Claude Code for full functionality:
-  
   /pm:prd-new <name>        Create new product requirements
   /pm:prd-parse <name>      Convert PRD to technical epic
   /pm:epic-decompose <name> Break epic into parallel tasks

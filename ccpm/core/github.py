@@ -126,8 +126,13 @@ class GitHubCLI:
             # Debian/Ubuntu
             print("Installing via apt...")
             commands = [
-                "curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg",
-                'echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null',
+                "curl -fsSL https://cli.github.com/packages/"
+                "githubcli-archive-keyring.gpg | sudo gpg --dearmor "
+                "-o /usr/share/keyrings/githubcli-archive-keyring.gpg",
+                'echo "deb [arch=$(dpkg --print-architecture) '
+                "signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] "
+                'https://cli.github.com/packages stable main" | '
+                "sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null",
                 "sudo apt update",
                 "sudo apt install gh -y",
             ]
@@ -310,7 +315,8 @@ class GitHubCLI:
                 os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS")
             ) and list_result.returncode != 0:
                 print_warning(
-                    "Skipping extension installation in CI - GitHub CLI not authenticated"
+                    "Skipping extension installation in CI - "
+                    "GitHub CLI not authenticated"
                 )
                 return True  # Don't fail the setup
 

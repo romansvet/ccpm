@@ -91,7 +91,8 @@ def main():
             print(f"\n{file}:")
             for emoji_info in emojis:
                 print(
-                    f"  Line {emoji_info['line']}: {emoji_info['emoji']} -> {emoji_info['context'][:80]}"
+                    f"  Line {emoji_info['line']}: {emoji_info['emoji']} -> "
+                    f"{emoji_info['context'][:80]}"
                 )
     else:
         print("No emojis found in Python files!")

@@ -12,11 +12,12 @@ import subprocess
 import tempfile
 import time
 from pathlib import Path
-from typing import Dict, List
 
 import pytest
 import requests
 import yaml
+
+# from typing import Dict, List  # Unused imports
 
 
 class TestMarkdownQuality:
@@ -47,7 +48,7 @@ class TestMarkdownQuality:
 
             if critical_errors:
                 pytest.fail(
-                    f"Critical markdownlint errors in README.md:\n"
+                    "Critical markdownlint errors in README.md:\n"
                     + "\n".join(critical_errors)
                 )
 
@@ -215,7 +216,8 @@ class TestLinkValidation:
 
         # URLs that are expected to fail in certain contexts
         expected_failures = {
-            # Badge URL that doesn't exist yet on automazeio fork (will exist after PR merge)
+            # Badge URL that doesn't exist yet on automazeio fork "
+            "(will exist after PR merge)"
             "https://github.com/automazeio/ccpm/actions/workflows/test.yml/badge.svg",
             # Protected URLs that may return 403 but are valid
             "https://claude.ai/code",
@@ -256,7 +258,7 @@ class TestLinkValidation:
         timeout_url = "http://192.0.2.1"  # RFC 5737 test address
 
         try:
-            response = requests.get(timeout_url, timeout=2)
+            requests.get(timeout_url, timeout=2)  # Response unused
             # If it doesn't timeout, that's fine too
         except requests.exceptions.Timeout:
             # Expected behavior - should not crash

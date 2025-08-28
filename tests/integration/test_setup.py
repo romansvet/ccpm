@@ -5,7 +5,7 @@ import os
 import subprocess
 from pathlib import Path
 
-import pytest
+# import pytest  # Unused import
 
 
 class TestSetupCommand:

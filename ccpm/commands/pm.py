@@ -15,7 +15,7 @@ from ..utils.console import (
 
 
 def invoke_claude_command(command: str, description: str = "") -> None:
-    """Invoke a Claude Code command directly with progress indication and cancellation support.
+    """Invoke Claude Code command with progress indication and cancellation support.
 
     Args:
         command: The command to pass to Claude (e.g., "/pm:sync")
@@ -46,7 +46,7 @@ def invoke_claude_command(command: str, description: str = "") -> None:
     safe_print("Press Ctrl+C to cancel...")
 
     # Get configurable timeout
-    from ..utils.shell import get_timeout_for_operation, DEFAULT_TIMEOUTS
+    from ..utils.shell import DEFAULT_TIMEOUTS, get_timeout_for_operation
 
     timeout = get_timeout_for_operation(
         "claude_command", DEFAULT_TIMEOUTS["claude_command"]

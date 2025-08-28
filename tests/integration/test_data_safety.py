@@ -61,9 +61,10 @@ class TestDataSafetyCore:
         # Verify NO user content directories are tracked for deletion
         dangerous_patterns = ["agents", "prds", "epics"]
         for pattern in dangerous_patterns:
-            assert not any(
-                pattern in file_path for file_path in scaffolding_files
-            ), f"Dangerous pattern '{pattern}' found in scaffolding files: {scaffolding_files}"
+            assert not any(pattern in file_path for file_path in scaffolding_files), (
+                f"Dangerous pattern '{pattern}' found in scaffolding files: "
+                f"{scaffolding_files}"
+            )
 
         # Verify user content directories are documented but not tracked for deletion
         for user_dir in ["agents", "prds", "epics"]:

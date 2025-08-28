@@ -26,23 +26,19 @@ class TestShellUtilities:
 
             # Copy utils.sh to temp directory
             utils_source = (
-                Path(__file__).parent.parent.parent
-                / ".claude"
-                / "scripts"
-                / "utils.sh"
+                Path(__file__).parent.parent.parent / ".claude" / "scripts" / "utils.sh"
             )
             utils_script = temp_path / "utils.sh"
 
             if utils_source.exists():
-                utils_script.write_text(utils_source.read_text(encoding='utf-8'))
+                utils_script.write_text(utils_source.read_text(encoding="utf-8"))
             else:
                 pytest.skip("utils.sh not found in .claude/scripts/")
 
             # Create test file
             test_file = temp_path / "test_file.txt"
             test_file.write_text(
-                "line1: original content\nline2: more content\n"
-                "line3: final line\n"
+                "line1: original content\nline2: more content\n" "line3: final line\n"
             )
 
             # Create backup directory
@@ -155,9 +151,7 @@ cat "{test_file}.bak"
         # Should be in backup section
         assert original_content in result.stdout
 
-    def test_cross_platform_sed_backup_restore_on_failure(
-        self, temp_test_files
-    ):
+    def test_cross_platform_sed_backup_restore_on_failure(self, temp_test_files):
         """Test sed backup restores original file on failure."""
         utils_script, test_file, _ = temp_test_files
 
@@ -352,13 +346,12 @@ class TestPMScriptIntegration:
 
         # Copy utils.sh
         utils_source = (
-            Path(__file__).parent.parent.parent
-            / ".claude"
-            / "scripts"
-            / "utils.sh"
+            Path(__file__).parent.parent.parent / ".claude" / "scripts" / "utils.sh"
         )
         if utils_source.exists():
-            (scripts_dir / "utils.sh").write_text(utils_source.read_text(encoding='utf-8'))
+            (scripts_dir / "utils.sh").write_text(
+                utils_source.read_text(encoding="utf-8")
+            )
         else:
             pytest.skip("utils.sh not found")
 
@@ -371,7 +364,7 @@ class TestPMScriptIntegration:
             / "status.sh"
         )
         if status_source.exists():
-            (pm_dir / "status.sh").write_text(status_source.read_text(encoding='utf-8'))
+            (pm_dir / "status.sh").write_text(status_source.read_text(encoding="utf-8"))
         else:
             pytest.skip("status.sh not found")
 
@@ -400,9 +393,7 @@ class TestPMScriptIntegration:
         # Create test content
         prds_dir = pm_test_environment / ".claude" / "prds"
         prds_dir.mkdir()
-        (prds_dir / "test-feature.md").write_text(
-            "# Test Feature\n\nTest PRD content"
-        )
+        (prds_dir / "test-feature.md").write_text("# Test Feature\n\nTest PRD content")
         (prds_dir / "another-feature.md").write_text(
             "# Another Feature\n\nMore content"
         )
@@ -474,16 +465,13 @@ class TestShellCompatibility:
 
         # Copy utils.sh
         utils_source = (
-            Path(__file__).parent.parent.parent
-            / ".claude"
-            / "scripts"
-            / "utils.sh"
+            Path(__file__).parent.parent.parent / ".claude" / "scripts" / "utils.sh"
         )
         if not utils_source.exists():
             pytest.skip("utils.sh not found")
 
         utils_script = tmp_path / "utils.sh"
-        utils_script.write_text(utils_source.read_text(encoding='utf-8'))
+        utils_script.write_text(utils_source.read_text(encoding="utf-8"))
 
         test_file = tmp_path / "test.txt"
         test_file.write_text("original content\nmore lines\n")
@@ -512,16 +500,13 @@ class TestEdgeCasesAndErrorScenarios:
     def test_file_permission_handling(self, tmp_path: Path):
         """Test handling of file permission issues."""
         utils_source = (
-            Path(__file__).parent.parent.parent
-            / ".claude"
-            / "scripts"
-            / "utils.sh"
+            Path(__file__).parent.parent.parent / ".claude" / "scripts" / "utils.sh"
         )
         if not utils_source.exists():
             pytest.skip("utils.sh not found")
 
         utils_script = tmp_path / "utils.sh"
-        utils_script.write_text(utils_source.read_text(encoding='utf-8'))
+        utils_script.write_text(utils_source.read_text(encoding="utf-8"))
 
         # Create read-only file (skip on Windows where this behaves different)
         if platform.system() == "Windows":
@@ -556,10 +541,7 @@ fi
         readonly_file.parent.chmod(0o755)
 
         # Should handle the permission error gracefully
-        assert (
-            "PERMISSION_ERROR_HANDLED" in result.stdout
-            or result.returncode != 0
-        )
+        assert "PERMISSION_ERROR_HANDLED" in result.stdout or result.returncode != 0
 
     def test_large_file_handling(self, tmp_path: Path):
         """Test utility functions with larger files."""
@@ -567,16 +549,13 @@ fi
         if platform.system() == "Windows":
             pytest.skip("Shell utility tests not supported on Windows")
         utils_source = (
-            Path(__file__).parent.parent.parent
-            / ".claude"
-            / "scripts"
-            / "utils.sh"
+            Path(__file__).parent.parent.parent / ".claude" / "scripts" / "utils.sh"
         )
         if not utils_source.exists():
             pytest.skip("utils.sh not found")
 
         utils_script = tmp_path / "utils.sh"
-        utils_script.write_text(utils_source.read_text(encoding='utf-8'))
+        utils_script.write_text(utils_source.read_text(encoding="utf-8"))
 
         # Create larger test file
         large_file = tmp_path / "large.txt"
@@ -597,27 +576,22 @@ grep -c "REPLACED" "{large_file}"
             timeout=60,  # Longer timeout for large file
         )
 
-        assert (
-            result.returncode == 0
-        ), f"Large file test failed: {result.stderr}"
+        assert result.returncode == 0, f"Large file test failed: {result.stderr}"
         assert "1000" in result.stdout  # Should have replaced 1000 occurrences
 
     def test_concurrent_access_safety(self, tmp_path: Path):
         """Test utility functions under concurrent access."""
-        # Skip on Windows - shell utility tests not supported  
+        # Skip on Windows - shell utility tests not supported
         if platform.system() == "Windows":
             pytest.skip("Shell utility tests not supported on Windows")
         utils_source = (
-            Path(__file__).parent.parent.parent
-            / ".claude"
-            / "scripts"
-            / "utils.sh"
+            Path(__file__).parent.parent.parent / ".claude" / "scripts" / "utils.sh"
         )
         if not utils_source.exists():
             pytest.skip("utils.sh not found")
 
         utils_script = tmp_path / "utils.sh"
-        utils_script.write_text(utils_source.read_text(encoding='utf-8'))
+        utils_script.write_text(utils_source.read_text(encoding="utf-8"))
 
         # Create separate test files to avoid conflicts
         processes = []
@@ -646,9 +620,7 @@ echo "PROCESS_{i}_COMPLETE"
             results.append((proc.returncode, stdout, stderr, test_file))
 
         # At least one should succeed (they shouldn't conflict now)
-        success_count = sum(
-            1 for returncode, _, _, _ in results if returncode == 0
-        )
+        success_count = sum(1 for returncode, _, _, _ in results if returncode == 0)
         assert (
             success_count > 0
         ), f"All concurrent operations failed: {[r[2] for r in results]}"
