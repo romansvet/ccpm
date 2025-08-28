@@ -111,16 +111,48 @@ def clean_command() -> None:
     """Archive completed work (shortcut for /pm:clean)."""
     # Check if Claude is available first
     from ..utils.claude import claude_available
+    import os
 
     if not claude_available():
-        import os
-
         if os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS"):
             print_warning("Claude Code not available in CI - skipping clean command")
             return
         print_error("Claude Code CLI not found. Please install Claude Code first.")
         print_info("Visit: https://claude.ai/code")
         raise RuntimeError("Claude Code not installed")
+
+    # Check if there's anything to clean before calling Claude
+    epics_dir = Path(".claude/epics")
+    if not epics_dir.exists():
+        safe_print(f"{get_emoji('ℹ️', '[Info]')} No epics directory found - nothing to clean")
+        return
+    
+    # Check if there are any epics (exclude .gitkeep and hidden files)
+    epic_dirs = [d for d in epics_dir.iterdir() if d.is_dir() and not d.name.startswith('.')]
+    epic_files = [f for f in epics_dir.glob("*.md") if not f.name.startswith('.')]
+    
+    if not epic_dirs and not epic_files:
+        safe_print(f"{get_emoji('✨', '[Clean]')} No epics found - system is already clean")
+        return
+
+    # Check if any epics are actually completed
+    completed_found = False
+    for epic_dir in epic_dirs:
+        epic_file = epic_dir / "epic.md"
+        if epic_file.exists():
+            try:
+                content = epic_file.read_text()
+                if "status: completed" in content:
+                    completed_found = True
+                    break
+            except Exception:
+                pass  # Skip unreadable files
+    
+    if not completed_found:
+        safe_print(f"{get_emoji('ℹ️', '[Info]')} No completed epics found - nothing to clean")
+        return
+
+    # Only invoke Claude if there's actually something to clean
     invoke_claude_command(
         "/pm:clean", "Archiving completed work and cleaning up old files"
     )
