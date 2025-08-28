@@ -7,18 +7,16 @@ UNAME_M := $(shell uname -m 2>/dev/null || echo unknown)
 
 # Platform-specific variables
 # Check for Windows in multiple ways (native Windows, Git Bash, MSYS2, etc.)
-ifeq ($(OS),Windows_NT)
+# Prefer MSYS/MINGW (Git Bash) detection first; fall back to native Windows
+ifneq ($(findstring MINGW,$(UNAME_S)),)
+    PLATFORM := windows
+    NATIVE_WINDOWS := false
+else ifneq ($(findstring MSYS,$(UNAME_S)),)
+    PLATFORM := windows
+    NATIVE_WINDOWS := false
+else ifeq ($(OS),Windows_NT)
     PLATFORM := windows
     NATIVE_WINDOWS := true
-else ifeq ($(UNAME_S),MINGW64_NT-10.0-22631)
-    PLATFORM := windows
-    NATIVE_WINDOWS := false
-else ifeq ($(findstring MINGW,$(UNAME_S)),MINGW)
-    PLATFORM := windows
-    NATIVE_WINDOWS := false
-else ifeq ($(findstring MSYS,$(UNAME_S)),MSYS)
-    PLATFORM := windows
-    NATIVE_WINDOWS := false
 else
     ifeq ($(UNAME_S),Darwin)
         PLATFORM := macos
