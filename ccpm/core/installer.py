@@ -285,6 +285,9 @@ class CCPMInstaller:
         removed_count = 0
         for file_path in scaffolding_files:
             full_path = self.claude_dir / file_path
+            # Skip context directory entirely to preserve user content
+            if file_path.startswith("context"):
+                continue
             if full_path.exists():
                 try:
                     if full_path.is_dir():
@@ -301,7 +304,8 @@ class CCPMInstaller:
         # For clean installations, remove template-only directories
         if not tracking.get("had_existing_claude", True):
             # Check all remaining directories for template-only content
-            template_dirs_to_check = ["agents", "prds", "epics", "context/custom", "commands", "rules", "scripts"]
+            # Note: context is excluded entirely to preserve user content
+            template_dirs_to_check = ["agents", "prds", "epics", "commands", "rules", "scripts"]
             for dir_name in template_dirs_to_check:
                 dir_path = self.claude_dir / dir_name
                 if dir_path.exists() and self._is_template_only_directory(dir_path):
