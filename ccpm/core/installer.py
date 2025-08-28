@@ -304,8 +304,8 @@ class CCPMInstaller:
         # For clean installations, remove template-only directories
         if not tracking.get("had_existing_claude", True):
             # Check all remaining directories for template-only content
-            # Note: context is excluded entirely to preserve user content
-            template_dirs_to_check = ["agents", "prds", "epics", "commands", "rules", "scripts"]
+            # For clean installs, we can also clean context directory of template files
+            template_dirs_to_check = ["agents", "prds", "epics", "commands", "rules", "scripts", "context"]
             for dir_name in template_dirs_to_check:
                 dir_path = self.claude_dir / dir_name
                 if dir_path.exists() and self._is_template_only_directory(dir_path):
