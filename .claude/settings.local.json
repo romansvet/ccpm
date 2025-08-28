@@ -145,7 +145,9 @@
       "Bash(CI=true GITHUB_ACTIONS=true python -m pytest tests/integration/test_pm_shell_scripts.py::TestPRDListScript::test_prd_list_with_files -xvs)",
       "Bash(CI=true GITHUB_ACTIONS=true python -m pytest tests/integration/test_documentation_quality.py::TestLinkValidation::test_all_links_accessible -xvs)",
       "Bash(CI=true GITHUB_ACTIONS=true python -m pytest tests/integration/test_security_validation.py::TestSecurityModel::test_command_scope_validation -xvs)",
-      "Bash(CI=true GITHUB_ACTIONS=true python -m pytest tests/integration/test_security_validation.py -xvs)"
+      "Bash(CI=true GITHUB_ACTIONS=true python -m pytest tests/integration/test_security_validation.py -xvs)",
+      "Bash(CI=true GITHUB_ACTIONS=true python -m pytest tests/integration/test_pm_shell_scripts.py -x)",
+      "Bash(CI=true GITHUB_ACTIONS=true python -m pytest tests/integration/test_pm_shell_scripts.py::TestPRDListScript::test_prd_list_with_files -xvs --tb=short)"
     ],
     "additionalDirectories": [
       "/tmp/ccpm"
