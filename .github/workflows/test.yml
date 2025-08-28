@@ -49,7 +49,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .
-          pip install pytest pytest-cov pytest-timeout
+          pip install pytest pytest-cov pytest-timeout requests
           # Install linting tools for integration tests
           pip install yamllint black isort flake8 ruff
           # Install markdownlint-cli (Node.js based)
@@ -109,18 +109,22 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .
-          pip install black isort mypy flake8 pylint
+          pip install black isort mypy flake8 pylint ruff
 
       - name: Run black
         run: black --check ccpm tests
         continue-on-error: true
 
       - name: Run isort
-        run: isort --check-only ccpm tests
+        run: isort --check-only ccpm tests --profile black
         continue-on-error: true
 
       - name: Run flake8
         run: flake8 ccpm tests --max-line-length=88 --extend-ignore=E203,W503
+        continue-on-error: true
+
+      - name: Run ruff
+        run: ruff check ccpm tests
         continue-on-error: true
 
       - name: Run mypy
@@ -156,7 +160,7 @@ jobs:
       - name: Install linting tools
         run: |
           npm install -g markdownlint-cli
-          pip install yamllint black isort flake8 ruff
+          pip install yamllint black isort flake8 ruff requests
 
       - name: Install CCPM
         run: |
