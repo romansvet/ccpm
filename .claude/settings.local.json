@@ -141,9 +141,11 @@
       "Bash(git config:*)",
       "Bash(CCPM_UNINSTALL_SCAFFOLDING=y ccpm uninstall)",
       "Bash(pip uninstall:*)",
-      "Bash(mypy:*)",
+      "Bash(mypy ccpm:*)",
       "Bash(CI=true GITHUB_ACTIONS=true python -m pytest tests/integration/test_pm_shell_scripts.py::TestPRDListScript::test_prd_list_with_files -xvs)",
-      "Bash(CI=true GITHUB_ACTIONS=true python -m pytest tests/integration/test_documentation_quality.py::TestLinkValidation::test_all_links_accessible -xvs)"
+      "Bash(CI=true GITHUB_ACTIONS=true python -m pytest tests/integration/test_documentation_quality.py::TestLinkValidation::test_all_links_accessible -xvs)",
+      "Bash(CI=true GITHUB_ACTIONS=true python -m pytest tests/integration/test_security_validation.py::TestSecurityModel::test_command_scope_validation -xvs)",
+      "Bash(CI=true GITHUB_ACTIONS=true python -m pytest tests/integration/test_security_validation.py -xvs)"
     ],
     "additionalDirectories": [
       "/tmp/ccpm"

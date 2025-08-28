@@ -105,6 +105,7 @@ class TestSecurityModel:
                                     "black",
                                     "isort",
                                     "flake8",
+                                    "mypy ",
                                     "sed",
                                     "grep",
                                     "which",
