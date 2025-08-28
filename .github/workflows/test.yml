@@ -50,6 +50,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e .
           pip install pytest pytest-cov pytest-timeout
+          # Install linting tools for integration tests
+          pip install yamllint black isort flake8 ruff
+          # Install markdownlint-cli (Node.js based)
+          npm install -g markdownlint-cli
 
       - name: Run unit tests
         run: |
