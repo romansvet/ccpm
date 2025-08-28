@@ -216,8 +216,7 @@ class TestLinkValidation:
 
         # URLs that are expected to fail in certain contexts
         expected_failures = {
-            # Badge URL that doesn't exist yet on automazeio fork "
-            "(will exist after PR merge)"
+            # Badge URL that doesn't exist yet on automazeio fork (will exist after PR merge)
             "https://github.com/automazeio/ccpm/actions/workflows/test.yml/badge.svg",
             # Protected URLs that may return 403 but are valid
             "https://claude.ai/code",
