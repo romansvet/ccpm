@@ -73,16 +73,21 @@ def pm_git_repo():
 def run_pm_script(
     script_name: str, args: List[str] = None, cwd: Path = None
 ) -> Tuple[int, str, str]:
-    """Execute a PM script with real subprocess execution."""
+    """Execute a PM script using the proper cross-platform shell utilities."""
+    from ccpm.utils.shell import run_pm_script as utils_run_pm_script, get_shell_environment
+    
+    # Check if shell is available
+    shell_env = get_shell_environment()
+    if not shell_env["shell_available"]:
+        pytest.skip("No compatible shell found for PM script execution")
+    
     if args is None:
         args = []
-
-    script_path = ".claude/scripts/pm/" + script_name
-    cmd = ["bash", script_path] + args
-
-    result = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=60)
-
-    return result.returncode, result.stdout, result.stderr
+    
+    # Remove .sh extension if present since utils function adds it
+    script_base = script_name.replace('.sh', '')
+    
+    return utils_run_pm_script(script_base, args, cwd)
 
 
 class TestPMScriptExecution:
