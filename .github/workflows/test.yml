@@ -156,7 +156,7 @@ jobs:
       - name: Install linting tools
         run: |
           npm install -g markdownlint-cli
-          pip install yamllint black isort flake8
+          pip install yamllint black isort flake8 ruff
 
       - name: Install CCPM
         run: |
