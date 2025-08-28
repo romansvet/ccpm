@@ -213,27 +213,37 @@ ccpm = ccpm.cli:cli
         """Test that artifacts from real pip install are ignored."""
         repo_path = git_repo_with_ccpm
         
-        # Perform actual pip install in editable mode to generate real artifacts
-        result = subprocess.run([
-            "pip", "install", "-e", "."
-        ], cwd=repo_path, capture_output=True, text=True, timeout=300)
+        # Create common pip install artifacts directly instead of actually installing
+        # This avoids corrupting the global ccpm installation during test runs
+        artifacts_to_test = [
+            "build/lib/ccpm/__init__.py",
+            "build/bdist.macosx-10.9-universal2", 
+            "ccpm.egg-info/PKG-INFO",
+            "ccpm.egg-info/dependency_links.txt",
+            "dist/ccpm-0.1.0-py3-none-any.whl",
+            "dist/ccpm-0.1.0.tar.gz",
+            "__pycache__/test.cpython-312.pyc",
+            ".pytest_cache/README.md"
+        ]
         
-        # Install might fail in isolated test environment, but we can still test
-        # the artifacts it would create
-        if result.returncode != 0:
-            pytest.skip(f"pip install failed in test environment: {result.stderr}")
+        # Create the artifact directories and files
+        for artifact in artifacts_to_test:
+            artifact_path = repo_path / artifact
+            artifact_path.parent.mkdir(parents=True, exist_ok=True)
+            if not artifact.endswith('/'):
+                artifact_path.write_text("test content")
         
-        # Check what git sees after pip install
+        # Check what git sees after creating packaging artifacts
         git_status_files = self._get_git_status_files(repo_path)
         
         # Filter for packaging artifacts that should be ignored
         packaging_artifacts = [f for f in git_status_files 
                               if any(pattern in f for pattern in [
-                                  ".egg-info", "build/", "dist/", "__pycache__"
+                                  ".egg-info", "build/", "dist/", "__pycache__", ".pytest_cache"
                               ])]
         
         assert len(packaging_artifacts) == 0, (
-            f"pip install created unignored artifacts: {packaging_artifacts}"
+            f"Created packaging artifacts are not being ignored by git: {packaging_artifacts}"
         )
     
     def test_gitignore_patterns_comprehensive(self, git_repo_with_ccpm):
