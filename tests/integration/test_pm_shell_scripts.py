@@ -119,7 +119,7 @@ class TestPMScriptExecution:
         )
 
         for script_file in pm_scripts_dir.glob("*.sh"):
-            with open(script_file, "r") as f:
+            with open(script_file, "r", encoding="utf-8") as f:
                 first_line = f.readline().strip()
 
             assert (
@@ -133,7 +133,7 @@ class TestPMScriptExecution:
         )
 
         for script_file in pm_scripts_dir.glob("*.sh"):
-            with open(script_file, "r") as f:
+            with open(script_file, "r", encoding="utf-8") as f:
                 content = f.read()
 
             assert (

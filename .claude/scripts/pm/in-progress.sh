@@ -59,7 +59,7 @@ for epic_dir in .claude/epics/*/; do
     [ -z "$epic_name" ] && epic_name=$(basename "$epic_dir")
     [ -z "$progress" ] && progress="0%"
 
-    echo "   • $epic_name - $progress complete"
+    echo "   * $epic_name - $progress complete"
   fi
 done
 

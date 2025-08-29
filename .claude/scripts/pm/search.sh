@@ -4,7 +4,7 @@ set -euo pipefail
 query="${1:-}"
 
 if [ -z "$query" ]; then
-  echo "❌ Please provide a search query"
+  echo "[ERROR] Please provide a search query"
   echo "Usage: /pm:search <query>"
   exit 1
 fi
@@ -25,7 +25,7 @@ if [ -d ".claude/prds" ]; then
     while IFS= read -r file; do
       name=$(basename "$file" .md)
       matches=$(grep -c -i "$query" "$file")
-      echo "  • $name ($matches matches)"
+      echo "  * $name ($matches matches)"
     done <<< "$results"
   else
     echo "  No matches"
@@ -41,7 +41,7 @@ if [ -d ".claude/epics" ]; then
     while IFS= read -r file; do
       epic_name=$(basename "$(dirname "$file")")
       matches=$(grep -c -i "$query" "$file")
-      echo "  • $epic_name ($matches matches)"
+      echo "  * $epic_name ($matches matches)"
     done <<< "$results"
   else
     echo "  No matches"
@@ -57,7 +57,7 @@ if [ -d ".claude/epics" ]; then
     while IFS= read -r file; do
       epic_name=$(basename "$(dirname "$file")")
       task_num=$(basename "$file" .md)
-      echo "  • Task #$task_num in $epic_name"
+      echo "  * Task #$task_num in $epic_name"
     done <<< "$results"
   else
     echo "  No matches"

@@ -31,7 +31,9 @@ class TestShellUtilities:
             utils_script = temp_path / "utils.sh"
 
             if utils_source.exists():
-                utils_script.write_text(utils_source.read_text(encoding="utf-8"))
+                utils_script.write_text(
+                    utils_source.read_text(encoding="utf-8"), encoding="utf-8"
+                )
             else:
                 pytest.skip("utils.sh not found in .claude/scripts/")
 
@@ -471,7 +473,9 @@ class TestShellCompatibility:
             pytest.skip("utils.sh not found")
 
         utils_script = tmp_path / "utils.sh"
-        utils_script.write_text(utils_source.read_text(encoding="utf-8"))
+        utils_script.write_text(
+            utils_source.read_text(encoding="utf-8"), encoding="utf-8"
+        )
 
         test_file = tmp_path / "test.txt"
         test_file.write_text("original content\nmore lines\n")
@@ -506,7 +510,9 @@ class TestEdgeCasesAndErrorScenarios:
             pytest.skip("utils.sh not found")
 
         utils_script = tmp_path / "utils.sh"
-        utils_script.write_text(utils_source.read_text(encoding="utf-8"))
+        utils_script.write_text(
+            utils_source.read_text(encoding="utf-8"), encoding="utf-8"
+        )
 
         # Create read-only file (skip on Windows where this behaves different)
         if platform.system() == "Windows":
@@ -555,7 +561,9 @@ fi
             pytest.skip("utils.sh not found")
 
         utils_script = tmp_path / "utils.sh"
-        utils_script.write_text(utils_source.read_text(encoding="utf-8"))
+        utils_script.write_text(
+            utils_source.read_text(encoding="utf-8"), encoding="utf-8"
+        )
 
         # Create larger test file
         large_file = tmp_path / "large.txt"
@@ -591,7 +599,9 @@ grep -c "REPLACED" "{large_file}"
             pytest.skip("utils.sh not found")
 
         utils_script = tmp_path / "utils.sh"
-        utils_script.write_text(utils_source.read_text(encoding="utf-8"))
+        utils_script.write_text(
+            utils_source.read_text(encoding="utf-8"), encoding="utf-8"
+        )
 
         # Create separate test files to avoid conflicts
         processes = []

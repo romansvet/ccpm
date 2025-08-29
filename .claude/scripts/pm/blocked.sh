@@ -4,7 +4,7 @@ echo "Getting tasks..."
 echo ""
 echo ""
 
-echo "🚫 Blocked Tasks"
+echo "[BLOCKED] Blocked Tasks"
 echo "================"
 echo ""
 
@@ -28,7 +28,7 @@ for epic_dir in .claude/epics/*/; do
       task_name=$(grep "^name:" "$task_file" | head -1 | sed 's/^name: *//')
       task_num=$(basename "$task_file" .md)
 
-      echo "⏸️ Task #$task_num - $task_name"
+      echo "[PAUSED] Task #$task_num - $task_name"
       echo "   Epic: $epic_name"
       echo "   Blocked by: [$deps]"
 

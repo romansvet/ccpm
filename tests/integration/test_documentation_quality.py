@@ -8,6 +8,7 @@ NO MOCKS - All tests use real tools and real network requests.
 import glob
 import os
 import re
+import shutil
 import subprocess
 import tempfile
 import time
@@ -25,6 +26,10 @@ class TestMarkdownQuality:
 
     def test_readme_passes_all_lint_rules(self):
         """Test README.md passes all critical markdownlint rules."""
+        # Skip on Windows if markdownlint is not available
+        if shutil.which("markdownlint") is None:
+            pytest.skip("markdownlint not available")
+            
         result = subprocess.run(
             ["markdownlint", "README.md"], capture_output=True, text=True
         )
@@ -54,6 +59,10 @@ class TestMarkdownQuality:
 
     def test_all_markdown_files_valid(self):
         """Test all Markdown files in project are valid."""
+        # Skip on Windows if markdownlint is not available
+        if shutil.which("markdownlint") is None:
+            pytest.skip("markdownlint not available")
+            
         md_files = glob.glob("**/*.md", recursive=True)
 
         # Skip template files that may have intentional formatting
@@ -294,7 +303,7 @@ class TestCLIDocumentationAccuracy:
                     break
 
         # Get documented commands from README
-        with open("README.md", "r") as f:
+        with open("README.md", "r", encoding="utf-8") as f:
             readme_content = f.read()
 
         documented_commands = set(re.findall(r"\| `ccpm (\w+)", readme_content))
@@ -334,7 +343,7 @@ class TestCLIDocumentationAccuracy:
 
     def test_help_command_consistency(self):
         """Test that help command references are consistent."""
-        with open("README.md", "r") as f:
+        with open("README.md", "r", encoding="utf-8") as f:
             readme_content = f.read()
 
         # Should use --help for portability (not 'help' subcommand)
@@ -355,6 +364,10 @@ class TestPerformanceValidation:
 
     def test_markdown_linting_performance(self):
         """Test markdown linting performs well on large files."""
+        # Skip on Windows if markdownlint is not available
+        if shutil.which("markdownlint") is None:
+            pytest.skip("markdownlint not available")
+            
         # Create a large test markdown file (avoid MD012 multiple blank lines)
         large_content = "# Performance Test\n\n" + "This is a test paragraph.\n" * 500
 
@@ -397,6 +410,10 @@ class TestEdgeCaseHandling:
 
     def test_unicode_content_handling(self):
         """Test markdown linting handles Unicode content correctly."""
+        # Skip on Windows if markdownlint is not available
+        if shutil.which("markdownlint") is None:
+            pytest.skip("markdownlint not available")
+            
         unicode_content = """# Test with Unicode 🎉
 
 This file contains:
@@ -424,6 +441,10 @@ This file contains:
 
     def test_empty_file_handling(self):
         """Test tools handle empty files gracefully."""
+        # Skip on Windows if markdownlint is not available
+        if shutil.which("markdownlint") is None:
+            pytest.skip("markdownlint not available")
+            
         with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
             f.write("")  # Empty file
             f.flush()

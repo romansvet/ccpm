@@ -44,8 +44,8 @@ if [ $found -eq 0 ]; then
   echo "No available tasks found."
   echo ""
   echo "TIP Suggestions:"
-  echo "  • Check blocked tasks: /pm:blocked"
-  echo "  • View all tasks: /pm:epic-list"
+  echo "  * Check blocked tasks: /pm:blocked"
+  echo "  * View all tasks: /pm:epic-list"
 fi
 
 echo ""

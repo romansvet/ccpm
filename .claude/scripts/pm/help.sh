@@ -64,9 +64,9 @@ echo "  /pm:init               - Install dependencies and configure GitHub"
 echo "  /pm:help               - Show this help message"
 echo ""
 echo "TIP Tips"
-echo "  • Use /pm:next to find available work"
-echo "  • Run /pm:status for quick overview"
-echo "  • Epic workflow: prd-new → prd-parse → epic-decompose → epic-sync"
-echo "  • View README.md for complete documentation"
+echo "  * Use /pm:next to find available work"
+echo "  * Run /pm:status for quick overview"
+echo "  * Epic workflow: prd-new -> prd-parse -> epic-decompose -> epic-sync"
+echo "  * View README.md for complete documentation"
 
 exit 0

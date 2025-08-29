@@ -13,7 +13,7 @@ if [ -z "$epic_name" ]; then
   echo ""
   echo "Available epics:"
   for dir in .claude/epics/*/; do
-    [ -d "$dir" ] && echo "  • $(basename "$dir")"
+    [ -d "$dir" ] && echo "  * $(basename "$dir")"
   done
   exit 1
 else
@@ -26,7 +26,7 @@ else
     echo ""
     echo "Available epics:"
     for dir in .claude/epics/*/; do
-      [ -d "$dir" ] && echo "  • $(basename "$dir")"
+      [ -d "$dir" ] && echo "  * $(basename "$dir")"
     done
     exit 1
   fi

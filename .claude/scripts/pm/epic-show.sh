@@ -21,7 +21,7 @@ if [ ! -f "$epic_file" ]; then
   echo ""
   echo "Available epics:"
   for dir in .claude/epics/*/; do
-    [ -d "$dir" ] && echo "  • $(basename "$dir")"
+    [ -d "$dir" ] && echo "  * $(basename "$dir")"
   done
   exit 1
 fi
@@ -85,8 +85,8 @@ echo "  Closed: $closed_count"
 # Next actions
 echo ""
 echo "TIP Actions:"
-[ $task_count -eq 0 ] && echo "  • Decompose into tasks: /pm:epic-decompose $epic_name"
-[ -z "$github" ] && [ $task_count -gt 0 ] && echo "  • Sync to GitHub: /pm:epic-sync $epic_name"
-[ -n "$github" ] && [ "$status" != "completed" ] && echo "  • Start work: /pm:epic-start $epic_name"
+[ $task_count -eq 0 ] && echo "  * Decompose into tasks: /pm:epic-decompose $epic_name"
+[ -z "$github" ] && [ $task_count -gt 0 ] && echo "  * Sync to GitHub: /pm:epic-sync $epic_name"
+[ -n "$github" ] && [ "$status" != "completed" ] && echo "  * Start work: /pm:epic-start $epic_name"
 
 exit 0

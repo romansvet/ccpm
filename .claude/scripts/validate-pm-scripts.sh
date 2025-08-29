@@ -4,7 +4,7 @@ set -euo pipefail
 # Comprehensive PM script validation tool
 # This script performs checks similar to ShellCheck for PM shell scripts
 
-echo "🔍 CCPM Shell Script Validator"
+echo "[SEARCH] CCPM Shell Script Validator"
 echo "================================"
 echo ""
 
@@ -31,21 +31,21 @@ print_status() {
 }
 
 print_ok() {
-    print_status "✅ OK" "$1" "$GREEN"
+    print_status "[DONE] OK" "$1" "$GREEN"
 }
 
 print_warning() {
-    print_status "⚠️  WARN" "$1" "$YELLOW"
+    print_status "[WARNING]  WARN" "$1" "$YELLOW"
     ((warnings++))
 }
 
 print_error() {
-    print_status "❌ ERROR" "$1" "$RED" 
+    print_status "[ERROR] ERROR" "$1" "$RED" 
     ((errors++))
 }
 
 print_info() {
-    print_status "ℹ️  INFO" "$1" "$BLUE"
+    print_status "[INFO]  INFO" "$1" "$BLUE"
 }
 
 # Function to validate individual script
@@ -226,7 +226,7 @@ main() {
     
     # Final summary
     echo ""
-    echo "🏁 VALIDATION SUMMARY"
+    echo "[FINISH] VALIDATION SUMMARY"
     echo "========================"
     echo "Total scripts checked: $total_scripts"
     echo "Scripts passed: $passed_scripts"
@@ -237,19 +237,19 @@ main() {
     
     if [[ $errors -eq 0 ]]; then
         if [[ $warnings -eq 0 ]]; then
-            print_ok "All scripts are perfect! ✨"
+            print_ok "All scripts are perfect! [SPARKLE]"
         else
             print_warning "All scripts passed with $warnings warnings"
             echo ""
-            echo "💡 Consider addressing warnings for best practices"
+            echo "[IDEA] Consider addressing warnings for best practices"
         fi
         echo ""
-        echo "🎉 PM scripts are ready for production use!"
+        echo "[SUCCESS] PM scripts are ready for production use!"
         return 0
     else
         print_error "Validation failed with $errors critical errors"
         echo ""
-        echo "🔧 Please fix the errors before using these scripts"
+        echo "[TOOL] Please fix the errors before using these scripts"
         
         if [[ "$validation_failed" == "true" ]]; then
             return 1

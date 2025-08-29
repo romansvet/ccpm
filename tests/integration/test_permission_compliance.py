@@ -6,6 +6,7 @@ with the minimal permission set defined in settings.local.json.
 
 import os
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -162,12 +163,19 @@ class TestPermissionCompliance:
         test_file = self.test_dir / "test.py"
         test_file.write_text("print('hello')")
 
-        utility_commands = [
-            ["find", ".", "-name", "*.py"],
-            ["which", "python"],
-            ["uname", "-s"],
-            ["date"],
-        ]
+        # Use cross-platform commands
+        if sys.platform == "win32":
+            utility_commands = [
+                ["where", "python"],
+                ["echo", "test"],
+            ]
+        else:
+            utility_commands = [
+                ["find", ".", "-name", "*.py"],
+                ["which", "python"],
+                ["uname", "-s"],
+                ["date"],
+            ]
 
         for cmd in utility_commands:
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
