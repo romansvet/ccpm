@@ -60,14 +60,14 @@ for task_file in "$epic_dir"/[0-9]*.md; do
 
   if [ "$task_status" = "closed" ] || [ "$task_status" = "completed" ]; then
     echo "  OK #$task_num - $task_name"
-    ((closed_count++))
+    closed_count=$((closed_count + 1))
   else
     echo "  OPEN #$task_num - $task_name"
     [ "$parallel" = "true" ] && echo -n " (parallel)"
-    ((open_count++))
+    open_count=$((open_count + 1))
   fi
 
-  ((task_count++))
+  task_count=$((task_count + 1))
 done
 
 if [ $task_count -eq 0 ]; then

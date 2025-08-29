@@ -44,7 +44,7 @@ for epic_dir in .claude/epics/*/; do
 
       [ -n "$open_deps" ] && echo "   Waiting for:$open_deps"
       echo ""
-      ((found++))
+      found=$((found + 1))
     fi
   done
 done

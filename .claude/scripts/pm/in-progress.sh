@@ -41,7 +41,7 @@ if [ -d ".claude/epics" ]; then
       fi
 
       echo ""
-      ((found++))
+      found=$((found + 1))
     fi
   done
 fi

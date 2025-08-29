@@ -14,7 +14,7 @@ warnings=0
 
 # Check directory structure
 echo "DIRECTORY STRUCTURE:"
-[ -d ".claude" ] && echo "  OK .claude directory exists" || { echo "  ERROR .claude directory missing"; ((errors++)); }
+[ -d ".claude" ] && echo "  OK .claude directory exists" || { echo "  ERROR .claude directory missing"; errors=$((errors + 1)); }
 [ -d ".claude/prds" ] && echo "  OK PRDs directory exists" || echo "  WARNING PRDs directory missing"
 [ -d ".claude/epics" ] && echo "  OK Epics directory exists" || echo "  WARNING Epics directory missing"
 [ -d ".claude/rules" ] && echo "  OK Rules directory exists" || echo "  WARNING Rules directory missing"
@@ -28,13 +28,13 @@ for epic_dir in .claude/epics/*/; do
   [ -d "$epic_dir" ] || continue
   if [ ! -f "$epic_dir/epic.md" ]; then
     echo "  WARNING Missing epic.md in $(basename "$epic_dir")"
-    ((warnings++))
+    warnings=$((warnings + 1))
   fi
 done
 
 # Check for tasks without epics
 orphaned=$(find .claude -name "[0-9]*.md" -not -path ".claude/epics/*/*" 2>/dev/null | wc -l || echo "0")
-[ $orphaned -gt 0 ] && echo "  WARNING Found $orphaned orphaned task files" && ((warnings++))
+[ $orphaned -gt 0 ] && echo "  WARNING Found $orphaned orphaned task files" && warnings=$((warnings + 1))
 
 # Check for broken references
 echo ""
@@ -49,7 +49,7 @@ for task_file in .claude/epics/*/[0-9]*.md; do
     for dep in ${deps}; do
       if [ ! -f "$epic_dir/$dep.md" ]; then
         echo "  WARNING Task $(basename "$task_file" .md) references missing task: $dep"
-        ((warnings++))
+        warnings=$((warnings + 1))
       fi
     done
   fi
@@ -65,7 +65,7 @@ invalid=0
 find .claude -name "*.md" -path "*/epics/*" -o -path "*/prds/*" 2>/dev/null | while IFS= read -r file; do
   if ! grep -q "^---" "$file"; then
     echo "  WARNING Missing frontmatter: $(basename "$file")"
-    ((invalid++))
+    invalid=$((invalid + 1))
   fi
 done
 

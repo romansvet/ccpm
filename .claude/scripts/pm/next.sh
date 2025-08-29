@@ -35,7 +35,7 @@ for epic_dir in .claude/epics/*/; do
       echo "   Epic: $epic_name"
       [ "$parallel" = "true" ] && echo "   IN-PROGRESS Can run in parallel"
       echo ""
-      ((found++))
+      found=$((found + 1))
     fi
   done
 done

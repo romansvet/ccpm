@@ -45,9 +45,9 @@ for file in .claude/prds/*.md; do
     [ -z "$desc" ] && desc="No description"
     # echo "   PRD $name - $desc"
     echo "   PRD $file - $desc"
-    ((backlog_count++))
+    backlog_count=$((backlog_count + 1))
   fi
-  ((total_count++))
+  total_count=$((total_count + 1))
 done
 [ $backlog_count -eq 0 ] && echo "   (none)"
 
@@ -63,7 +63,7 @@ for file in .claude/prds/*.md; do
     [ -z "$desc" ] && desc="No description"
     # echo "   PRD $name - $desc"
     echo "   PRD $file - $desc"
-    ((in_progress_count++))
+    in_progress_count=$((in_progress_count + 1))
   fi
 done
 [ $in_progress_count -eq 0 ] && echo "   (none)"
@@ -80,7 +80,7 @@ for file in .claude/prds/*.md; do
     [ -z "$desc" ] && desc="No description"
     # echo "   PRD $name - $desc"
     echo "   PRD $file - $desc"
-    ((implemented_count++))
+    implemented_count=$((implemented_count + 1))
   fi
 done
 [ $implemented_count -eq 0 ] && echo "   (none)"

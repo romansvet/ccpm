@@ -49,17 +49,17 @@ else
   # Use find to safely iterate over task files
   for task_file in "$epic_dir"/[0-9]*.md; do
     [ -f "$task_file" ] || continue
-    ((total++))
+    total=$((total + 1))
 
     task_status=$(grep "^status:" "$task_file" | head -1 | sed 's/^status: *//')
     deps=$(grep "^depends_on:" "$task_file" | head -1 | sed 's/^depends_on: *\[//' | sed 's/\]//')
 
     if [ "$task_status" = "closed" ] || [ "$task_status" = "completed" ]; then
-      ((closed++))
+      closed=$((closed + 1))
     elif [ -n "$deps" ] && [ "$deps" != "depends_on:" ]; then
-      ((blocked++))
+      blocked=$((blocked + 1))
     else
-      ((open++))
+      open=$((open + 1))
     fi
   done
 

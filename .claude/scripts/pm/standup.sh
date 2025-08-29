@@ -62,7 +62,7 @@ for epic_dir in .claude/epics/*/; do
       task_name=$(grep "^name:" "$task_file" | head -1 | sed 's/^name: *//')
       task_num=$(basename "$task_file" .md)
       echo "  • #$task_num - $task_name"
-      ((count++))
+      count=$((count + 1))
       [ $count -ge 3 ] && break 2
     fi
   done

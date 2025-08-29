@@ -23,10 +23,10 @@ for file in .claude/prds/*.md; do
   status=$(grep "^status:" "$file" | head -1 | sed 's/^status: *//')
 
   case "$status" in
-    backlog|draft|"") ((backlog++)) ;;
-    in-progress|active) ((in_progress++)) ;;
-    implemented|completed|done) ((implemented++)) ;;
-    *) ((backlog++)) ;;
+    backlog|draft|"") backlog=$((backlog + 1)) ;;
+    in-progress|active) in_progress=$((in_progress + 1)) ;;
+    implemented|completed|done) implemented=$((implemented + 1)) ;;
+    *) backlog=$((backlog + 1)) ;;
   esac
 done
 
