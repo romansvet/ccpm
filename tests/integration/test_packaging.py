@@ -379,25 +379,14 @@ class TestPackagingOperations:
                     "AssertionError: Egg-link" in result.stderr and 
                     "does not match installed location" in result.stderr):
                     # This is a Windows path normalization issue, not a real failure
-                    # Try to clean up manually by removing ALL traces of the package
+                    # Try to clean up manually by removing traces of the package
                     import glob
-                    import shutil
                     site_packages = venv_path / "Lib" / "site-packages"
                     
                     # Remove .egg-link files
                     for egg_link in glob.glob(str(site_packages / "ccpm*.egg-link")):
                         try:
                             os.remove(egg_link)
-                        except OSError:
-                            pass
-                    
-                    # Remove .pth files that might reference the package
-                    for pth_file in glob.glob(str(site_packages / "*.pth")):
-                        try:
-                            with open(pth_file, 'r') as f:
-                                content = f.read()
-                            if 'ccpm' in content.lower():
-                                os.remove(pth_file)
                         except OSError:
                             pass
                     
