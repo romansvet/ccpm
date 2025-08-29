@@ -51,7 +51,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .
-          pip install pytest pytest-cov pytest-timeout requests
+          pip install pytest pytest-cov pytest-timeout requests setuptools wheel
           # Install linting tools for integration tests
           pip install yamllint black isort flake8 ruff
           # Install markdownlint-cli (Node.js based)
@@ -111,7 +111,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .
-          pip install black isort mypy flake8 pylint ruff
+          pip install black isort mypy flake8 pylint ruff setuptools wheel
 
       - name: Run black
         run: black --check ccpm tests
@@ -168,7 +168,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .
-          pip install pytest pytest-timeout
+          pip install pytest pytest-timeout setuptools wheel
 
       - name: Run integration tests
         run: |

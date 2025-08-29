@@ -173,8 +173,14 @@ def run_pm_script(
     if shell_env["shell_type"] == "wsl-bash":
         # For WSL, we need to use wsl bash instead of direct bash
         cmd = [shell_env["shell_path"], "bash", str(script_path)]
+    elif shell_env["shell_type"] == "git-bash" and sys.platform == "win32":
+        # For Git Bash on Windows, convert Windows path to Git Bash format
+        script_path_str = str(script_path).replace('\\', '/')
+        if script_path_str[1:3] == ':/':  # C:/ -> /c/
+            script_path_str = '/' + script_path_str[0].lower() + script_path_str[2:]
+        cmd = [shell_env["shell_path"], script_path_str]
     else:
-        # For git-bash, msys2-bash, or unix bash
+        # For msys2-bash, or unix bash
         cmd = [shell_env["shell_path"], str(script_path)]
 
     if args:
