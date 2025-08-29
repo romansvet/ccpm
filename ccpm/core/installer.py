@@ -333,9 +333,26 @@ class CCPMInstaller:
             print_warning(f"Could not remove tracking file: {exc}")
 
         # If .claude directory is now empty, remove it completely
-        if self.claude_dir.exists() and not list(self.claude_dir.iterdir()):
+        if self.claude_dir.exists():
             try:
-                self.claude_dir.rmdir()
+                # Check if directory is empty
+                remaining_items = list(self.claude_dir.iterdir())
+                if not remaining_items:
+                    # On Windows, sometimes we need to wait a moment for handles to close
+                    import time
+                    import sys
+                    if sys.platform == "win32":
+                        time.sleep(0.1)
+                    self.claude_dir.rmdir()
+                elif len(remaining_items) == 1 and remaining_items[0].name == "settings.local.json":
+                    # Sometimes settings file is left behind, remove it too
+                    try:
+                        remaining_items[0].unlink()
+                        if sys.platform == "win32":
+                            time.sleep(0.1)
+                        self.claude_dir.rmdir()
+                    except Exception:
+                        pass  # Don't fail the uninstall for this
             except Exception as exc:
                 print_warning(f"Could not remove empty .claude directory: {exc}")
 
@@ -381,6 +398,48 @@ class CCPMInstaller:
         )
 
         self._save_tracking_file(tracking_data)
+
+    def _is_template_file(self, file_path: Path) -> bool:
+        """Check if a file or directory is a CCPM template that can be safely removed.
+        
+        Args:
+            file_path: File or directory path to check
+            
+        Returns:
+            True if it's a safe-to-remove template file/directory
+        """
+        if not file_path.exists():
+            return True
+            
+        # Get relative path from .claude directory
+        try:
+            rel_path = file_path.relative_to(self.claude_dir)
+            rel_path_str = str(rel_path).replace("\\", "/")  # Normalize for Windows
+        except ValueError:
+            return False
+            
+        # Known CCPM template files that are safe to remove
+        template_files = {
+            "settings.local.json",
+            "CLAUDE.md", 
+            "agents/code-analyzer.md",
+            "agents/file-analyzer.md", 
+            "agents/parallel-worker.md",
+            "agents/test-runner.md",
+            "context/README.md",
+            "prds/.gitkeep",
+            "epics/.gitkeep",
+        }
+        
+        # Check if it's a known template file
+        if rel_path_str in template_files:
+            return True
+            
+        # Check if it's a template directory
+        if file_path.is_dir():
+            return self._is_template_only_directory(file_path)
+            
+        return False
 
     def _detect_user_content(self) -> List[str]:
         """Detect user-created content that must be preserved.
@@ -530,6 +589,36 @@ class CCPMInstaller:
                         scripts_dir.rmdir()
                 except Exception as exc:
                     print_warning(f"Could not remove scripts/pm: {exc}")
+
+        # If .claude directory is now empty or only has template files, remove it
+        if self.claude_dir.exists():
+            try:
+                remaining_items = list(self.claude_dir.iterdir())
+                if not remaining_items:
+                    # On Windows, sometimes we need to wait a moment for handles to close
+                    import time
+                    import sys
+                    if sys.platform == "win32":
+                        time.sleep(0.1)
+                    self.claude_dir.rmdir()
+                elif all(self._is_template_file(item) for item in remaining_items):
+                    # Remove remaining template files and the directory
+                    for item in remaining_items:
+                        try:
+                            if item.is_dir():
+                                shutil.rmtree(item)
+                            else:
+                                item.unlink()
+                        except Exception:
+                            pass  # Don't fail uninstall for cleanup issues
+                    try:
+                        if sys.platform == "win32":
+                            time.sleep(0.1)
+                        self.claude_dir.rmdir()
+                    except Exception:
+                        pass
+            except Exception as exc:
+                print_warning(f"Could not remove .claude directory: {exc}")
 
         print_success(f"Removed {removed_count} CCPM files using conservative approach")
 

@@ -95,6 +95,22 @@ class TestPMScriptExecution:
 
     def test_all_scripts_have_valid_syntax(self):
         """Test that all PM scripts pass bash syntax validation."""
+        import sys
+        
+        # Skip on Windows if bash is not available (no WSL/Git Bash)
+        if sys.platform == "win32":
+            try:
+                result = subprocess.run(
+                    ["bash", "--version"],
+                    capture_output=True,
+                    text=True,
+                    timeout=5,
+                )
+                if result.returncode != 0:
+                    pytest.skip("bash not available on Windows")
+            except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
+                pytest.skip("bash not available on Windows")
+        
         pm_scripts_dir = (
             Path(__file__).parent.parent.parent / ".claude" / "scripts" / "pm"
         )
