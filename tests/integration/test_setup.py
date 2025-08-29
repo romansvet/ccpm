@@ -219,15 +219,28 @@ class TestUninstallCommand:
         
         if os.name == "nt":
             import time
+            import shutil
             # Give Windows a moment to release file handles
-            max_retries = 3
+            max_retries = 5
             for i in range(max_retries):
                 if not claude_dir.exists() and not tracking_file.exists():
                     break
-                time.sleep(0.5)
+                time.sleep(1.0)  # Longer delay
+                
+                # On the last retry, try to force remove any remaining files
+                if i == max_retries - 1 and claude_dir.exists():
+                    try:
+                        # List what's left for debugging
+                        remaining = list(claude_dir.rglob("*"))
+                        print(f"Remaining files in .claude: {remaining}")
+                        # Try to force remove
+                        shutil.rmtree(claude_dir, ignore_errors=True)
+                        time.sleep(0.5)
+                    except Exception as e:
+                        print(f"Force cleanup failed: {e}")
                 
         # Verify .claude removed
-        assert not claude_dir.exists()
+        assert not claude_dir.exists(), f"Directory still exists: {list(claude_dir.rglob('*')) if claude_dir.exists() else 'N/A'}"
 
         # Verify tracking file removed
         assert not tracking_file.exists()

@@ -108,6 +108,9 @@ class TestPMScriptExecution:
                 )
                 if result.returncode != 0:
                     pytest.skip("bash not available on Windows")
+                # Also check for WSL installation message
+                if "Windows Subsystem for Linux has no installed distributions" in result.stdout:
+                    pytest.skip("WSL bash available but no distributions installed")
             except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
                 pytest.skip("bash not available on Windows")
         

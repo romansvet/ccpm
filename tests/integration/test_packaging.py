@@ -373,11 +373,10 @@ class TestPackagingOperations:
                 timeout=300,
             )
 
-            # On Windows, pip uninstall can have path case sensitivity issues 
-            # with .egg-link files due to short path names vs long path names
-            if result.returncode != 0 and os.name == "nt":
-                # Check if it's the specific egg-link path mismatch error
-                if ("AssertionError: Egg-link" in result.stderr and 
+            # Handle Windows pip uninstall path case sensitivity issues
+            if result.returncode != 0:
+                if (os.name == "nt" and 
+                    "AssertionError: Egg-link" in result.stderr and 
                     "does not match installed location" in result.stderr):
                     # This is a Windows path normalization issue, not a real failure
                     # Try to clean up manually by removing the egg-link file
@@ -395,12 +394,9 @@ class TestPackagingOperations:
                             ccpm_exe.unlink()
                         except OSError:
                             pass
+                    print(f"Windows path mismatch handled for cycle {cycle}")
                 else:
                     assert False, f"Uninstall cycle {cycle} failed: {result.stderr}"
-            else:
-                assert (
-                    result.returncode == 0
-                ), f"Uninstall cycle {cycle} failed: {result.stderr}"
 
             # Verify it's gone - try to import from different directory
             # to avoid local imports
