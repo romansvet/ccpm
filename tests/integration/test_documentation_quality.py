@@ -249,6 +249,8 @@ class TestLinkValidation:
             "https://claude.ai/code",
             # Twitter/X badge with special characters that can cause network issues
             "https://img.shields.io/badge/𝕏-@aroussi-1c9bf0",
+            # Automaze.io can timeout on Windows CI
+            "https://automaze.io",
         }
 
         failed_urls = []

@@ -379,21 +379,46 @@ class TestPackagingOperations:
                     "AssertionError: Egg-link" in result.stderr and 
                     "does not match installed location" in result.stderr):
                     # This is a Windows path normalization issue, not a real failure
-                    # Try to clean up manually by removing the egg-link file
+                    # Try to clean up manually by removing ALL traces of the package
                     import glob
+                    import shutil
                     site_packages = venv_path / "Lib" / "site-packages"
+                    
+                    # Remove .egg-link files
                     for egg_link in glob.glob(str(site_packages / "ccpm*.egg-link")):
                         try:
                             os.remove(egg_link)
                         except OSError:
                             pass
-                    # Also remove from Scripts if it exists
-                    ccpm_exe = venv_path / "Scripts" / "ccpm.exe"
-                    if ccpm_exe.exists():
+                    
+                    # Remove .pth files that might reference the package
+                    for pth_file in glob.glob(str(site_packages / "*.pth")):
                         try:
-                            ccpm_exe.unlink()
+                            with open(pth_file, 'r') as f:
+                                content = f.read()
+                            if 'ccpm' in content.lower():
+                                os.remove(pth_file)
                         except OSError:
                             pass
+                    
+                    # Remove package directories if they exist
+                    for pkg_dir in glob.glob(str(site_packages / "ccpm*")):
+                        try:
+                            if os.path.isdir(pkg_dir):
+                                shutil.rmtree(pkg_dir)
+                            else:
+                                os.remove(pkg_dir)
+                        except OSError:
+                            pass
+                    
+                    # Remove from Scripts
+                    scripts_dir = venv_path / "Scripts"
+                    for script in glob.glob(str(scripts_dir / "ccpm*")):
+                        try:
+                            os.remove(script)
+                        except OSError:
+                            pass
+                    
                     print(f"Windows path mismatch handled for cycle {cycle}")
                 else:
                     assert False, f"Uninstall cycle {cycle} failed: {result.stderr}"
