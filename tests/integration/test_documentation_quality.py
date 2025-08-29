@@ -220,6 +220,8 @@ class TestLinkValidation:
             "https://github.com/automazeio/ccpm/actions/workflows/test.yml/badge.svg",
             # Protected URLs that may return 403 but are valid
             "https://claude.ai/code",
+            # Twitter/X badge with special characters that can cause network issues
+            "https://img.shields.io/badge/𝕏-@aroussi-1c9bf0",
         }
 
         failed_urls = []
