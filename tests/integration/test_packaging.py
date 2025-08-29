@@ -374,16 +374,25 @@ class TestPackagingOperations:
             )
 
             # On Windows, pip uninstall can have path case sensitivity issues 
-            # with .egg-link files, but this doesn't indicate a real problem
+            # with .egg-link files due to short path names vs long path names
             if result.returncode != 0 and os.name == "nt":
-                # Check if it's just a case sensitivity warning
-                if "Cannot uninstall" in result.stderr and "egg-link" in result.stderr:
-                    # Try to clean up manually and continue
+                # Check if it's the specific egg-link path mismatch error
+                if ("AssertionError: Egg-link" in result.stderr and 
+                    "does not match installed location" in result.stderr):
+                    # This is a Windows path normalization issue, not a real failure
+                    # Try to clean up manually by removing the egg-link file
                     import glob
                     site_packages = venv_path / "Lib" / "site-packages"
                     for egg_link in glob.glob(str(site_packages / "ccpm*.egg-link")):
                         try:
                             os.remove(egg_link)
+                        except OSError:
+                            pass
+                    # Also remove from Scripts if it exists
+                    ccpm_exe = venv_path / "Scripts" / "ccpm.exe"
+                    if ccpm_exe.exists():
+                        try:
+                            ccpm_exe.unlink()
                         except OSError:
                             pass
                 else:

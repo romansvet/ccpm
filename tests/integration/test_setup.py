@@ -213,11 +213,24 @@ class TestUninstallCommand:
 
         assert result.returncode == 0
 
+        # On Windows, sometimes directory removal has a slight delay due to file handles
+        claude_dir = real_git_repo / ".claude"
+        tracking_file = real_git_repo / ".ccpm_tracking.json"
+        
+        if os.name == "nt":
+            import time
+            # Give Windows a moment to release file handles
+            max_retries = 3
+            for i in range(max_retries):
+                if not claude_dir.exists() and not tracking_file.exists():
+                    break
+                time.sleep(0.5)
+                
         # Verify .claude removed
-        assert not (real_git_repo / ".claude").exists()
+        assert not claude_dir.exists()
 
         # Verify tracking file removed
-        assert not (real_git_repo / ".ccpm_tracking.json").exists()
+        assert not tracking_file.exists()
 
     def test_uninstall_preserves_existing_content(
         self, repo_with_existing_claude: Path
