@@ -26,8 +26,17 @@ class TestMarkdownQuality:
 
     def test_readme_passes_all_lint_rules(self):
         """Test README.md passes all critical markdownlint rules."""
-        # Skip on Windows if markdownlint is not available
-        if shutil.which("markdownlint") is None:
+        # Skip if markdownlint is not available or not working
+        try:
+            result = subprocess.run(
+                ["markdownlint", "--version"], 
+                capture_output=True, 
+                text=True, 
+                timeout=5
+            )
+            if result.returncode != 0:
+                pytest.skip("markdownlint not available or not working")
+        except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
             pytest.skip("markdownlint not available")
             
         result = subprocess.run(
@@ -59,8 +68,17 @@ class TestMarkdownQuality:
 
     def test_all_markdown_files_valid(self):
         """Test all Markdown files in project are valid."""
-        # Skip on Windows if markdownlint is not available
-        if shutil.which("markdownlint") is None:
+        # Skip if markdownlint is not available or not working
+        try:
+            result = subprocess.run(
+                ["markdownlint", "--version"], 
+                capture_output=True, 
+                text=True, 
+                timeout=5
+            )
+            if result.returncode != 0:
+                pytest.skip("markdownlint not available or not working")
+        except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
             pytest.skip("markdownlint not available")
             
         md_files = glob.glob("**/*.md", recursive=True)
@@ -364,34 +382,47 @@ class TestPerformanceValidation:
 
     def test_markdown_linting_performance(self):
         """Test markdown linting performs well on large files."""
-        # Skip on Windows if markdownlint is not available
-        if shutil.which("markdownlint") is None:
+        # Skip if markdownlint is not available or not working
+        try:
+            result = subprocess.run(
+                ["markdownlint", "--version"], 
+                capture_output=True, 
+                text=True, 
+                timeout=5
+            )
+            if result.returncode != 0:
+                pytest.skip("markdownlint not available or not working")
+        except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
             pytest.skip("markdownlint not available")
             
         # Create a large test markdown file (avoid MD012 multiple blank lines)
         large_content = "# Performance Test\n\n" + "This is a test paragraph.\n" * 500
 
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
-            f.write(large_content)
-            f.flush()
+        # Create temporary file with proper Windows handling
+        fd, temp_path = tempfile.mkstemp(suffix=".md", text=True)
+        try:
+            with os.fdopen(fd, 'w', encoding='utf-8') as f:
+                f.write(large_content)
+            
+            start_time = time.time()
+            result = subprocess.run(
+                ["markdownlint", temp_path],
+                capture_output=True,
+                timeout=30,  # Should complete within 30 seconds
+            )
+            elapsed = time.time() - start_time
 
+            # Should complete reasonably quickly
+            assert elapsed < 10, f"Markdown linting took too long: {elapsed:.2f}s"
+            assert (
+                result.returncode == 0
+            ), f"Large file linting failed: {result.stderr}"
+
+        finally:
             try:
-                start_time = time.time()
-                result = subprocess.run(
-                    ["markdownlint", f.name],
-                    capture_output=True,
-                    timeout=30,  # Should complete within 30 seconds
-                )
-                elapsed = time.time() - start_time
-
-                # Should complete reasonably quickly
-                assert elapsed < 10, f"Markdown linting took too long: {elapsed:.2f}s"
-                assert (
-                    result.returncode == 0
-                ), f"Large file linting failed: {result.stderr}"
-
-            finally:
-                os.unlink(f.name)
+                os.unlink(temp_path)
+            except (OSError, PermissionError):
+                pass  # Ignore cleanup errors on Windows
 
     def test_yaml_validation_performance(self):
         """Test YAML validation performs well on complex files."""
@@ -410,8 +441,17 @@ class TestEdgeCaseHandling:
 
     def test_unicode_content_handling(self):
         """Test markdown linting handles Unicode content correctly."""
-        # Skip on Windows if markdownlint is not available
-        if shutil.which("markdownlint") is None:
+        # Skip if markdownlint is not available or not working
+        try:
+            result = subprocess.run(
+                ["markdownlint", "--version"], 
+                capture_output=True, 
+                text=True, 
+                timeout=5
+            )
+            if result.returncode != 0:
+                pytest.skip("markdownlint not available or not working")
+        except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
             pytest.skip("markdownlint not available")
             
         unicode_content = """# Test with Unicode 🎉
@@ -423,26 +463,37 @@ This file contains:
 - Currency: € £ ¥
 """
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".md", delete=False, encoding="utf-8"
-        ) as f:
-            f.write(unicode_content)
-            f.flush()
+        # Create temporary file with proper Windows handling
+        fd, temp_path = tempfile.mkstemp(suffix=".md", text=True)
+        try:
+            with os.fdopen(fd, 'w', encoding='utf-8') as f:
+                f.write(unicode_content)
+            
+            result = subprocess.run(
+                ["markdownlint", temp_path], capture_output=True, text=True
+            )
+            # Should not crash on Unicode content
+            assert result.returncode is not None, "Process should complete"
 
+        finally:
             try:
-                result = subprocess.run(
-                    ["markdownlint", f.name], capture_output=True, text=True
-                )
-                # Should not crash on Unicode content
-                assert result.returncode is not None, "Process should complete"
-
-            finally:
-                os.unlink(f.name)
+                os.unlink(temp_path)
+            except (OSError, PermissionError):
+                pass  # Ignore cleanup errors on Windows
 
     def test_empty_file_handling(self):
         """Test tools handle empty files gracefully."""
-        # Skip on Windows if markdownlint is not available
-        if shutil.which("markdownlint") is None:
+        # Skip if markdownlint is not available or not working
+        try:
+            result = subprocess.run(
+                ["markdownlint", "--version"], 
+                capture_output=True, 
+                text=True, 
+                timeout=5
+            )
+            if result.returncode != 0:
+                pytest.skip("markdownlint not available or not working")
+        except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
             pytest.skip("markdownlint not available")
             
         with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:

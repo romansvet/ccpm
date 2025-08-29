@@ -6,6 +6,7 @@ and that error recovery mechanisms work correctly with real operations.
 
 import os
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
@@ -24,16 +25,30 @@ class TestExceptionChaining:
         from ccpm.commands.pm import invoke_claude_command
 
         # Create a mock Claude CLI that will timeout
-        mock_claude_script = temp_project_with_git / "mock_claude.py"
-        mock_claude_script.write_text(
-            """#!/usr/bin/env python3
+        if sys.platform == "win32":
+            # On Windows, create a batch file that calls Python
+            mock_claude_script = temp_project_with_git / "mock_claude.bat"
+            python_script = temp_project_with_git / "mock_claude.py"
+            python_script.write_text(
+                """import time
+import sys
+time.sleep(10)  # This will cause timeout
+sys.exit(0)
+"""
+            )
+            mock_claude_script.write_text(f'@echo off\npython "{python_script}"\n')
+        else:
+            # Unix-like systems
+            mock_claude_script = temp_project_with_git / "mock_claude.py"
+            mock_claude_script.write_text(
+                """#!/usr/bin/env python3
 import time
 import sys
 time.sleep(10)  # This will cause timeout
 sys.exit(0)
 """
-        )
-        mock_claude_script.chmod(0o755)
+            )
+            mock_claude_script.chmod(0o755)
 
         # Set up .claude directory
         claude_dir = temp_project_with_git / ".claude"
@@ -61,16 +76,30 @@ sys.exit(0)
         from ccpm.commands.maintenance import invoke_claude_command
 
         # Create a mock Claude CLI that will timeout
-        mock_claude_script = temp_project_with_git / "mock_claude.py"
-        mock_claude_script.write_text(
-            """#!/usr/bin/env python3
+        if sys.platform == "win32":
+            # On Windows, create a batch file that calls Python
+            mock_claude_script = temp_project_with_git / "mock_claude.bat"
+            python_script = temp_project_with_git / "mock_claude.py"
+            python_script.write_text(
+                """import time
+import sys
+time.sleep(10)  # This will cause timeout
+sys.exit(0)
+"""
+            )
+            mock_claude_script.write_text(f'@echo off\npython "{python_script}"\n')
+        else:
+            # Unix-like systems
+            mock_claude_script = temp_project_with_git / "mock_claude.py"
+            mock_claude_script.write_text(
+                """#!/usr/bin/env python3
 import time
 import sys
 time.sleep(10)  # This will cause timeout
 sys.exit(0)
 """
-        )
-        mock_claude_script.chmod(0o755)
+            )
+            mock_claude_script.chmod(0o755)
 
         # Set up .claude directory
         claude_dir = temp_project_with_git / ".claude"
