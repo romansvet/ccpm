@@ -153,8 +153,7 @@
       "Bash(CI=true GITHUB_ACTIONS=true python -m pytest tests/integration/test_pm_shell_scripts.py::TestCrossplatformCompatibility::test_scripts_handle_special_characters -xvs)",
       "Bash(CI=true GITHUB_ACTIONS=true python -m pytest tests/integration/test_pm_shell_scripts.py::TestScriptIntegration::test_workflow_integration -xvs)",
       "Bash(CI=true GITHUB_ACTIONS=true python -m pytest tests/integration/test_pm_shell_scripts.py -v)",
-      "Bash(gh workflow:*)",
-      "Bash(gh pr list:*)"
+      "Bash(gh workflow:*)"
     ],
     "additionalDirectories": [
       "/tmp/ccpm"
