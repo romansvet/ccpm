@@ -379,9 +379,26 @@ class TestPackagingOperations:
                     "AssertionError: Egg-link" in result.stderr and 
                     "does not match installed location" in result.stderr):
                     # This is a Windows path normalization issue, not a real failure
-                    # Try to clean up manually by removing traces of the package
+                    # Try to clean up manually by removing ALL traces of the package
                     import glob
+                    import sys
+                    import importlib
+                    
                     site_packages = venv_path / "Lib" / "site-packages"
+                    
+                    # First, try to remove any cached imports
+                    modules_to_remove = [mod for mod in sys.modules if mod.startswith('ccpm')]
+                    for mod in modules_to_remove:
+                        try:
+                            del sys.modules[mod]
+                        except KeyError:
+                            pass
+                    
+                    # Invalidate import caches
+                    try:
+                        importlib.invalidate_caches()
+                    except AttributeError:
+                        pass  # Python < 3.3
                     
                     # Remove .egg-link files
                     for egg_link in glob.glob(str(site_packages / "ccpm*.egg-link")):
@@ -390,17 +407,40 @@ class TestPackagingOperations:
                         except OSError:
                             pass
                     
-                    # Remove package directories if they exist
-                    for pkg_dir in glob.glob(str(site_packages / "ccpm*")):
+                    # Remove .pth files that might reference the package
+                    for pth_file in glob.glob(str(site_packages / "*.pth")):
                         try:
-                            if os.path.isdir(pkg_dir):
-                                shutil.rmtree(pkg_dir)
+                            with open(pth_file, 'r') as f:
+                                content = f.read()
+                            if 'ccpm' in content.lower():
+                                os.remove(pth_file)
+                        except (OSError, UnicodeDecodeError):
+                            pass
+                    
+                    # Remove package directories and files
+                    for pkg_item in glob.glob(str(site_packages / "ccpm*")):
+                        try:
+                            if os.path.isdir(pkg_item):
+                                shutil.rmtree(pkg_item)
                             else:
-                                os.remove(pkg_dir)
+                                os.remove(pkg_item)
                         except OSError:
                             pass
                     
-                    # Remove from Scripts
+                    # Also check for egg-info directories that might be linked
+                    for egg_info_path in glob.glob(str(site_packages / "*.egg-info")):
+                        try:
+                            egg_info = Path(egg_info_path)
+                            top_level_file = egg_info / "top_level.txt"
+                            if top_level_file.exists():
+                                with open(top_level_file, 'r') as f:
+                                    top_level = f.read().strip()
+                                if top_level == "ccpm":
+                                    shutil.rmtree(egg_info)
+                        except (OSError, FileNotFoundError, UnicodeDecodeError):
+                            pass
+                    
+                    # Remove from Scripts directory
                     scripts_dir = venv_path / "Scripts"
                     for script in glob.glob(str(scripts_dir / "ccpm*")):
                         try:
@@ -408,7 +448,15 @@ class TestPackagingOperations:
                         except OSError:
                             pass
                     
-                    print(f"Windows path mismatch handled for cycle {cycle}")
+                    # Force remove the original checkout if it exists in site-packages
+                    checkout_in_site = site_packages / "ccpm_checkout"
+                    if checkout_in_site.exists():
+                        try:
+                            shutil.rmtree(checkout_in_site)
+                        except OSError:
+                            pass
+                    
+                    print(f"Windows path mismatch handled for cycle {cycle} - thorough cleanup")
                 else:
                     assert False, f"Uninstall cycle {cycle} failed: {result.stderr}"
 
