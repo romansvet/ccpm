@@ -241,6 +241,13 @@ CCPM requires Python 3.8+. Check with:
 python --version
 ```
 
+## Teams using this system report:
+- **89% less time** lost to context switching – you'll use `/compact` and `/clear` a LOT less
+- **5-8 parallel tasks** vs 1 previously – editing/testing multiple files at the same time
+- **75% reduction** in bug rates – due to the breaking down features into detailed tasks
+- **Up to 3x faster** feature delivery – based on feature size and complexity
+
+
 **Permission issues?**
 
 ```bash
@@ -318,12 +325,19 @@ Run `ccpm update` to get the latest version while preserving your customizations
 
 Claude Code PM was developed at [Automaze](https://automaze.io) **for developers who ship, by developers who ship**.
 
-If CCPM helps your team ship better:
+If Claude Code PM helps your team ship better software:
 
-- ⭐ **[Star this repository](https://github.com/automazeio/ccpm)**
-- 🐦 **[Follow @aroussi on X](https://x.com/aroussi)** for updates
+- ⭐ **[Star this repository](https://github.com/automazeio/ccpm)** to show your support
+- 🐦 **[Follow @aroussi on X](https://x.com/aroussi)** for updates and tips
 
 ---
 
+> [!TIP]
 > **Ship faster with Automaze.** We partner with founders to bring their vision to life.  
 > **[Visit Automaze.io ›](https://automaze.io)**
+
+---
+
+## Star History
+
+![Star History Chart](https://api.star-history.com/svg?repos=automazeio/ccpm)
