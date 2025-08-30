@@ -79,7 +79,14 @@ if [ -d "scripts/pm" ] && [ ! "$(pwd)" = *"/.claude"* ]; then
   echo ""
   echo "NOTE Copying PM scripts..."
   cp -r scripts/pm/* .claude/scripts/pm/
-  chmod +x .claude/scripts/pm/*.sh
+  
+  # Make shell scripts executable, but only if they exist
+  # Build array of .sh files to avoid glob expansion failure under set -e
+  sh_files=(.claude/scripts/pm/*.sh)
+  if [ -e "${sh_files[0]}" ]; then
+    chmod +x "${sh_files[@]}"
+  fi
+  
   echo "  OK Scripts copied and made executable"
 fi
 
