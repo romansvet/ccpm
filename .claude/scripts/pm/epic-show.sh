@@ -62,8 +62,10 @@ for task_file in "$epic_dir"/[0-9]*.md; do
     echo "  OK #$task_num - $task_name"
     closed_count=$((closed_count + 1))
   else
-    echo "  OPEN #$task_num - $task_name"
-    [ "$parallel" = "true" ] && echo -n " (parallel)"
+    # Construct full output string to avoid dangling output
+    output_line="  OPEN #$task_num - $task_name"
+    [ "$parallel" = "true" ] && output_line="$output_line (parallel)"
+    echo "$output_line"
     open_count=$((open_count + 1))
   fi
 

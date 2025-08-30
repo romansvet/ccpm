@@ -241,9 +241,7 @@ class TestUninstallCommand:
                         print(f"Force cleanup failed: {e}")
 
         # Verify .claude removed
-        dir_contents = (
-            list(claude_dir.rglob('*')) if claude_dir.exists() else 'N/A'
-        )
+        dir_contents = list(claude_dir.rglob("*")) if claude_dir.exists() else "N/A"
         assert not claude_dir.exists(), f"Directory still exists: {dir_contents}"
 
         # Verify tracking file removed

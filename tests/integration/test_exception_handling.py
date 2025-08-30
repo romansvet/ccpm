@@ -20,9 +20,14 @@ from ccpm.utils.backup import BackupManager
 class TestExceptionChaining:
     """Test exception chain preservation with real execution."""
 
-    def test_timeout_exception_chaining_pm_command(self, temp_project_with_git):
+    def test_timeout_exception_chaining_pm_command(
+        self, temp_project_with_git, monkeypatch
+    ):
         """Test that timeout exceptions preserve original context in PM commands."""
         from ccpm.commands.pm import invoke_claude_command
+
+        # Enter temporary project directory for hermetic testing
+        monkeypatch.chdir(temp_project_with_git)
 
         # Create a mock Claude CLI that will timeout
         if sys.platform == "win32":
@@ -70,10 +75,13 @@ sys.exit(0)
                 assert "operation too complex" in str(exc_info.value)
 
     def test_timeout_exception_chaining_maintenance_command(
-        self, temp_project_with_git
+        self, temp_project_with_git, monkeypatch
     ):
         """Test timeout exceptions preserve original context in maintenance."""
         from ccpm.commands.maintenance import invoke_claude_command
+
+        # Enter temporary project directory for hermetic testing
+        monkeypatch.chdir(temp_project_with_git)
 
         # Create a mock Claude CLI that will timeout
         if sys.platform == "win32":

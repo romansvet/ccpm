@@ -207,7 +207,7 @@ class TestYAMLConfiguration:
         for i, block in enumerate(setup_python_blocks):
             assert (
                 "cache: 'pip'" in block
-            ), f"Missing pip caching in setup-python block {i+1}: {block[:100]}..."
+            ), f"Missing pip caching in setup-python block {i + 1}: {block[:100]}..."
 
 
 class TestLinkValidation:

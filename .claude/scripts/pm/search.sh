@@ -20,11 +20,12 @@ echo ""
 # Search in PRDs
 if [ -d ".claude/prds" ]; then
   echo "PRDs:"
-  results=$(find .claude/prds -name "*.md" -exec grep -l -i "$query" {} \; 2>/dev/null || true)
+  # Use fixed-string matching and option terminator for security
+  results=$(find .claude/prds -name "*.md" -exec grep -l -F -i -- "$query" {} + 2>/dev/null || true)
   if [ -n "$results" ]; then
     while IFS= read -r file; do
       name=$(basename "$file" .md)
-      matches=$(grep -c -i "$query" "$file")
+      matches=$(grep -c -F -i -- "$query" "$file")
       echo "  * $name ($matches matches)"
     done <<< "$results"
   else
@@ -36,11 +37,12 @@ fi
 # Search in Epics
 if [ -d ".claude/epics" ]; then
   echo "EPICS:"
-  results=$(find .claude/epics -name "epic.md" -exec grep -l -i "$query" {} \; 2>/dev/null || true)
+  # Use fixed-string matching and option terminator for security
+  results=$(find .claude/epics -name "epic.md" -exec grep -l -F -i -- "$query" {} + 2>/dev/null || true)
   if [ -n "$results" ]; then
     while IFS= read -r file; do
       epic_name=$(basename "$(dirname "$file")")
-      matches=$(grep -c -i "$query" "$file")
+      matches=$(grep -c -F -i -- "$query" "$file")
       echo "  * $epic_name ($matches matches)"
     done <<< "$results"
   else
@@ -52,7 +54,8 @@ fi
 # Search in Tasks
 if [ -d ".claude/epics" ]; then
   echo "TASKS:"
-  results=$(find .claude/epics -name "[0-9]*.md" -exec grep -l -i "$query" {} \; 2>/dev/null | head -10 || true)
+  # Use fixed-string matching, option terminator, and deterministic ordering
+  results=$(find .claude/epics -name "[0-9]*.md" -exec grep -l -F -i -- "$query" {} + 2>/dev/null | sort | head -10 || true)
   if [ -n "$results" ]; then
     while IFS= read -r file; do
       epic_name=$(basename "$(dirname "$file")")
@@ -65,7 +68,12 @@ if [ -d ".claude/epics" ]; then
 fi
 
 # Summary
-total=$(find .claude -name "*.md" -exec grep -l -i "$query" {} \; 2>/dev/null | wc -l 2>/dev/null || echo "0")
+if [ -d ".claude" ]; then
+  # Use fixed-string matching and option terminator, avoid double zero issue
+  total=$(find .claude -name "*.md" -exec grep -l -F -i -- "$query" {} + 2>/dev/null | wc -l)
+else
+  total=0
+fi
 echo ""
 echo "TOTAL FILES WITH MATCHES: $total"
 

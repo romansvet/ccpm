@@ -393,45 +393,51 @@ If Claude Code commands aren't working:
 <details>
 <summary><b>Can I use CCPM with existing projects?</b></summary>
 
-Yes! CCPM preserves existing `.claude` directories and merges content intelligently. Run `ccpm setup` in any project.
+Yes! CCPM preserves existing `.claude` directories and merges content
+intelligently. Run `ccpm setup` in any project.
 
 </details>
 
 <details>
 <summary><b>Does this work with private repositories?</b></summary>
 
-Yes, CCPM uses your GitHub authentication through the GitHub CLI. It works with any repository you have access to.
+Yes, CCPM uses your GitHub authentication through the GitHub CLI. It works with
+any repository you have access to.
 
 </details>
 
 <details>
 <summary><b>Can multiple developers use CCPM on the same project?</b></summary>
 
-Absolutely! That's the power of using GitHub Issues. All developers see the same state and can collaborate seamlessly.
+Absolutely! That's the power of using GitHub Issues. All developers see the same
+state and can collaborate seamlessly.
 
 </details>
 
 <details>
 <summary><b>How do I update CCPM?</b></summary>
 
-Run `ccpm update` to get the latest version while preserving your customizations.
+Run `ccpm update` to get the latest version while preserving your
+customizations.
 
 </details>
 
 ## Support This Project
 
-Claude Code PM was developed at [Automaze](https://automaze.io) **for developers who ship, by developers who ship**.
+Claude Code PM was developed at [Automaze](https://automaze.io) **for developers
+who ship, by developers who ship**.
 
 If Claude Code PM helps your team ship better software:
 
-- ⭐ **[Star this repository](https://github.com/automazeio/ccpm)** to show your support
+- ⭐ **[Star this repository](https://github.com/automazeio/ccpm)** to show your
+  support
 - 🐦 **[Follow @aroussi on X](https://x.com/aroussi)** for updates and tips
 
 ---
 
 > [!TIP]
-> **Ship faster with Automaze.** We partner with founders to bring their vision to life.  
-> **[Visit Automaze.io ›](https://automaze.io)**
+> **Ship faster with Automaze.** We partner with founders to bring their vision
+> to life. **[Visit Automaze.io ›](https://automaze.io)**
 
 ---
 
