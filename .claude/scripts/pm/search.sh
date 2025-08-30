@@ -20,8 +20,9 @@ echo ""
 # Search in PRDs
 if [ -d ".claude/prds" ]; then
   echo "PRDs:"
-  # Use fixed-string matching and option terminator for security
-  results=$(find .claude/prds -name "*.md" -exec grep -l -F -i -- "$query" {} + 2>/dev/null || true)
+  # Use fixed-string matching and option terminator for security  
+  # Use \; instead of + for Windows compatibility
+  results=$(find .claude/prds -name "*.md" -exec grep -l -F -i -- "$query" {} \; 2>/dev/null || true)
   if [ -n "$results" ]; then
     while IFS= read -r file; do
       name=$(basename "$file" .md)
@@ -38,7 +39,8 @@ fi
 if [ -d ".claude/epics" ]; then
   echo "EPICS:"
   # Use fixed-string matching and option terminator for security
-  results=$(find .claude/epics -name "epic.md" -exec grep -l -F -i -- "$query" {} + 2>/dev/null || true)
+  # Use \; instead of + for Windows compatibility
+  results=$(find .claude/epics -name "epic.md" -exec grep -l -F -i -- "$query" {} \; 2>/dev/null || true)
   if [ -n "$results" ]; then
     while IFS= read -r file; do
       epic_name=$(basename "$(dirname "$file")")
@@ -55,7 +57,8 @@ fi
 if [ -d ".claude/epics" ]; then
   echo "TASKS:"
   # Use fixed-string matching, option terminator, and deterministic ordering
-  results=$(find .claude/epics -name "[0-9]*.md" -exec grep -l -F -i -- "$query" {} + 2>/dev/null | sort | head -10 || true)
+  # Use \; instead of + for Windows compatibility
+  results=$(find .claude/epics -name "[0-9]*.md" -exec grep -l -F -i -- "$query" {} \; 2>/dev/null | sort | head -10 || true)
   if [ -n "$results" ]; then
     while IFS= read -r file; do
       epic_name=$(basename "$(dirname "$file")")
@@ -70,7 +73,8 @@ fi
 # Summary
 if [ -d ".claude" ]; then
   # Use fixed-string matching and option terminator, avoid double zero issue
-  total=$(find .claude -name "*.md" -exec grep -l -F -i -- "$query" {} + 2>/dev/null | wc -l)
+  # Use \; instead of + for Windows compatibility
+  total=$(find .claude -name "*.md" -exec grep -l -F -i -- "$query" {} \; 2>/dev/null | wc -l)
 else
   total=0
 fi
