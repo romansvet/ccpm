@@ -11,7 +11,9 @@
       "Bash(python -m isort:*)",
       "Bash(python -m flake8:*)",
       "Bash(python:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(gh run watch:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": [],

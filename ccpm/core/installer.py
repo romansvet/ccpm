@@ -743,6 +743,31 @@ class CCPMInstaller:
         if backup_settings.exists() and target_settings.exists():
             self._merge_settings_files(backup_settings, target_settings)
 
+        # Preserve custom files and directories in root of backup directory
+        # These are things that don't belong to the standard CCPM template
+        ccpm_template_items = {
+            "agents", "commands", "context", "epics", "prds", "scripts",
+            "settings.local.json", "CLAUDE.md", ".gitkeep", "README.md"
+        }
+        
+        for item in backup_dir.iterdir():
+            if item.name in ccpm_template_items:
+                continue
+                
+            target_item = self.claude_dir / item.name
+            
+            if item.is_dir():
+                # Copy custom directories that don't exist in template
+                if not target_item.exists():
+                    shutil.copytree(item, target_item)
+                else:
+                    # Merge if directory exists in template 
+                    self._merge_directory_contents(item, target_item)
+            elif item.is_file():
+                # Copy custom files that don't exist in template
+                if not target_item.exists():
+                    shutil.copy2(item, target_item)
+
     def _merge_directory_contents(self, source_dir: Path, target_dir: Path) -> None:
         """Recursively merge directory contents."""
         for item in source_dir.iterdir():

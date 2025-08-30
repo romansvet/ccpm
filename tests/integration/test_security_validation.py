@@ -128,6 +128,7 @@ class TestSecurityModel:
                                     "bash",
                                     "source",
                                     "timeout",
+                                    "markdownlint",
                                 ]
                                 # Also check colon format (e.g., "ls:*")
                                 colon_prefixes = [
