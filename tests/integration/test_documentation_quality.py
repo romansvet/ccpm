@@ -8,7 +8,6 @@ NO MOCKS - All tests use real tools and real network requests.
 import glob
 import os
 import re
-import shutil
 import subprocess
 import tempfile
 import time
@@ -29,16 +28,13 @@ class TestMarkdownQuality:
         # Skip if markdownlint is not available or not working
         try:
             result = subprocess.run(
-                ["markdownlint", "--version"], 
-                capture_output=True, 
-                text=True, 
-                timeout=5
+                ["markdownlint", "--version"], capture_output=True, text=True, timeout=5
             )
             if result.returncode != 0:
                 pytest.skip("markdownlint not available or not working")
         except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
             pytest.skip("markdownlint not available")
-            
+
         result = subprocess.run(
             ["markdownlint", "README.md"], capture_output=True, text=True
         )
@@ -71,16 +67,13 @@ class TestMarkdownQuality:
         # Skip if markdownlint is not available or not working
         try:
             result = subprocess.run(
-                ["markdownlint", "--version"], 
-                capture_output=True, 
-                text=True, 
-                timeout=5
+                ["markdownlint", "--version"], capture_output=True, text=True, timeout=5
             )
             if result.returncode != 0:
                 pytest.skip("markdownlint not available or not working")
         except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
             pytest.skip("markdownlint not available")
-            
+
         md_files = glob.glob("**/*.md", recursive=True)
 
         # Skip template files that may have intentional formatting
@@ -243,7 +236,8 @@ class TestLinkValidation:
 
         # URLs that are expected to fail in certain contexts
         expected_failures = {
-            # Badge URL that doesn't exist yet on automazeio fork (will exist after PR merge)
+            # Badge URL that doesn't exist yet on automazeio fork
+            # (will exist after PR merge)
             "https://github.com/automazeio/ccpm/actions/workflows/test.yml/badge.svg",
             # Protected URLs that may return 403 but are valid
             "https://claude.ai/code",
@@ -251,6 +245,14 @@ class TestLinkValidation:
             "https://img.shields.io/badge/𝕏-@aroussi-1c9bf0",
             # Automaze.io can timeout on Windows CI
             "https://automaze.io",
+            # Install scripts that don't exist yet in main branch
+            "https://raw.githubusercontent.com/automazeio/ccpm/main/ccpm.bat",
+            "https://raw.githubusercontent.com/automazeio/ccpm/main/ccpm.sh",
+            # Badge URLs that can have network issues
+            "https://img.shields.io/badge/+-GitHub%20Issues-1f2328",
+            "https://img.shields.io/badge/★-Star%20this%20repo-e7b10b",
+            "https://img.shields.io/badge/License-MIT-28a745",
+            "https://img.shields.io/badge/By-automaze.io-4b3baf",
         }
 
         failed_urls = []
@@ -387,25 +389,22 @@ class TestPerformanceValidation:
         # Skip if markdownlint is not available or not working
         try:
             result = subprocess.run(
-                ["markdownlint", "--version"], 
-                capture_output=True, 
-                text=True, 
-                timeout=5
+                ["markdownlint", "--version"], capture_output=True, text=True, timeout=5
             )
             if result.returncode != 0:
                 pytest.skip("markdownlint not available or not working")
         except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
             pytest.skip("markdownlint not available")
-            
+
         # Create a large test markdown file (avoid MD012 multiple blank lines)
         large_content = "# Performance Test\n\n" + "This is a test paragraph.\n" * 500
 
         # Create temporary file with proper Windows handling
         fd, temp_path = tempfile.mkstemp(suffix=".md", text=True)
         try:
-            with os.fdopen(fd, 'w', encoding='utf-8') as f:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
                 f.write(large_content)
-            
+
             start_time = time.time()
             result = subprocess.run(
                 ["markdownlint", temp_path],
@@ -416,9 +415,7 @@ class TestPerformanceValidation:
 
             # Should complete reasonably quickly
             assert elapsed < 10, f"Markdown linting took too long: {elapsed:.2f}s"
-            assert (
-                result.returncode == 0
-            ), f"Large file linting failed: {result.stderr}"
+            assert result.returncode == 0, f"Large file linting failed: {result.stderr}"
 
         finally:
             try:
@@ -446,16 +443,13 @@ class TestEdgeCaseHandling:
         # Skip if markdownlint is not available or not working
         try:
             result = subprocess.run(
-                ["markdownlint", "--version"], 
-                capture_output=True, 
-                text=True, 
-                timeout=5
+                ["markdownlint", "--version"], capture_output=True, text=True, timeout=5
             )
             if result.returncode != 0:
                 pytest.skip("markdownlint not available or not working")
         except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
             pytest.skip("markdownlint not available")
-            
+
         unicode_content = """# Test with Unicode 🎉
 
 This file contains:
@@ -468,9 +462,9 @@ This file contains:
         # Create temporary file with proper Windows handling
         fd, temp_path = tempfile.mkstemp(suffix=".md", text=True)
         try:
-            with os.fdopen(fd, 'w', encoding='utf-8') as f:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
                 f.write(unicode_content)
-            
+
             result = subprocess.run(
                 ["markdownlint", temp_path], capture_output=True, text=True
             )
@@ -488,16 +482,13 @@ This file contains:
         # Skip if markdownlint is not available or not working
         try:
             result = subprocess.run(
-                ["markdownlint", "--version"], 
-                capture_output=True, 
-                text=True, 
-                timeout=5
+                ["markdownlint", "--version"], capture_output=True, text=True, timeout=5
             )
             if result.returncode != 0:
                 pytest.skip("markdownlint not available or not working")
         except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
             pytest.skip("markdownlint not available")
-            
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
             f.write("")  # Empty file
             f.flush()

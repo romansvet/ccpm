@@ -111,12 +111,28 @@ class CCPMInstaller:
                         "CCPM repository does not contain .claude directory"
                     )
 
-        # 7. Merge or copy .claude directory
+        # 7. Handle existing .claude directory with backup and merge
+        backup_dir = self.claude_dir.parent / ".claude.backup"
+
         if existing_claude:
             safe_print(
-                f"\n{get_emoji('🔄', '>>>')} Merging with existing .claude directory..."
+                f"\n{get_emoji('💾', '>>>')} Backing up existing .claude directory..."
             )
-            self.merger.merge_directories(claude_template, self.claude_dir)
+            # Remove old backup if exists
+            if backup_dir.exists():
+                shutil.rmtree(backup_dir)
+            # Move existing .claude to backup
+            shutil.move(str(self.claude_dir), str(backup_dir))
+
+            # Copy new .claude directory
+            safe_print("\n📂 Installing new .claude directory...")
+            shutil.copytree(claude_template, self.claude_dir)
+
+            # Merge user content from backup
+            safe_print(
+                f"\n{get_emoji('🔄', '>>>')} Merging user content from backup..."
+            )
+            self._merge_user_content_from_backup(backup_dir)
         else:
             safe_print("\n📂 Creating .claude directory...")
             shutil.copytree(claude_template, self.claude_dir)
@@ -338,13 +354,18 @@ class CCPMInstaller:
                 # Check if directory is empty
                 remaining_items = list(self.claude_dir.iterdir())
                 if not remaining_items:
-                    # On Windows, sometimes we need to wait a moment for handles to close
-                    import time
+                    # On Windows, sometimes we need to wait a moment for handles
+                    # to close
                     import sys
+                    import time
+
                     if sys.platform == "win32":
                         time.sleep(0.1)
                     self.claude_dir.rmdir()
-                elif len(remaining_items) == 1 and remaining_items[0].name == "settings.local.json":
+                elif (
+                    len(remaining_items) == 1
+                    and remaining_items[0].name == "settings.local.json"
+                ):
                     # Sometimes settings file is left behind, remove it too
                     try:
                         remaining_items[0].unlink()
@@ -355,6 +376,23 @@ class CCPMInstaller:
                         pass  # Don't fail the uninstall for this
             except Exception as exc:
                 print_warning(f"Could not remove empty .claude directory: {exc}")
+
+        # Restore backup if it exists
+        backup_dir = self.claude_dir.parent / ".claude.backup"
+        if backup_dir.exists():
+            safe_print(
+                f"\n{get_emoji('🔄', '>>>')} Restoring previous .claude directory..."
+            )
+            try:
+                # Remove current .claude directory if it exists
+                if self.claude_dir.exists():
+                    shutil.rmtree(self.claude_dir)
+                # Restore from backup
+                shutil.move(str(backup_dir), str(self.claude_dir))
+                print_success("Previous .claude directory restored")
+            except Exception as exc:
+                print_warning(f"Could not restore backup: {exc}")
+                print_info("Backup directory preserved at .claude.backup")
 
         print_success(f"Removed {removed_count} CCPM files, preserved user content")
         print_success("\nCCPM uninstalled successfully!")
@@ -401,44 +439,44 @@ class CCPMInstaller:
 
     def _is_template_file(self, file_path: Path) -> bool:
         """Check if a file or directory is a CCPM template that can be safely removed.
-        
+
         Args:
             file_path: File or directory path to check
-            
+
         Returns:
             True if it's a safe-to-remove template file/directory
         """
         if not file_path.exists():
             return True
-            
+
         # Get relative path from .claude directory
         try:
             rel_path = file_path.relative_to(self.claude_dir)
             rel_path_str = str(rel_path).replace("\\", "/")  # Normalize for Windows
         except ValueError:
             return False
-            
+
         # Known CCPM template files that are safe to remove
         template_files = {
             "settings.local.json",
-            "CLAUDE.md", 
+            "CLAUDE.md",
             "agents/code-analyzer.md",
-            "agents/file-analyzer.md", 
+            "agents/file-analyzer.md",
             "agents/parallel-worker.md",
             "agents/test-runner.md",
             "context/README.md",
             "prds/.gitkeep",
             "epics/.gitkeep",
         }
-        
+
         # Check if it's a known template file
         if rel_path_str in template_files:
             return True
-            
+
         # Check if it's a template directory
         if file_path.is_dir():
             return self._is_template_only_directory(file_path)
-            
+
         return False
 
     def _detect_user_content(self) -> List[str]:
@@ -595,9 +633,11 @@ class CCPMInstaller:
             try:
                 remaining_items = list(self.claude_dir.iterdir())
                 if not remaining_items:
-                    # On Windows, sometimes we need to wait a moment for handles to close
-                    import time
+                    # On Windows, sometimes we need to wait a moment for handles
+                    # to close
                     import sys
+                    import time
+
                     if sys.platform == "win32":
                         time.sleep(0.1)
                     self.claude_dir.rmdir()
@@ -657,3 +697,115 @@ class CCPMInstaller:
                 lines.append(entry)
 
         gitignore.write_text("\n".join(lines) + "\n")
+
+    def _merge_user_content_from_backup(self, backup_dir: Path) -> None:
+        """Merge user content from backup directory into new installation.
+
+        Args:
+            backup_dir: Path to the .claude.backup directory
+        """
+        if not backup_dir.exists():
+            return
+
+        # User content directories to preserve
+        user_dirs = ["agents", "prds", "epics", "context"]
+
+        for user_dir in user_dirs:
+            backup_user_dir = backup_dir / user_dir
+            target_user_dir = self.claude_dir / user_dir
+
+            if not backup_user_dir.exists():
+                continue
+
+            # Create target directory if it doesn't exist
+            target_user_dir.mkdir(parents=True, exist_ok=True)
+
+            # Copy all user content, but don't overwrite template files
+            for item in backup_user_dir.iterdir():
+                target_item = target_user_dir / item.name
+
+                if item.is_dir():
+                    # Copy entire user directories
+                    if not target_item.exists():
+                        shutil.copytree(item, target_item)
+                    else:
+                        # Merge directory contents
+                        self._merge_directory_contents(item, target_item)
+                elif item.is_file():
+                    # Only copy user files, skip template files like .gitkeep
+                    if item.name not in [".gitkeep", "README.md"]:
+                        shutil.copy2(item, target_item)
+
+        # Also preserve any custom settings from settings.local.json
+        backup_settings = backup_dir / "settings.local.json"
+        target_settings = self.claude_dir / "settings.local.json"
+
+        if backup_settings.exists() and target_settings.exists():
+            self._merge_settings_files(backup_settings, target_settings)
+
+    def _merge_directory_contents(self, source_dir: Path, target_dir: Path) -> None:
+        """Recursively merge directory contents."""
+        for item in source_dir.iterdir():
+            target_item = target_dir / item.name
+
+            if item.is_dir():
+                if not target_item.exists():
+                    shutil.copytree(item, target_item)
+                else:
+                    self._merge_directory_contents(item, target_item)
+            elif item.is_file():
+                # Only copy if target doesn't exist or if it's clearly user content
+                if not target_item.exists() or item.name not in [
+                    ".gitkeep",
+                    "README.md",
+                ]:
+                    shutil.copy2(item, target_item)
+
+    def _merge_settings_files(
+        self, backup_settings: Path, target_settings: Path
+    ) -> None:
+        """Merge user settings from backup into new settings file."""
+        try:
+            import json
+
+            # Load both files
+            with open(backup_settings) as f:
+                backup_data = json.load(f)
+            with open(target_settings) as f:
+                target_data = json.load(f)
+
+            # Merge permissions if they exist in backup
+            if "permissions" in backup_data:
+                if "permissions" not in target_data:
+                    target_data["permissions"] = {}
+
+                # Merge allow/deny/ask lists
+                for perm_type in ["allow", "deny", "ask"]:
+                    if perm_type in backup_data["permissions"]:
+                        if perm_type not in target_data["permissions"]:
+                            target_data["permissions"][perm_type] = []
+                        # Add unique entries from backup
+                        for item in backup_data["permissions"][perm_type]:
+                            if item not in target_data["permissions"][perm_type]:
+                                target_data["permissions"][perm_type].append(item)
+
+                # Merge additionalDirectories
+                if "additionalDirectories" in backup_data["permissions"]:
+                    if "additionalDirectories" not in target_data["permissions"]:
+                        target_data["permissions"]["additionalDirectories"] = []
+                    for dir_path in backup_data["permissions"]["additionalDirectories"]:
+                        if (
+                            dir_path
+                            not in target_data["permissions"]["additionalDirectories"]
+                        ):
+                            target_data["permissions"]["additionalDirectories"].append(
+                                dir_path
+                            )
+
+            # Save merged settings
+            with open(target_settings, "w") as f:
+                json.dump(target_data, f, indent=2)
+
+        except Exception as exc:
+            print_warning(f"Could not merge settings files: {exc}")
+            # If merge fails, just keep the new template settings

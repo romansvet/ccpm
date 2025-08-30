@@ -74,19 +74,22 @@ def run_pm_script(
     script_name: str, args: List[str] = None, cwd: Path = None
 ) -> Tuple[int, str, str]:
     """Execute a PM script using the proper cross-platform shell utilities."""
-    from ccpm.utils.shell import run_pm_script as utils_run_pm_script, get_shell_environment
-    
+    from ccpm.utils.shell import (
+        get_shell_environment,
+    )
+    from ccpm.utils.shell import run_pm_script as utils_run_pm_script
+
     # Check if shell is available
     shell_env = get_shell_environment()
     if not shell_env["shell_available"]:
         pytest.skip("No compatible shell found for PM script execution")
-    
+
     if args is None:
         args = []
-    
+
     # Remove .sh extension if present since utils function adds it
-    script_base = script_name.replace('.sh', '')
-    
+    script_base = script_name.replace(".sh", "")
+
     return utils_run_pm_script(script_base, args, cwd)
 
 
@@ -96,7 +99,7 @@ class TestPMScriptExecution:
     def test_all_scripts_have_valid_syntax(self):
         """Test that all PM scripts pass bash syntax validation."""
         import sys
-        
+
         # Skip on Windows if bash is not available (no WSL/Git Bash)
         if sys.platform == "win32":
             try:
@@ -109,11 +112,14 @@ class TestPMScriptExecution:
                 if result.returncode != 0:
                     pytest.skip("bash not available on Windows")
                 # Also check for WSL installation message
-                if "Windows Subsystem for Linux has no installed distributions" in result.stdout:
+                if (
+                    "Windows Subsystem for Linux has no installed distributions"
+                    in result.stdout
+                ):
                     pytest.skip("WSL bash available but no distributions installed")
             except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
                 pytest.skip("bash not available on Windows")
-        
+
         pm_scripts_dir = (
             Path(__file__).parent.parent.parent / ".claude" / "scripts" / "pm"
         )

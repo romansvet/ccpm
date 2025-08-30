@@ -14,9 +14,13 @@
 &nbsp;
 [![Star this repo](https://img.shields.io/badge/★-Star%20this%20repo-e7b10b)](https://github.com/automazeio/ccpm)
 
-## Transform PRDs into shipped features using spec-driven development, GitHub Issues, and parallel AI agents
+## Transform PRDs into shipped features using spec-driven development
 
-Stop losing context. Eliminate task blocking. Reduce shipped bugs. This battle-tested system turns product requirements into production code with full traceability at every step.
+Transform PRDs into shipped features using GitHub Issues and parallel AI agents.
+
+Stop losing context. Eliminate task blocking. Reduce shipped bugs.
+This battle-tested system turns product requirements into production code
+with full traceability at every step.
 
 ![Claude Code PM](screenshot.webp)
 
@@ -218,9 +222,49 @@ GitHub Issues enable:
 
 ## Troubleshooting
 
+## Key Features
+
+### ⚡ **Parallel Execution**
+
+Ship faster with multiple agents working simultaneously. Tasks marked
+`parallel: true` enable conflict-free concurrent development.
+
+### 🔗 **GitHub Native**
+
+Works with tools your team already uses. Issues are the source of truth,
+comments provide history, and there is no dependency on the Projects API.
+
+### 🤖 **Agent Specialization**
+
+Right tool for every job. Different agents for UI, API, and database work.
+Each reads requirements and posts updates automatically.
+
+### 📊 **Full Traceability**
+
+Every decision is documented. PRD → Epic → Task → Issue → Code → Commit.
+Complete audit trail from idea to production.
+
+### 🚀 **Developer Productivity**
+
+Focus on building, not managing. Intelligent prioritization, automatic context
+loading, and incremental sync when ready.
+
+## Proven Results
+
+Teams using this system report:
+
+- **89% less time** lost to context switching – you'll use `/compact` and
+  `/clear` a LOT less
+- **5-8 parallel tasks** vs 1 previously – editing/testing multiple files at
+  the same time
+- **75% reduction** in bug rates – due to the breaking down features into
+  detailed tasks
+- **Up to 3x faster** feature delivery – based on feature size and complexity
+
+## Example Flow
+
 <details>
 <summary><b>Installation Issues</b></summary>
-
 **GitHub CLI not installing automatically?**
 
 ```bash
@@ -234,19 +278,72 @@ sudo apt install gh
 winget install --id GitHub.cli
 ```
 
+## Get Started Now
+
+### Quick Setup (2 minutes)
+
+1. **Install this repository into your project**:
+
+   #### Unix/Linux/macOS
+
+   ```bash
+   cd path/to/your/project/
+   curl -sSL https://raw.githubusercontent.com/automazeio/ccpm/main/ccpm.sh | bash
+   # or: 
+   wget -qO- https://raw.githubusercontent.com/automazeio/ccpm/main/ccpm.sh | bash
+   ```
+
+   #### Windows (PowerShell)
+
+   ```bash
+   cd path/to/your/project/
+   iwr -useb https://raw.githubusercontent.com/automazeio/ccpm/main/ccpm.bat | iex
+   ```
+
+   > 💡 **Note**: If you already have a `.claude` directory, it will be
+   > automatically backed up to `.claude.backup` and your user content will be
+   > preserved during installation.
+
+   See full/other installation options in the
+   [installation guide ›](https://github.com/automazeio/ccpm/tree/main/install)
+
+2. **Initialize the PM system**:
+
+   ```bash
+   /pm:init
+   ```
+
+   This command will:
+   - Install GitHub CLI (if needed)
+   - Authenticate with GitHub
+   - Install [gh-sub-issue extension](https://github.com/yahsan2/gh-sub-issue)
+     for proper parent-child relationships
+   - Create required directories
+   - Update .gitignore
+
+3. **Create `CLAUDE.md`** with your repository information
+
+   ```bash
+   /init include rules from .claude/CLAUDE.md
+   ```
+
+   > If you already have a `CLAUDE.md` file, run: `/re-init` to update it with
+   > important rules from `.claude/CLAUDE.md`.
+
+4. **Prime the system**:
+
+   ```bash
+   /context:create
+   ```
+
+### Start Your First Feature
+
 **Python version issues?**
 CCPM requires Python 3.8+. Check with:
 
 ```bash
 python --version
 ```
-
-## Teams using this system report:
-- **89% less time** lost to context switching – you'll use `/compact` and `/clear` a LOT less
-- **5-8 parallel tasks** vs 1 previously – editing/testing multiple files at the same time
-- **75% reduction** in bug rates – due to the breaking down features into detailed tasks
-- **Up to 3x faster** feature delivery – based on feature size and complexity
-
 
 **Permission issues?**
 
