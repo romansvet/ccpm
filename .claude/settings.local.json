@@ -10,7 +10,8 @@
       "Bash(python -m pytest tests/integration/test_documentation_quality.py::TestLinkValidation::test_all_links_accessible -v)",
       "Bash(python -m isort:*)",
       "Bash(python -m flake8:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": [],
