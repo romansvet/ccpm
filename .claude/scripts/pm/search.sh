@@ -20,26 +20,25 @@ echo ""
 # Search in PRDs
 if [ -d ".claude/prds" ]; then
   echo "PRDs:"
-  results=""
-  # Find all .md files and search each one
-  if md_files=$(find .claude/prds -name "*.md" 2>/dev/null); then
-    for file in $md_files; do
-      # Use fixed-string matching and option terminator for security
-      if grep -l -F -i -- "$query" "$file" >/dev/null 2>&1; then
-        results="$results$file\n"
+  found_matches=false
+  
+  # Use a simple approach that works across platforms
+  if [ "$(find .claude/prds -name "*.md" 2>/dev/null | wc -l)" -gt 0 ]; then
+    for file in .claude/prds/*.md; do
+      # Check if file actually exists (glob didn't match)
+      if [ -f "$file" ]; then
+        # Use fixed-string matching and option terminator for security
+        if grep -q -F -i -- "$query" "$file" 2>/dev/null; then
+          name=$(basename "$file" .md)
+          matches=$(grep -c -F -i -- "$query" "$file" 2>/dev/null || echo "0")
+          echo "  * $name ($matches matches)"
+          found_matches=true
+        fi
       fi
     done
   fi
   
-  if [ -n "$results" ]; then
-    echo "$results" | while IFS= read -r file; do
-      if [ -n "$file" ]; then
-        name=$(basename "$file" .md)
-        matches=$(grep -c -F -i -- "$query" "$file" 2>/dev/null || echo "0")
-        echo "  * $name ($matches matches)"
-      fi
-    done
-  else
+  if [ "$found_matches" = false ]; then
     echo "  No matches"
   fi
   echo ""
@@ -48,26 +47,26 @@ fi
 # Search in Epics
 if [ -d ".claude/epics" ]; then
   echo "EPICS:"
-  results=""
-  # Find all epic.md files and search each one
-  if epic_files=$(find .claude/epics -name "epic.md" 2>/dev/null); then
-    for file in $epic_files; do
-      # Use fixed-string matching and option terminator for security
-      if grep -l -F -i -- "$query" "$file" >/dev/null 2>&1; then
-        results="$results$file\n"
+  found_matches=false
+  
+  # Find all epic.md files
+  if [ "$(find .claude/epics -name "epic.md" 2>/dev/null | wc -l)" -gt 0 ]; then
+    find .claude/epics -name "epic.md" 2>/dev/null > /tmp/epic_files_$$ || true
+    while IFS= read -r file; do
+      if [ -f "$file" ]; then
+        # Use fixed-string matching and option terminator for security
+        if grep -q -F -i -- "$query" "$file" 2>/dev/null; then
+          epic_name=$(basename "$(dirname "$file")")
+          matches=$(grep -c -F -i -- "$query" "$file" 2>/dev/null || echo "0")
+          echo "  * $epic_name ($matches matches)"
+          found_matches=true
+        fi
       fi
-    done
+    done < /tmp/epic_files_$$
+    rm -f /tmp/epic_files_$$
   fi
   
-  if [ -n "$results" ]; then
-    echo "$results" | while IFS= read -r file; do
-      if [ -n "$file" ]; then
-        epic_name=$(basename "$(dirname "$file")")
-        matches=$(grep -c -F -i -- "$query" "$file" 2>/dev/null || echo "0")
-        echo "  * $epic_name ($matches matches)"
-      fi
-    done
-  else
+  if [ "$found_matches" = false ]; then
     echo "  No matches"
   fi
   echo ""
@@ -76,26 +75,26 @@ fi
 # Search in Tasks
 if [ -d ".claude/epics" ]; then
   echo "TASKS:"
-  results=""
-  # Find all task .md files and search each one
-  if task_files=$(find .claude/epics -name "[0-9]*.md" 2>/dev/null | sort | head -10); then
-    for file in $task_files; do
-      # Use fixed-string matching and option terminator for security
-      if grep -l -F -i -- "$query" "$file" >/dev/null 2>&1; then
-        results="$results$file\n"
+  found_matches=false
+  
+  # Find all task .md files
+  if [ "$(find .claude/epics -name "[0-9]*.md" 2>/dev/null | wc -l)" -gt 0 ]; then
+    find .claude/epics -name "[0-9]*.md" 2>/dev/null | sort | head -10 > /tmp/task_files_$$ || true
+    while IFS= read -r file; do
+      if [ -f "$file" ]; then
+        # Use fixed-string matching and option terminator for security
+        if grep -q -F -i -- "$query" "$file" 2>/dev/null; then
+          epic_name=$(basename "$(dirname "$file")")
+          task_num=$(basename "$file" .md)
+          echo "  * Task #$task_num in $epic_name"
+          found_matches=true
+        fi
       fi
-    done
+    done < /tmp/task_files_$$
+    rm -f /tmp/task_files_$$
   fi
   
-  if [ -n "$results" ]; then
-    echo "$results" | while IFS= read -r file; do
-      if [ -n "$file" ]; then
-        epic_name=$(basename "$(dirname "$file")")
-        task_num=$(basename "$file" .md)
-        echo "  * Task #$task_num in $epic_name"
-      fi
-    done
-  else
+  if [ "$found_matches" = false ]; then
     echo "  No matches"
   fi
 fi
@@ -104,13 +103,17 @@ fi
 if [ -d ".claude" ]; then
   total=0
   # Count all .md files with matches
-  if all_files=$(find .claude -name "*.md" 2>/dev/null); then
-    for file in $all_files; do
-      # Use fixed-string matching and option terminator for security
-      if grep -l -F -i -- "$query" "$file" >/dev/null 2>&1; then
-        total=$((total + 1))
+  if [ "$(find .claude -name "*.md" 2>/dev/null | wc -l)" -gt 0 ]; then
+    find .claude -name "*.md" 2>/dev/null > /tmp/all_files_$$ || true
+    while IFS= read -r file; do
+      if [ -f "$file" ]; then
+        # Use fixed-string matching and option terminator for security
+        if grep -q -F -i -- "$query" "$file" 2>/dev/null; then
+          total=$((total + 1))
+        fi
       fi
-    done
+    done < /tmp/all_files_$$
+    rm -f /tmp/all_files_$$
   fi
 else
   total=0
