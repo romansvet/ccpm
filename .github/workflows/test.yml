@@ -42,11 +42,19 @@ jobs:
       - name: Install GitHub CLI and Git Bash (Windows)
         if: matrix.os == 'windows-latest'
         run: |
-          # Use winget for faster, more reliable installation
-          winget install --id GitHub.cli --source winget --accept-package-agreements --accept-source-agreements
-          winget install --id Git.Git --source winget --accept-package-agreements --accept-source-agreements
+          # Use direct download approach for maximum reliability
+          # Download and install GitHub CLI
+          Invoke-WebRequest -Uri "https://github.com/cli/cli/releases/latest/download/gh_windows_amd64.msi" -OutFile "gh.msi"
+          Start-Process msiexec.exe -Wait -ArgumentList '/i gh.msi /quiet'
+          
+          # Git is typically pre-installed on GitHub runners, but ensure it's available
+          if (!(Get-Command git -ErrorAction SilentlyContinue)) {
+            winget install --id Git.Git --source winget --accept-package-agreements --accept-source-agreements --silent
+          }
+          
           # Ensure Git Bash is in PATH for shell scripts
           echo "C:\Program Files\Git\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "C:\Program Files\GitHub CLI" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
         shell: powershell
 
       - name: Install dependencies
