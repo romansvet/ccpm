@@ -29,7 +29,6 @@
       "Bash(echo $SHELL)",
       "Bash(git push:*)",
       "Bash(grep:*)",
-      "Bash(git push:*)",
       "Bash(git stash:*)",
       "Bash(gh:*)",
       "WebFetch(domain:cli.github.com)"

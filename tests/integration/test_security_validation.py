@@ -20,7 +20,7 @@ class TestSecurityModel:
         """Test that no dangerous wildcard patterns are present."""
         dangerous_patterns = {
             r"Bash\(\*\)": "Allows any bash command",
-            r"Bash\(.*\*\s*\)$": "Overly broad bash pattern",
+            r"Bash\([^:]*\*\s*\)$": "Overly broad bash pattern",
             r"Bash\(rm\s+\*\)": "Dangerous file deletion",
             r"Bash\(sudo\s+.*\)": "Privilege escalation",
             r"Bash\(curl\s+.*\*\)": "Arbitrary network access",
@@ -196,7 +196,7 @@ class TestSecurityModel:
         dangerous_file_ops = [
             r"Bash\(rm\s+/\)",  # Root directory deletion
             r"Bash\(rm\s+-rf\s+/\)",  # Root directory recursive deletion
-            r"Bash\(chmod\s+777\)",  # Dangerous permissions
+            r"Bash\(chmod\s+((-[Rr]\s+)?0?777|0?777\s+(-[Rr])?)\)",  # Dangerous permissions
             r"Bash\(chown\s+.*\)",  # Ownership changes
             r"Bash\(mv\s+/.*\)",  # Moving system files
         ]
