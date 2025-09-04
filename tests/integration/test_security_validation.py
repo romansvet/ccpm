@@ -112,6 +112,7 @@ class TestSecurityModel:
                                     "command",
                                     "head",
                                     "tail",
+                                    "cat",
                                     "wc",
                                     "sort",
                                     "uniq",

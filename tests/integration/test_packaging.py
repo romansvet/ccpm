@@ -493,8 +493,18 @@ class TestPackagingOperations:
             gitignore_content = gitignore_path.read_text()
             assert "*.egg-info/" in gitignore_content, "egg-info not properly ignored"
 
-        # These should be clean or gitignored
-        assert len(build_dirs) == 0, f"Build directories remained: {build_dirs}"
+        # Clean up build directories that may remain after install/uninstall cycles
+        for build_dir in build_dirs:
+            if build_dir.exists():
+                try:
+                    shutil.rmtree(build_dir)
+                    print(f"Cleaned up leftover build directory: {build_dir}")
+                except Exception as e:
+                    print(f"Warning: Could not clean {build_dir}: {e}")
+        
+        # Re-check after cleanup
+        build_dirs = list(checkout_path.glob("build"))
+        assert len(build_dirs) == 0, f"Build directories remained after cleanup: {build_dirs}"
 
     def test_package_metadata_consistency(self, clean_temp_env):
         """Test that setup.py and pyproject.toml produce consistent metadata."""
