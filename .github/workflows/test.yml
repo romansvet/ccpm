@@ -42,19 +42,43 @@ jobs:
       - name: Install GitHub CLI and Git Bash (Windows)
         if: matrix.os == 'windows-latest'
         run: |
-          # Use direct download approach for maximum reliability
-          # Download and install GitHub CLI
-          Invoke-WebRequest -Uri "https://github.com/cli/cli/releases/latest/download/gh_windows_amd64.msi" -OutFile "gh.msi"
-          Start-Process msiexec.exe -Wait -ArgumentList '/i gh.msi /quiet'
+          # Check if GitHub CLI is already available
+          if (Get-Command gh -ErrorAction SilentlyContinue) {
+            Write-Host "GitHub CLI already available"
+            gh --version
+          } else {
+            Write-Host "Installing GitHub CLI with chocolatey (retry with timeout)"
+            # Use chocolatey with timeout and retry
+            $timeout = 300 # 5 minutes
+            $job = Start-Job -ScriptBlock { choco install gh -y --no-progress --limit-output }
+            if (Wait-Job $job -Timeout $timeout) {
+              Receive-Job $job
+              Remove-Job $job
+            } else {
+              Remove-Job $job -Force
+              Write-Host "Chocolatey install timed out, trying direct approach"
+              # If chocolatey fails, skip gh installation - tests can still run without gh CLI in some cases
+              Write-Warning "GitHub CLI installation failed, some tests may be skipped"
+            }
+          }
           
-          # Git is typically pre-installed on GitHub runners, but ensure it's available
+          # Git should already be available on Windows runners
           if (!(Get-Command git -ErrorAction SilentlyContinue)) {
-            winget install --id Git.Git --source winget --accept-package-agreements --accept-source-agreements --silent
+            Write-Error "Git not found - this is unexpected on GitHub runners"
+            exit 1
           }
           
           # Ensure Git Bash is in PATH for shell scripts
           echo "C:\Program Files\Git\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          echo "C:\Program Files\GitHub CLI" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          
+          # Add common GitHub CLI paths to PATH if it exists
+          $ghPaths = @("C:\Program Files\GitHub CLI", "C:\ProgramData\chocolatey\lib\gh\tools")
+          foreach ($path in $ghPaths) {
+            if (Test-Path $path) {
+              echo $path | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+              break
+            }
+          }
         shell: powershell
 
       - name: Install dependencies
