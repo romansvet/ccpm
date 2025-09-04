@@ -45,6 +45,11 @@ setup(
     },
     include_package_data=True,
     package_data={
-        "ccpm": ["claude_template/**/*"],
+        "ccpm": [
+            "claude_template/**/*",
+            "claude_template/**/*.sh", 
+            "claude_template/scripts/**/*",
+            "claude_template/scripts/pm/*",
+        ],
     },
 )
