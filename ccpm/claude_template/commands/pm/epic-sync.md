@@ -78,6 +78,11 @@ else
   epic_type="feature"
 fi
 
+# Ensure labels exist
+gh label create "epic" --force 2>/dev/null || true
+gh label create "epic:$ARGUMENTS" --force 2>/dev/null || true  
+gh label create "$epic_type" --force 2>/dev/null || true
+
 # Create epic issue with labels
 epic_number=$(gh issue create \
   --title "Epic: $ARGUMENTS" \
@@ -118,6 +123,10 @@ if [ "$task_count" -lt 5 ]; then
     
     # Strip frontmatter from task content
     sed '1,/^---$/d; 1,/^---$/d' "$task_file" > /tmp/task-body.md
+    
+    # Ensure labels exist
+    gh label create "task" --force 2>/dev/null || true
+    gh label create "epic:$ARGUMENTS" --force 2>/dev/null || true
     
     # Create sub-issue with labels
     if [ "$use_subissues" = true ]; then
@@ -180,9 +189,13 @@ Task:
     2. Strip frontmatter using: sed '1,/^---$/d; 1,/^---$/d'
     3. Create sub-issue using:
        - If gh-sub-issue available: 
+         gh label create "task" --force 2>/dev/null || true
+         gh label create "epic:$ARGUMENTS" --force 2>/dev/null || true
          gh sub-issue create --parent $epic_number --title "$task_name" \
            --body-file /tmp/task-body.md --label "task,epic:$ARGUMENTS"
        - Otherwise: 
+         gh label create "task" --force 2>/dev/null || true
+         gh label create "epic:$ARGUMENTS" --force 2>/dev/null || true
          gh issue create --title "$task_name" --body-file /tmp/task-body.md \
            --label "task,epic:$ARGUMENTS"
     4. Record: task_file:issue_number
