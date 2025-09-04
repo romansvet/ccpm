@@ -42,7 +42,9 @@ jobs:
       - name: Install GitHub CLI and Git Bash (Windows)
         if: matrix.os == 'windows-latest'
         run: |
-          choco install gh git -y
+          # Use winget for faster, more reliable installation
+          winget install --id GitHub.cli --source winget --accept-package-agreements --accept-source-agreements
+          winget install --id Git.Git --source winget --accept-package-agreements --accept-source-agreements
           # Ensure Git Bash is in PATH for shell scripts
           echo "C:\Program Files\Git\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
         shell: powershell
