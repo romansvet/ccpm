@@ -3,7 +3,7 @@
 # Path Standards Fix Script
 # Automatically converts absolute paths to relative paths in documentation
 
-set -e
+set -Eeuo pipefail
 
 echo "🔧 Path Standards Fix Starting..."
 
@@ -40,12 +40,12 @@ normalize_paths() {
     # Create backup
     cp "$file" "$backup_file"
     
-    # Apply path transformation rules
+    # Apply path transformation rules - fixed patterns for proper Windows path handling
     sed -i.tmp \
         -e 's|/Users/[^/]*/[^/]*/|../|g' \
         -e 's|/home/[^/]*/[^/]*/|../|g' \
-        -e 's|C:\\Users\\[^\\]*\\[^\\]*\\|..\\|g' \
-        -e 's|\./\([^./]\)|\1|g' \
+        -e 's|C:\\\\Users\\\\[^\\\\]*\\\\[^\\\\]*\\\\|..\\\\|g' \
+        -e 's|\\./\\([^./]\\)|\\1|g' \
         "$file"
     
     # Clean up temporary files
@@ -70,11 +70,12 @@ files_modified=0
 echo -e "\n🔍 Scanning for files needing fixes..."
 
 while IFS= read -r -d '' file; do
-    # Skip backup files
+    # Skip backup files and rule documentation (which contains examples)
     [[ "$file" == *.backup ]] && continue
+    [[ "$file" == *"/rules/"* ]] && continue
     
-    # Check if file contains paths that need fixing
-    if grep -q "/Users/\|/home/\|C:\\\\" "$file" 2>/dev/null; then
+    # Check if file contains paths that need fixing - use extended regex
+    if grep -Eq "/Users/|/home/|C:\\\\\\\\" "$file" 2>/dev/null; then
         files_processed=$((files_processed + 1))
         
         if normalize_paths "$file"; then

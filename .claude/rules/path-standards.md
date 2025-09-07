@@ -1,155 +1,155 @@
-# 路径标准化规范
+# Path Standards Specification
 
-## 概述
-本规范定义了 Claude Code PM 系统中文件路径的使用标准，确保文档可移植性、隐私保护和一致性。
+## Overview
+This specification defines file path usage standards within the Claude Code PM system to ensure document portability, privacy protection, and consistency.
 
-## 核心原则
+## Core Principles
 
-### 1. 隐私保护原则
-- **禁止**使用包含用户名的绝对路径
-- **禁止**在公共文档中暴露本地目录结构  
-- **禁止**在GitHub Issues评论中包含完整本地路径
+### 1. Privacy Protection
+- **Prohibit** absolute paths containing usernames
+- **Prohibit** exposing local directory structure in public documentation  
+- **Prohibit** including complete local paths in GitHub Issue comments
 
-### 2. 可移植性原则
-- **优先**使用相对路径引用项目文件
-- **确保**文档在不同开发环境中通用
-- **避免**环境特定的路径格式
+### 2. Portability Principles
+- **Prefer** relative paths for referencing project files
+- **Ensure** documentation works across different development environments
+- **Avoid** environment-specific path formats
 
-## 路径格式标准
+## Path Format Standards
 
-### 项目内文件引用 ✅
+### Project File References ✅
 ```markdown
-# 正确示例
-- `internal/mcp/server.go` 
+# Correct Examples
+- `internal/auth/server.go` 
 - `cmd/server/main.go`
 - `.claude/commands/pm/sync.md`
 
-# 错误示例 ❌
-- `.internal/mcp/server.go`
-- `..\cmd\server\main.go`
+# Incorrect Examples ❌
+- `/Users/username/project/internal/auth/server.go`
+- `C:\Users\username\project\cmd\server\main.go`
 ```
 
-### 跨项目/工作树引用 ✅
+### Cross-Project/Worktree References ✅
 ```markdown
-# 正确示例
-- `.project-name/internal/mcp/server.go`
-- `.worktree-name/src/components/Button.tsx`
+# Correct Examples
+- `../project-name/internal/auth/server.go`
+- `../worktree-name/src/components/Button.tsx`
 
-# 错误示例 ❌
-- `.project-name/internal/mcp/server.go`
-- `.worktree-name/src/components/Button.tsx`
+# Incorrect Examples ❌
+- `/Users/username/parent-dir/project-name/internal/auth/server.go`
+- `/home/user/projects/worktree-name/src/components/Button.tsx`
 ```
 
-### 代码注释中的文件引用 ✅
+### Code Comment File References ✅
 ```go
-// 正确示例
+// Correct Examples
 // See internal/processor/converter.go for data transformation
 // Configuration loaded from configs/production.yml
 
-// 错误示例 ❌  
-// See .project-name/internal/processor/converter.go
+// Incorrect Examples ❌  
+// See /Users/username/parent-dir/project-name/internal/processor/converter.go
 ```
 
-## 实施规则
+## Implementation Rules
 
-### 文档生成规则
-1. **Issue同步模板**：使用相对路径模板变量
-2. **进度报告**：自动转换绝对路径为相对路径
-3. **技术文档**：统一使用项目根目录相对路径
+### Documentation Generation Rules
+1. **Issue sync templates**: Use relative path template variables
+2. **Progress reports**: Automatically convert absolute paths to relative paths
+3. **Technical documentation**: Use project root relative paths consistently
 
-### 路径变量标准
+### Path Variable Standards
 ```yaml
-# 模板变量定义
-project_root: "."              # 当前项目根目录
-worktree_path: ".{name}"     # 工作树相对路径  
-internal_path: "internal/"     # 内部模块目录
-config_path: "configs/"        # 配置文件目录
+# Template variable definitions
+project_root: "."              # Current project root directory
+worktree_path: "../{name}"     # Worktree relative path  
+internal_path: "internal/"     # Internal modules directory
+config_path: "configs/"        # Configuration files directory
 ```
 
-### 自动清理规则
+### Automatic Cleanup Rules
 ```bash
-# 路径标准化函数
+# Path normalization function
 normalize_paths() {
   local content="$1"
-  # 移除用户特定路径（通用模式）
-  content=$(echo "$content" | sed "s|.[^/]*/||g")
-  content=$(echo "$content" | sed "s|.[^/]*/||g")  
-  content=$(echo "$content" | sed "s|C:\\Users\\[^\\]*\\[^\\]*\\||g")
+  # Remove user-specific paths (generic patterns)
+  content=$(echo "$content" | sed "s|/Users/[^/]*/[^/]*/||g")
+  content=$(echo "$content" | sed "s|/home/[^/]*/[^/]*/||g")  
+  content=$(echo "$content" | sed "s|C:\\\\Users\\\\[^\\\\]*\\\\[^\\\\]*\\\\||g")
   echo "$content"
 }
 ```
 
-## PM命令集成
+## PM Command Integration
 
-### issue-sync 命令更新
-- 在同步前自动清理路径格式
-- 使用相对路径模板生成评论
-- 记录deliverable时使用标准化路径
+### issue-sync Command Updates
+- Automatically clean path formats before sync
+- Use relative path templates for generating comments
+- Record deliverables using standardized paths
 
-### epic-sync 命令更新
-- 任务文件路径标准化
-- GitHub issue body路径清理
-- 映射文件使用相对路径
+### epic-sync Command Updates
+- Standardize task file paths
+- Clean GitHub issue body paths
+- Use relative paths in mapping files
 
-## 验证检查
+## Validation Checks
 
-### 自动检查脚本
+### Automated Check Script
 ```bash
-# 检查文档中的绝对路径
+# Check for absolute path violations
 check_absolute_paths() {
-  echo "检查绝对路径违规..."
-  rg -n ".|C:\\\\" .claude/ || echo "✅ 未发现绝对路径"
+  echo "Checking for absolute path violations..."
+  rg -n "/Users/|/home/|C:\\\\\\\\" .claude/ || echo "✅ No absolute paths found"
 }
 
-# 检查GitHub同步内容
+# Check GitHub sync content
 check_sync_content() {
-  echo "检查同步内容路径格式..."
-  # 实施具体检查逻辑
+  echo "Checking sync content path formats..."
+  # Implement specific check logic
 }
 ```
 
-### 手动审查清单
-- [ ] GitHub Issues评论无绝对路径
-- [ ] 本地文档统一使用相对路径
-- [ ] 代码注释路径符合规范
-- [ ] 配置文件路径标准化
+### Manual Review Checklist
+- [ ] GitHub Issue comments contain no absolute paths
+- [ ] Local documentation uses relative paths consistently
+- [ ] Code comment paths follow standards
+- [ ] Configuration file paths are standardized
 
-## 错误处理
+## Error Handling
 
-### 发现违规路径时
-1. **立即处理**：清理已发布的公共内容
-2. **批量修复**：更新本地文档格式
-3. **预防措施**：更新生成模板
+### When Absolute Paths Are Found
+1. **Immediate Action**: Clean published public content
+2. **Batch Fix**: Update local documentation formats
+3. **Prevention**: Update generation templates
 
-### 紧急情况处理
-如果发现隐私信息已泄露：
-1. 立即编辑GitHub Issues/评论
-2. 清理Git历史记录（如需要）
-3. 更新相关文档和模板
-4. 建立监控机制防止复发
+### Emergency Procedures
+If privacy information has been leaked:
+1. Immediately edit GitHub Issues/comments
+2. Clean Git history if necessary
+3. Update related documentation and templates
+4. Establish monitoring to prevent recurrence
 
-## 示例对比
+## Example Comparisons
 
-### 文档更新前后对比
+### Documentation Before/After
 ```markdown
-# 更新前 ❌
-- ✅ 实现了 `.project-name/internal/mcp/server.go` 核心逻辑
+# Before ❌
+- ✅ Implemented `/Users/username/parent-dir/project-name/internal/auth/server.go` core logic
 
-# 更新后 ✅  
-- ✅ 实现了 `.project-name/internal/mcp/server.go` 核心逻辑
+# After ✅  
+- ✅ Implemented `../project-name/internal/auth/server.go` core logic
 ```
 
-### GitHub评论格式
+### GitHub Comment Format
 ```markdown
-# 正确格式 ✅
+# Correct Format ✅
 ## 📦 Deliverables
-- `internal/formatter/batch.go` - 批量格式化器
-- `internal/processor/sorter.go` - 排序算法  
-- `cmd/server/main.go` - 服务器入口
+- `internal/formatter/batch.go` - Batch formatter
+- `internal/processor/sorter.go` - Sorting algorithm  
+- `cmd/server/main.go` - Server entry point
 
-# 错误格式 ❌
+# Incorrect Format ❌
 ## 📦 Deliverables  
-- `.project-name/internal/formatter/batch.go`
+- `/Users/username/parent-dir/project-name/internal/formatter/batch.go`
 ```
 
-这个规范将确保项目文档的专业性、可移植性和隐私安全。
+This specification ensures project documentation maintains professionalism, portability, and privacy security.

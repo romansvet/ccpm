@@ -3,7 +3,7 @@
 # Path Standards Validation Script
 # Validates that project documentation follows path format standards
 
-set -e
+set -Eeuo pipefail
 
 echo "🔍 Path Standards Validation Starting..."
 
@@ -35,10 +35,10 @@ check_absolute_paths() {
     echo -e "\n📋 Check 1: Scanning for absolute path violations..."
     total_checks=$((total_checks + 1))
     
-    # Check for absolute paths in .claude directory
-    if rg -q "/Users/|/home/|C:\\\\" .claude/ 2>/dev/null; then
+    # Check for absolute paths in .claude directory, excluding rules and backups
+    if rg -q "/Users/|/home/|C:\\\\\\\\" .claude/ -g '!rules/**' -g '!**/*.backup' 2>/dev/null; then
         print_error "Found absolute path violations:"
-        rg -n "/Users/|/home/|C:\\\\" .claude/ | head -10
+        rg -n "/Users/|/home/|C:\\\\\\\\" .claude/ -g '!rules/**' -g '!**/*.backup' | head -10
         failed_checks=$((failed_checks + 1))
         return 1
     else
@@ -52,10 +52,10 @@ check_user_specific_paths() {
     echo -e "\n📋 Check 2: Scanning for user-specific paths..."
     total_checks=$((total_checks + 1))
     
-    # Check for paths containing usernames
-    if rg -q "/[Uu]sers/[^/]*/|/home/[^/]*/" .claude/ 2>/dev/null; then
+    # Check for paths containing usernames, excluding documentation examples
+    if rg -q "/[Uu]sers/[^/]*/|/home/[^/]*/" .claude/ -g '!rules/**' -g '!**/*.backup' 2>/dev/null; then
         print_error "Found user-specific paths:"
-        rg -n "/[Uu]sers/[^/]*/|/home/[^/]*/" .claude/ | head -10
+        rg -n "/[Uu]sers/[^/]*/|/home/[^/]*/" .claude/ -g '!rules/**' -g '!**/*.backup' | head -10
         failed_checks=$((failed_checks + 1))
         return 1
     else
@@ -69,11 +69,12 @@ check_path_format_consistency() {
     echo -e "\n📋 Check 3: Checking path format consistency..."
     total_checks=$((total_checks + 1))
     
-    # Check for consistent relative path formats
+    # Check for consistent relative path formats, excluding documentation
     inconsistent_found=false
     
     # Check for mixed usage of ./ and direct paths
-    if rg -q "\.\/" .claude/ 2>/dev/null && rg -q "src/|lib/|internal/|cmd/|configs/" .claude/ 2>/dev/null; then
+    if rg -q "\\.\/" .claude/ -g '!rules/**' -g '!**/*.backup' 2>/dev/null && \
+       rg -q "src/|lib/|internal/|cmd/|configs/" .claude/ -g '!rules/**' -g '!**/*.backup' 2>/dev/null; then
         print_warning "Found inconsistent path formats (mixed ./ and direct paths)"
         inconsistent_found=true
     fi
@@ -102,7 +103,7 @@ check_sync_content() {
     
     violations_found=false
     for file in $update_files; do
-        if rg -q "/Users/|/home/|C:\\\\" "$file" 2>/dev/null; then
+        if rg -q "/Users/|/home/|C:\\\\\\\\" "$file" 2>/dev/null; then
             print_error "File $file contains absolute paths"
             violations_found=true
         fi
@@ -132,8 +133,6 @@ check_standards_file() {
 }
 
 # Run all checks
-echo "Starting path standards validation..."
-
 check_absolute_paths
 check_user_specific_paths  
 check_path_format_consistency
