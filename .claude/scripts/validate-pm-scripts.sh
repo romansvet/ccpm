@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
 
 # Comprehensive PM script validation tool
@@ -75,7 +75,7 @@ validate_script() {
     # Check 2: Valid shebang line
     local first_line
     first_line=$(head -1 "$script_path")
-    if [[ "$first_line" != "#!/bin/bash" ]]; then
+    if [[ "$first_line" != "#!/usr/bin/env bash" ]]; then
         print_error "Invalid or missing shebang line: '$first_line'"
         ((script_errors++))
     else

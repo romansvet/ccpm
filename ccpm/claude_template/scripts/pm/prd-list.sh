@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Load cross-platform utilities 
 source "$(dirname "$0")/../utils.sh" 2>/dev/null || {

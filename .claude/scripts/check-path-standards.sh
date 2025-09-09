@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Path Standards Validation Script
 # Validates that project documentation follows path format standards

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # CCPM CLI Installer Script
 # One-line installation: curl -sSL https://raw.githubusercontent.com/automazeio/ccpm/main/installer.sh | bash
 

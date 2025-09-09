@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 echo "DAILY STANDUP - $(date '+%Y-%m-%d')"
 echo "================================"

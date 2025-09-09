@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Cross-platform utility functions for CCPM shell scripts
 # This file provides portable implementations of commonly used commands

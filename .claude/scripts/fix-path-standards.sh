@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Path Standards Fix Script
 # Automatically converts absolute paths to relative paths in documentation
