@@ -49,4 +49,4 @@ CLAUDE.md
 # Warp browser agent mapping
 WARP.md
 # Test logs
-tests/*
+tests/**/*.log
