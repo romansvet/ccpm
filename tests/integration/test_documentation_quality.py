@@ -167,9 +167,13 @@ class TestYAMLConfiguration:
         yaml_files = glob.glob(".github/workflows/*.yml")
 
         for yaml_file in yaml_files:
-            with open(yaml_file, "r") as f:
-                lines = f.readlines()
-
+            # Enforce UTF-8 so tests don't depend on OS locale
+            try:
+                with open(yaml_file, "r", encoding="utf-8") as f:
+                    lines = f.readlines()
+            except UnicodeDecodeError as e:
+                pytest.fail(f"{yaml_file} is not valid UTF-8: {e}")                    
+            # Test YAML
             for i, line in enumerate(lines, 1):
                 stripped_line = line.rstrip(" \t")
                 if line != stripped_line and line != stripped_line + "\n":
