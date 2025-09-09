@@ -1,5 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
+
 echo "Getting status..."
 echo ""
 echo ""
