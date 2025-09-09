@@ -148,7 +148,7 @@ class TestPMScriptExecution:
                 first_line = f.readline().strip()
 
             assert (
-                first_line == "#!/bin/bash"
+                first_line == "#!/usr/bin/env bash"
             ), f"Invalid shebang in {script_file.name}: {first_line}"
 
     def test_all_scripts_have_error_handling(self):
