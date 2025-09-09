@@ -106,6 +106,11 @@ else
   epic_type="feature"
 fi
 
+# Ensure labels exist
+gh label create "epic" --force 2>/dev/null || true
+gh label create "epic:$ARGUMENTS" --force 2>/dev/null || true  
+gh label create "$epic_type" --force 2>/dev/null || true
+
 # Create epic issue with labels
 epic_number=$(gh issue create \
   --title "Epic: $ARGUMENTS" \
@@ -147,6 +152,10 @@ if [ "$task_count" -lt 5 ]; then
     # Strip frontmatter from task content
     sed '1,/^---$/d; 1,/^---$/d' "$task_file" > /tmp/task-body.md
 
+    # Ensure labels exist
+    gh label create "task" --force 2>/dev/null || true
+    gh label create "epic:$ARGUMENTS" --force 2>/dev/null || true
+    
     # Create sub-issue with labels
     if [ "$use_subissues" = true ]; then
       task_number=$(gh sub-issue create \
@@ -208,9 +217,13 @@ Task:
     2. Strip frontmatter using: sed '1,/^---$/d; 1,/^---$/d'
     3. Create sub-issue using:
        - If gh-sub-issue available:
+         gh label create "task" --force 2>/dev/null || true
+         gh label create "epic:$ARGUMENTS" --force 2>/dev/null || true
          gh sub-issue create --parent $epic_number --title "$task_name" \
            --body-file /tmp/task-body.md --label "task,epic:$ARGUMENTS"
        - Otherwise:
+         gh label create "task" --force 2>/dev/null || true
+         gh label create "epic:$ARGUMENTS" --force 2>/dev/null || true
          gh issue create --title "$task_name" --body-file /tmp/task-body.md \
            --label "task,epic:$ARGUMENTS"
     4. Record: task_file:issue_number
@@ -272,11 +285,13 @@ while IFS=: read -r task_file task_number; do
 
   # Update frontmatter with GitHub URL and current timestamp
   current_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+  
+  # Use cross-platform sed to update the github and updated fields
+  source .claude/scripts/utils.sh
+  cross_platform_sed_backup "/^github:/c\github: $github_url" "$new_name"
+  cross_platform_sed_backup "/^updated:/c\updated: $current_date" "$new_name"
+  # Backup files are automatically managed by cross_platform_sed_backup
 
-  # Use sed to update the github and updated fields
-  sed -i.bak "/^github:/c\github: $github_url" "$new_name"
-  sed -i.bak "/^updated:/c\updated: $current_date" "$new_name"
-  rm "${new_name}.bak"
 done < /tmp/task-mapping.txt
 ```
 
@@ -316,10 +331,11 @@ repo=$(gh repo view --json nameWithOwner -q .nameWithOwner)
 epic_url="https://github.com/$repo/issues/$epic_number"
 current_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-# Update epic frontmatter
-sed -i.bak "/^github:/c\github: $epic_url" .claude/epics/$ARGUMENTS/epic.md
-sed -i.bak "/^updated:/c\updated: $current_date" .claude/epics/$ARGUMENTS/epic.md
-rm .claude/epics/$ARGUMENTS/epic.md.bak
+# Update epic frontmatter - cross-platform approach
+source .claude/scripts/utils.sh
+cross_platform_sed_backup "/^github:/c\github: $epic_url" .claude/epics/$ARGUMENTS/epic.md
+cross_platform_sed_backup "/^updated:/c\updated: $current_date" .claude/epics/$ARGUMENTS/epic.md
+# Backup files are automatically managed by cross_platform_sed_backup
 ```
 
 #### 5b. Update Tasks Created Section

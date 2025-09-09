@@ -55,12 +55,18 @@ gh issue view {number} --json state,title,labels,body
 ### Create Issue
 ```bash
 # ALWAYS check remote origin first!
+# Ensure labels exist (force create if needed)
+for label in {labels}; do
+  gh label create "$label" --force 2>/dev/null || true
+done
 gh issue create --title "{title}" --body-file {file} --label "{labels}"
 ```
 
 ### Update Issue
 ```bash
 # ALWAYS check remote origin first!
+# Ensure label exists (force create if needed)
+gh label create "{label}" --force 2>/dev/null || true
 gh issue edit {number} --add-label "{label}" --add-assignee @me
 ```
 
