@@ -150,12 +150,17 @@ class TestYAMLConfiguration:
         assert len(yaml_files) > 0, "No YAML workflow files found"
 
         for yaml_file in yaml_files:
+            # Enforce UTF-8 so tests don't depend on OS locale
+            try:
+               with open(yaml_file, "r", encoding="utf-8") as f:
+                text = f.read()
+            except UnicodeDecodeError as e:
+                pytest.fail(f"{yaml_file} is not valid UTF-8: {e}")
             # Test YAML syntax with PyYAML
-            with open(yaml_file, "r") as f:
-                try:
-                    yaml.safe_load(f)
-                except yaml.YAMLError as e:
-                    pytest.fail(f"Invalid YAML syntax in {yaml_file}: {e}")
+            try:
+                yaml.safe_load(text)
+            except yaml.YAMLError as e:
+                pytest.fail(f"Invalid YAML syntax in {yaml_file}: {e}")              
 
     def test_yaml_no_trailing_whitespace(self):
         """Test YAML files have no trailing whitespace."""
