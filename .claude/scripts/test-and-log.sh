@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Script to run tests with automatic log redirection
 # Usage: ./claude/scripts/test-and-log.sh path/to/test.py [optional_log_name.log]

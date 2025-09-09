@@ -1,2 +1,6 @@
 .DS_Store
 CLAUDE.md
+# Warp browser agent mapping
+WARP.md
+# Test logs
+tests/*
